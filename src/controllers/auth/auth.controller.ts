@@ -12,45 +12,43 @@ import { Request } from 'express';
 @ApiBearerAuth()
 @Controller('api/auth')
 export class AuthController {
-
-    constructor(private authService: AuthService){}
+    constructor(private authService: AuthService) {}
 
     @Post('register')
-    @ApiBody({type: RegisterDto})
-    register(@Body() body: RegisterDto): Promise<ServiceResponse>{
+    @ApiBody({ type: RegisterDto })
+    register(@Body() body: RegisterDto): Promise<ServiceResponse> {
         return this.authService.register(body);
     }
 
     @Post('login')
-    @ApiBody({type: LoginRequest})
-    login(@Body() body: LoginRequest): Promise<ServiceResponse>{
+    @ApiBody({ type: LoginRequest })
+    login(@Body() body: LoginRequest): Promise<ServiceResponse> {
         return this.authService.login(body);
     }
 
     @Post('forgotPassword')
-    @ApiBody({type: ForgotPassswordRequest})
-    forgotPassword(@Body() body: ForgotPassswordRequest): Promise<ServiceResponse>{
+    @ApiBody({ type: ForgotPassswordRequest })
+    forgotPassword(@Body() body: ForgotPassswordRequest): Promise<ServiceResponse> {
         return this.authService.forgotPassword(body);
     }
 
     @Post('resetPassword')
-    @ApiBody({type: ResetPasswordRequest})
-    resetPassword(@Body() body: ResetPasswordRequest): Promise<ServiceResponse>{
+    @ApiBody({ type: ResetPasswordRequest })
+    resetPassword(@Body() body: ResetPasswordRequest): Promise<ServiceResponse> {
         return this.authService.resetPassword(body);
     }
 
-    @UseGuards(AuthGuard) // Bảo vệ route bằng JWT Guard
+    @UseGuards(AuthGuard)
     @Post('logout')
     logout(@Req() request: Request): any {
-        const token = request.headers['authorization']; // Lấy token từ request headers
+        const token = request.headers['authorization'];
         if (token) {
             this.authService.addTokenToBlacklist(token);
         }
-
         return { message: 'Logout successful' };
     }
 
-    @UseGuards(AuthGuard) // Bảo vệ route bằng JWT Guard
+    @UseGuards(AuthGuard)
     @Post('change-password')
     changePassword(@Body() request: ChangePasswordRequest): any {
         return this.authService.changePassword(request);
