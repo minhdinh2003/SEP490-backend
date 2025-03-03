@@ -5,12 +5,17 @@ import { CoreService } from 'src/core/core.service';
 import { OrderEntity } from 'src/model/entity/order.entity';
 import { OrderItemRequest } from 'src/model/request/orderItem.request';
 import { PrismaService } from 'src/repo/prisma.service';
+import { PayOSService } from 'src/common/services/payos/PayOS.service' ;
+import { DepositRequest } from 'src/model/request/deposit.request';
+import { OrderInfo } from 'src/model/enum/order.enum';
 
 @Injectable()
 export class OrderService extends BaseService<OrderEntity, Prisma.OrderCreateInput> {
     constructor(
         coreService: CoreService,
-        protected readonly prismaService: PrismaService) {
+        protected readonly prismaService: PrismaService,
+        protected readonly payosService: PayOSService 
+    ) {
         super(prismaService, coreService)
     }
 
@@ -67,16 +72,51 @@ export class OrderService extends BaseService<OrderEntity, Prisma.OrderCreateInp
 
                 return newOrder;
             });
-
-            console.log('Đơn hàng đã được tạo thành công:', order);
-            return order;
+            var deposit = new DepositRequest();
+            deposit.amount = parseInt(order.totalAmount.toString());
+            // get link thanh toán
+            return this.payosService.payOrder(deposit, order)
         } catch (error) {
             console.error('Lỗi khi tạo đơn hàng:', error.message);
             throw error;
         }
     }
-    updateStatus = async (orderId: number, status: OrderStatus) => 
-    {
+    updateStatus = async (orderId: number, status: OrderStatus) => {
+        // Bắt đầu transaction để đảm bảo tính toàn vẹn dữ liệu
+        const result = await this.prismaService.$transaction(async (prisma) => {
+            // Step 1: Cập nhật trạng thái của đơn hàng
+            const updatedOrder = await prisma.order.update({
+                where: { id: orderId },
+                data: {
+                    status: status,
+                    updatedAt: new Date(),
+                },
+            });
 
+            // Step 2: Thêm bản ghi vào bảng OrderHistory
+            const orderHistory = await prisma.orderHistory.create({
+                data: {
+                    orderId: orderId,
+                    status: status,
+                    updatedById: this._authService.getUserID(),
+                    updatedAt: new Date(),
+                },
+            });
+
+            return { updatedOrder, orderHistory };
+        });
+        return result;
+    }
+
+    async processCallback(request: any){
+        return await this.payosService.processReturnURL(request, OrderInfo.Payment);
+    }
+
+    async processCancelURL(request: any){
+        return await this.payosService.processReturnURL(request, OrderInfo.Payment);
+    }
+
+    async processReturnURL(request: any){
+        return await this.payosService.processReturnURL(request, OrderInfo.Payment);
     }
 }
