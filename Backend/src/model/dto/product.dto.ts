@@ -1,9 +1,10 @@
 import { BaseDto } from './base.dto';
 import { ApiProperty } from '@nestjs/swagger';
 import { AutoMap } from '@automapper/classes';
-import { Category, Status } from '@prisma/client';
+import { Category, PartType, Review, Status } from '@prisma/client';
 import { InventoryDto } from './inventory.dto';
 import { BrandDto } from './brand.dto';
+import { ReviewDto } from './review.dto';
 
 export class ProductDto extends BaseDto {
     @ApiProperty()
@@ -92,10 +93,19 @@ export class ProductDto extends BaseDto {
 
     @ApiProperty()
     @AutoMap()
+    address?: string;
+
+    @ApiProperty()
+    @AutoMap()
     promotionId?: number; // ID của chương trình khuyến mãi (tùy chọn)
+
+    @ApiProperty()
+    @AutoMap()
+    partType?: PartType; // ID của chương trình khuyến mãi (tùy chọn)
 
     inventory: InventoryDto;
     brands?: BrandDto[];
+    review?: ReviewDto[];
 
     constructor(partial: Partial<ProductDto>) {
         super();

@@ -1,8 +1,9 @@
 import { BaseEntity } from './base.entity';
-import { Category, Status } from '@prisma/client'; // Giả sử bạn đã định nghĩa enum trong Prisma
+import { Category, PartType, Review, Status } from '@prisma/client'; // Giả sử bạn đã định nghĩa enum trong Prisma
 import { AutoMap } from '@automapper/classes';
 import { InventoryEntity } from './inventory.entity';
 import { BrandEntity } from './brand.entity';
+import { ReviewEntity } from './review.entity';
 
 export class ProductEntity extends BaseEntity {
     id: number; // Khóa chính tự động tăng
@@ -56,10 +57,16 @@ export class ProductEntity extends BaseEntity {
     origin?: string; // Xuất xứ
 
     @AutoMap()
+    address?: string;
+
+    @AutoMap()
     seats?: number; // Số chỗ ngồi
 
     @AutoMap()
     doors?: number; // Số cửa
+
+    @AutoMap()
+    partType?: PartType; // ID của chương trình khuyến mãi (tùy chọn)
 
     lastLogin?: Date; // Thời gian đăng nhập cuối cùng (có thể null)
 
@@ -72,6 +79,8 @@ export class ProductEntity extends BaseEntity {
     brandInfo?: any;
 
     brands?: BrandEntity[];
+
+    review?: ReviewEntity[];
 
     constructor(partial?: Partial<ProductEntity>) {
         super();
