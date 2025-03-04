@@ -7,7 +7,7 @@
 
 */
 -- AlterTable
-ALTER TABLE `promotion` ADD COLUMN `times` INTEGER NOT NULL,
+ALTER TABLE `Promotion` ADD COLUMN `times` INTEGER NOT NULL,
     ADD COLUMN `type` ENUM('BUY', 'REPAIR') NOT NULL DEFAULT 'BUY';
 
 -- CreateIndex
