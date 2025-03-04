@@ -231,7 +231,7 @@ export class BaseRepository<T extends { id: number }, U> {
         }
       });
     } else {
-      query.where = {};
+      query.where = query.where || {};
     }
 
     // Nếu cần bỏ qua filter
