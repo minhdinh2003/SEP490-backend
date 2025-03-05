@@ -1,6 +1,7 @@
 // page-request.dto.ts
 import { ApiProperty } from '@nestjs/swagger';
 import { IsInt } from 'class-validator';
+import { PaymentMethod } from '../enum/payment.enum';
 
 export class OrderItemRequest {
   @ApiProperty()
@@ -11,4 +12,6 @@ export class OrderItemRequest {
   @IsInt()
   quantity: number;
 
+  @ApiProperty()
+  paymentMethod: PaymentMethod.BankOnline;
 }
