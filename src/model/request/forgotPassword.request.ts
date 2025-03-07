@@ -5,6 +5,7 @@ import {
 } from 'class-validator';
 import { Transform } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
+import { StringDecoder } from 'node:string_decoder';
 export class ForgotPassswordRequest {
     @ApiProperty()
     @IsEmail()
@@ -46,4 +47,9 @@ export class ChangePasswordRequest {
     @IsNotEmpty()
     @IsString()
     newPassword: string
+
+    @ApiProperty()
+    @IsNotEmpty()
+    @IsString()
+    confirmPassWord : StringDecoder
 }

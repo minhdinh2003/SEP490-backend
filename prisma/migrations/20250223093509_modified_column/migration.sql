@@ -6,3 +6,4 @@
 */
 -- AlterTable
 ALTER TABLE `Product` MODIFY `price` INTEGER NOT NULL;
+ALTER TABLE `Order` MODIFY `totalAmount` INTEGER NOT NULL;
