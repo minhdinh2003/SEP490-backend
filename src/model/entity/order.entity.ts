@@ -1,6 +1,7 @@
 import { BaseEntity } from './base.entity';
 import { OrderStatus } from '@prisma/client';
 import { AutoMap } from '@automapper/classes';
+import { ProductEntity } from './product.entity';
 
 export class OrderEntity extends BaseEntity {
   id: number; // Khóa chính tự động tăng
@@ -13,6 +14,20 @@ export class OrderEntity extends BaseEntity {
 
   @AutoMap()
   status: OrderStatus; // Trạng thái đơn hàng
+
+  @AutoMap()
+  paymentMethod: number;
+
+  @AutoMap()
+  fullName: string;
+
+  @AutoMap()
+  address: string;
+
+  @AutoMap()
+  phoneNumber: string;
+
+  orderItems: OrderItemEntity[];
 
   constructor(partial?: Partial<OrderEntity>) {
     super();
@@ -39,6 +54,7 @@ export class OrderItemEntity extends BaseEntity {
   @AutoMap()
   price: number; // Giá của sản phẩm tại thời điểm đặt hàng
 
+  product: ProductEntity;
   constructor(partial?: Partial<OrderItemEntity>) {
     super();
     if (partial) {
