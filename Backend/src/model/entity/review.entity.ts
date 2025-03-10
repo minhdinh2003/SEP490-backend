@@ -17,6 +17,9 @@ export class ReviewEntity extends BaseEntity {
   @AutoMap()
   comment?: string; // Nội dung đánh giá (tùy chọn)
 
+  @AutoMap()
+  fullName?: string; // Nội dung đánh giá (tùy chọn)
+
   product?: ProductEntity;
 
   constructor(partial?: Partial<ReviewEntity>) {
