@@ -1,5 +1,5 @@
 // core/services/unit-of-work.service.ts
-import { Injectable, OnModuleDestroy } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, OnModuleDestroy } from '@nestjs/common';
 import { OtpRequest, PrismaClient, Prisma } from '@prisma/client';
 import { UserRepository } from './user.repo';
 import { BaseRepository } from './base.repo';
@@ -54,8 +54,20 @@ export class PrismaService extends PrismaClient implements OnModuleDestroy {
         return this.orderItem;
       case "orderHistory":
         return this.orderHistory;
+      case "promotion":
+        return this.promotion;
+      case "voucher":
+        return this.voucher;
+      case "file":
+        return this.file;
+      case "transaction":
+      return this.transactionHistory;
     }
-    return null;
+    throw new HttpException(
+      'Not config repo',
+      HttpStatus.INTERNAL_SERVER_ERROR
+    );
+
   }
 
 }
