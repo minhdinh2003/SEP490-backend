@@ -41,7 +41,7 @@ export class UsersController extends BaseController<UserEntity, Prisma.UserCreat
     @Post("notification")
     async getNotification(@Body() param: PageRequest) {
         // to-do
-        // return ServiceResponse.onSuccess(await this.usersService.getNotification(param));
+        return ServiceResponse.onSuccess(await this.usersService.getNotification(param));
     }
 
     @Put("notification/:id")
