@@ -10,7 +10,8 @@ import { EntityType, ModelType } from 'src/common/reflect.metadata';
 import { AuthGuard } from 'src/core/auth.guard';
 import { ServiceResponse } from 'src/model/response/service.response';
 import { PageRequest } from 'src/model/request/page.request';
-import { Roles } from 'src/utils/roles.decorator';
+import { hash, compare } from 'bcrypt'
+import { Public } from 'src/utils/public.decorator';
 
 
 @ApiTags('User')
@@ -40,12 +41,18 @@ export class UsersController extends BaseController<UserEntity, Prisma.UserCreat
     @Post("notification")
     async getNotification(@Body() param: PageRequest) {
         // to-do
-        // return ServiceResponse.onSuccess(await this.usersService.getNotification(param));
+        return ServiceResponse.onSuccess(await this.usersService.getNotification(param));
     }
 
     @Put("notification/:id")
     async updateViewNotification(@Param('id') id: number) {
         return ServiceResponse.onSuccess(await this.usersService.updateViewNotification(id));
+    }
+
+    @Public()
+    @Get("test/getHashpass/:password")
+    async getHashPass(@Param('password') password: string) {
+        return ServiceResponse.onSuccess(await hash(password, 10));
     }
 
 

@@ -24,6 +24,10 @@ export class ReviewDto extends BaseDto {
     @AutoMap()
     comment?: string; // Nội dung đánh giá (tùy chọn)
 
+    @ApiProperty()
+    @AutoMap()
+    fullName?: string; // Nội dung đánh giá (tùy chọn)
+
     product?: ProductDto;
 
     constructor(partial?: Partial<ReviewDto>) {
