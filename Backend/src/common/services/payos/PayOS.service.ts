@@ -32,7 +32,13 @@ export class PayOSService {
         this.LinkPayCancel = process.env.LinkCancel;
     }
     async payOrder(request: DepositRequest, order: any): Promise<string> {
-        const id = await this.createTransaction(JSON.stringify(order));
+        const dataOrder = {
+            id: order.id,
+            userId: order.userId,
+            paymentMethod: order.paymentMethod,
+            totalAmount: order.totalAmount
+        }
+        const id = await this.createTransaction(JSON.stringify(dataOrder));
         return this.doPayment({
             orderCode: id,
             amount: (request.amount),
@@ -159,18 +165,6 @@ export class PayOSService {
         return this.LinkPayCoinSuccess;
     }
 
-    private async logPayFailCoin(userId: number, orderId) {
-        await this.prismaService.transactionHistory.create({
-            data: {
-                userId,
-                object: "Coin",
-                description: 'Thanh toán nạp coin thất bại',
-                paymentMethod: PaymentMethod.BankOnline,
-                orderId: orderId
-            }
-
-        });
-    }
 
     private async createTransaction(rawData: string): Promise<number> {
         const transaction = await this.prismaService.transaction.create({
