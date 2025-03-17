@@ -1,6 +1,7 @@
 // core/services/base.service.ts
 import { Role } from "@prisma/client";
 import { HttpContextService } from "src/common/services/http-context.service";
+import { NotificationService } from "src/common/services/notification.service";
 import { CoreService } from "src/core/core.service";
 import { Notification } from "src/model/entity/notification.entity";
 import { PageRequest } from "src/model/request/page.request";
@@ -12,7 +13,7 @@ export class BaseService<T extends { id: number }, K> {
   protected readonly _mapperService;
   protected readonly _emailService;
   protected readonly _authService: HttpContextService;
-
+  protected readonly _notificationService: NotificationService;
   protected repository: any;
   protected readonly entityFactory: new () => K;
   constructor(
@@ -21,7 +22,7 @@ export class BaseService<T extends { id: number }, K> {
     this._mapperService = coreService.getMapperSerivce();
     this._emailService = coreService.getEmailService();
     this._authService = coreService.getAuthService();
-  
+    this._notificationService = coreService.getNotificationService();
   }
 
   setRepo(modelName: string) {
@@ -89,13 +90,13 @@ export class BaseService<T extends { id: number }, K> {
   async updateMultiple(updates: { id: number, model: Partial<T> }[]): Promise<number> {
     const me = this;
     const updatePromises = updates.map(update => {
-        return this.repository.update( update.id, update.model, me.getMoreUpdateData());
+      return this.repository.update(update.id, update.model, me.getMoreUpdateData());
     });
-    
+
     // Thực thi tất cả các cập nhật cùng lúc
     const results = await Promise.all(updatePromises);
     return results.length; // Trả về số lượng bản ghi đã cập nhật thành công
-}
+  }
 
   // Lấy dữ liệu phân trang
   async getPaging(pageRequest: PageRequest): Promise<PageResult<T>> {
@@ -126,6 +127,7 @@ export class BaseService<T extends { id: number }, K> {
     };
   }
 
+
   //#region  Notificaiton
   async pushNotification(
     receiveId: number,
@@ -134,30 +136,30 @@ export class BaseService<T extends { id: number }, K> {
     createdBy: string,
     senderID: number,
   ): Promise<boolean> {
-    const notification= new Notification();
-    // notification.receiveId = receiveId;
-    // notification.type = type;
-    // notification.rawData = rawData;
-    // notification.createdAt = new Date();
-    // notification.updatedAt = new Date();
-    // notification.createdBy = createdBy;
-    // notification.updatedBy = createdBy;
-    // notification.senderId = senderID;
-    // notification.senderName = createdBy;
-    // notification.isViewed = false;
+    const notification = new Notification();
+    notification.receiveId = receiveId;
+    notification.type = type;
+    notification.rawData = rawData;
+    notification.createdAt = new Date();
+    notification.updatedAt = new Date();
+    notification.createdBy = createdBy;
+    notification.updatedBy = createdBy;
+    notification.senderId = senderID;
+    notification.senderName = createdBy;
+    notification.isViewed = false;
 
-    // this.beforePushNotification(notification);
-    // const path = this.getPathPushNotification(notification);
+    this.beforePushNotification(notification);
+    const path = this.getPathPushNotification(notification);
 
-    // const notificationData = await this.prismaService.notification.create({
-    //   data: {
-    //     ...notification
-    //   }
-    // });
-    // notification.id = notificationData.id;
-    // await this._notificationService.pushNotification(notification, path);
+    const notificationData = await this.prismaService.notification.create({
+      data: {
+        ...notification
+      }
+    });
+    notification.id = notificationData.id;
+    await this._notificationService.pushNotification(notification, path);
 
-    // this.afterPushNotification(notification);
+    this.afterPushNotification(notification);
 
     return true;
   }
@@ -172,6 +174,23 @@ export class BaseService<T extends { id: number }, K> {
     if (adminUsers && adminUsers.length > 0) {
       await Promise.all(
         adminUsers.map((user) =>
+          this.pushNotification(user.id, type, rawData, createdBy, senderID),
+        ),
+      );
+    }
+    return true;
+  }
+
+  async pushNotificationToProductOnwer(
+    type: string,
+    rawData: string,
+    createdBy: string,
+    senderID: number,
+  ): Promise<boolean> {
+    const users = await this.prismaService.userRepo.getUserByRole(Role.OWNER);
+    if (users && users.length > 0) {
+      await Promise.all(
+        users.map((user) =>
           this.pushNotification(user.id, type, rawData, createdBy, senderID),
         ),
       );

@@ -18,6 +18,10 @@ import { PromotionModule } from './controllers/promotion/promotion.module';
 import { VoucherModule } from './controllers/voucher/voucher.module';
 import { FilesModule } from './controllers/file/files.module';
 import { TransactionModule } from './controllers/transaction/transaction.module';
+import { RequestModule } from './controllers/request/request.module';
+import { RequestHistoryModule } from './controllers/requestHistory/requestHistory.module';
+import { ChatModule } from './controllers/chat/chat.module';
+import { TaskDetailModule } from './controllers/taskDetail/taskDetail.module';
 
 @Module({
   imports: [
@@ -35,7 +39,11 @@ import { TransactionModule } from './controllers/transaction/transaction.module'
     PromotionModule,
     VoucherModule,
     FilesModule,
-    TransactionModule
+    TransactionModule,
+    RequestModule,
+    RequestHistoryModule,
+    ChatModule,
+    TaskDetailModule
   ],
   controllers: [AppController],
   providers: [AppService,

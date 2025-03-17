@@ -28,6 +28,14 @@ import { VoucherDto } from 'src/model/dto/voucher.dto';
 import { VoucherEntity } from 'src/model/entity/voucher.entity';
 import { TransactionDto } from 'src/model/dto/transaction.dto';
 import { TransactionEntity } from 'src/model/entity/transaction.entity';
+import { RequestDto } from 'src/model/dto/request.dto';
+import { RequestEntity } from 'src/model/entity/request.entity';
+import { RequestHistoryDto } from 'src/model/dto/requestHistory.dto';
+import { RequestHistoryEntity } from 'src/model/entity/requestHistory.entity';
+import { ChatEntity } from 'src/model/entity/chat.entity';
+import { ChatDto } from 'src/model/dto/chat.dto';
+import { TaskDetailEntity } from 'src/model/entity/taskDetail.entity';
+import { TaskDetailDto } from 'src/model/dto/taskDetail.dto';
 
 @Injectable()
 export class MapperService {
@@ -75,7 +83,9 @@ export class MapperService {
         mapFrom((src) => src.gender)
       ),
     );
-    createMap(this.mapper, Notification, NotificationDto);
+    createMap(this.mapper, Notification, NotificationDto,
+      forMember((dest) => dest.createdAt, mapFrom((src) => src.createdAt))
+    );
     createMap(this.mapper, NotificationDto, Notification);
     createMap(this.mapper, BrandDto, BrandEntity);
     createMap(this.mapper, BrandEntity, BrandDto);
@@ -201,7 +211,7 @@ export class MapperService {
       forMember((dest) => dest.paymentMethod, mapFrom((src) => src.paymentMethod)),
       forMember((dest) => dest.createdAt, mapFrom((src) => src.createdAt)),
       forMember((dest) => dest.updatedAt, mapFrom((src) => src.updatedAt)),
-     );
+    );
     createMap(this.mapper, OrderItemDto, OrderItemEntity);
     createMap(this.mapper, OrderItemEntity, OrderItemDto,
       forMember((dest) => dest.id, mapFrom((src) => src.id)),
@@ -279,6 +289,26 @@ export class MapperService {
         mapFrom((src) => src.usedCount)
       ),
     );
+    createMap(this.mapper,RequestDto, RequestEntity);
+    createMap(this.mapper, RequestEntity, RequestDto, 
+      forMember((dest) => dest.userId, mapFrom((src) => src.userId)),
+      forMember((dest) => dest.approvedId, mapFrom((src) => src.approvedId)),
+      forMember((dest) => dest.price, mapFrom((src) => src.price)),
+      forMember((dest) => dest.id, mapFrom((src) => src.id)),
+      forMember((dest) => dest.status, mapFrom((src) => src.status)),
+      forMember((dest) => dest.user, mapFrom((src) => src.user)),
+      forMember((dest) => dest.isUserConfirm, mapFrom((src) => src.isUserConfirm)),
+      forMember((dest) => dest.createdAt, mapFrom((src) => src.createdAt))
+    );
+    createMap(this.mapper, RequestHistoryDto, RequestHistoryEntity);
+    createMap(this.mapper, RequestHistoryEntity, RequestHistoryDto);
+    createMap(this.mapper, ChatEntity, ChatDto,
+      forMember((dest) => dest.sender, mapFrom((src) => src.sender)),
+      forMember((dest) => dest.request, mapFrom((src) => src.request))
+    );
+    createMap(this.mapper, ChatDto, ChatEntity);
+    createMap(this.mapper, TaskDetailDto, TaskDetailEntity);
+    createMap(this.mapper, TaskDetailEntity, TaskDetailDto);
   }
 
   mapData<S, D>(source: S, sourceClass: new (...args: unknown[]) => S, destinationClass: new (...args: unknown[]) => D): D {
