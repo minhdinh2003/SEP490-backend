@@ -40,17 +40,17 @@ export class ProductService extends BaseService<ProductEntity, Prisma.ProductCre
         return Number(result.id);
     }
 
-    // async update(id: number, model: Partial<ProductEntity>): Promise<boolean> {
-    //     var brandInfo = {
-    //         ...model.brandInfo
-    //     }
-    //     delete model.brandInfo;
-    //     await this.repository.update(id, {
-    //         ...model,
-    //         brands: {
-    //             ...brandInfo
-    //         }
-    //     }, this.getMoreUpdateData());
-    //     return true;
-    //   }
+    async update(id: number, model: Partial<ProductEntity>): Promise<boolean> {
+        var brandInfo = {
+            ...model.brandInfo
+        }
+        delete model.brandInfo;
+        await this.repository.update(id, {
+            ...model,
+            brands: {
+                ...brandInfo
+            }
+        }, this.getMoreUpdateData());
+        return true;
+      }
 }
