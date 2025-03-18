@@ -15,11 +15,11 @@ export class ProductController extends BaseController<ProductEntity, Prisma.Prod
     @EntityType(ProductEntity)
     entity: ProductEntity;
 
-    @ModelType(ProductDto)
-    model: ProductDto;
-    constructor(private productService: ProductService, coreSevice: CoreService) {
-        super("product", coreSevice, productService);
-    }
+    // @ModelType(ProductDto)
+    // model: ProductDto;
+    // constructor(private productService: ProductService, coreSevice: CoreService) {
+    //     super("product", coreSevice, productService);
+    // }
 
     @Post("test")
     @ApiBody({ type: ProductDto })
