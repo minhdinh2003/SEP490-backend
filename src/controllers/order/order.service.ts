@@ -3,11 +3,12 @@ import { OrderStatus, Prisma } from '@prisma/client';
 import { BaseService } from 'src/base/base.service';
 import { CoreService } from 'src/core/core.service';
 import { OrderEntity } from 'src/model/entity/order.entity';
-import { OrderItemRequest } from 'src/model/request/orderItem.request';
+import { CreateOrderRequest, OrderItemRequest } from 'src/model/request/orderItem.request';
 import { PrismaService } from 'src/repo/prisma.service';
 import { PayOSService } from 'src/common/services/payos/PayOS.service' ;
 import { DepositRequest } from 'src/model/request/deposit.request';
 import { OrderInfo } from 'src/model/enum/order.enum';
+import { PaymentMethod } from 'src/model/enum/payment.enum';
 
 @Injectable()
 export class OrderService extends BaseService<OrderEntity, Prisma.OrderCreateInput> {
@@ -19,9 +20,11 @@ export class OrderService extends BaseService<OrderEntity, Prisma.OrderCreateInp
         super(prismaService, coreService)
     }
 
-    createOrder = async ( orderItems: OrderItemRequest[])  => {
+    createOrder = async ( request: CreateOrderRequest)  => {
+        var orderItems = request.orderItems;
         var userId = this._authService.getUserID();
         try {
+            let paymentMethod = request.orderItems[0].paymentMethod;
             // Bắt đầu transaction để đảm bảo tính toàn vẹn dữ liệu
             const order = await this.prismaService.$transaction(async (prisma) => {
                 // Step 1: Kiểm tra số lượng sản phẩm trong kho
@@ -51,7 +54,10 @@ export class OrderService extends BaseService<OrderEntity, Prisma.OrderCreateInp
                     data: {
                         userId,
                         totalAmount,
-                        status: 'PENDING',
+                        status: paymentMethod == PaymentMethod.BankOnline ?  'PENDING' : 'PROCESSING',
+                        fullName: request.fullName,
+                        address: request.address,
+                        phoneNumber: request.phoneNumber,
                         orderItems: {
                             create: orderItems.map((item) => ({
                                 productId: item.productId,
@@ -72,10 +78,15 @@ export class OrderService extends BaseService<OrderEntity, Prisma.OrderCreateInp
 
                 return newOrder;
             });
-            var deposit = new DepositRequest();
-            deposit.amount = parseInt(order.totalAmount.toString());
-            // get link thanh toán
-            return this.payosService.payOrder(deposit, order)
+            if (paymentMethod == PaymentMethod.BankOnline){
+                var deposit = new DepositRequest();
+                deposit.amount = parseInt(order.totalAmount.toString());
+                // get link thanh toán
+                return this.payosService.payOrder(deposit, order)
+            }else {
+                return process.env.LinkPayCoinSuccess;
+            }
+            
         } catch (error) {
             console.error('Lỗi khi tạo đơn hàng:', error.message);
             throw error;
@@ -86,7 +97,7 @@ export class OrderService extends BaseService<OrderEntity, Prisma.OrderCreateInp
         const result = await this.prismaService.$transaction(async (prisma) => {
             // Step 1: Cập nhật trạng thái của đơn hàng
             const updatedOrder = await prisma.order.update({
-                where: { id: orderId },
+                where: { id: orderId},
                 data: {
                     status: status,
                     updatedAt: new Date(),
