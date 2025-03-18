@@ -35,33 +35,33 @@ export class FilesController {
     return ServiceResponse.onSuccess(result);
   }
 
-  @Post('move')
-  @ApiBody({ schema: { type: 'object', properties: { fileIds: { type: 'array', items: { type: 'number' } } } } })
-  async moveFilesToMain(@Body('fileIds') fileIds: number[]) {
-    if (!fileIds || !Array.isArray(fileIds) || fileIds.length === 0) {
-      throw new HttpException('No file IDs provided', HttpStatus.BAD_REQUEST);
-    }
-    const result = await this.service.moveFilesToMain(fileIds);
-    if (result) {
-      return { message: 'Files moved successfully', success: true };
-    } else {
-      throw new HttpException('Error moving files', HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-  }
+  // @Post('move')
+  // @ApiBody({ schema: { type: 'object', properties: { fileIds: { type: 'array', items: { type: 'number' } } } } })
+  // async moveFilesToMain(@Body('fileIds') fileIds: number[]) {
+  //   if (!fileIds || !Array.isArray(fileIds) || fileIds.length === 0) {
+  //     throw new HttpException('No file IDs provided', HttpStatus.BAD_REQUEST);
+  //   }
+  //   const result = await this.service.moveFilesToMain(fileIds);
+  //   if (result) {
+  //     return { message: 'Files moved successfully', success: true };
+  //   } else {
+  //     throw new HttpException('Error moving files', HttpStatus.INTERNAL_SERVER_ERROR);
+  //   }
+  // }
 
-  @Delete('')
-  @ApiBody({ schema: { type: 'object', properties: { fileIds: { type: 'array', items: { type: 'number' } } } } })
-  async deleteFiles(@Body('fileIds') fileIds: number[]) {
-    if (!fileIds || !Array.isArray(fileIds) || fileIds.length === 0) {
-      throw new HttpException('No file IDs provided', HttpStatus.BAD_REQUEST);
-    }
-    const result = await this.service.deleteFiles(fileIds);
-    if (result) {
-      return { message: 'Files deleted successfully', success: true };
-    } else {
-      throw new HttpException('Error deleting files', HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-  }
+  // @Delete('')
+  // @ApiBody({ schema: { type: 'object', properties: { fileIds: { type: 'array', items: { type: 'number' } } } } })
+  // async deleteFiles(@Body('fileIds') fileIds: number[]) {
+  //   if (!fileIds || !Array.isArray(fileIds) || fileIds.length === 0) {
+  //     throw new HttpException('No file IDs provided', HttpStatus.BAD_REQUEST);
+  //   }
+  //   const result = await this.service.deleteFiles(fileIds);
+  //   if (result) {
+  //     return { message: 'Files deleted successfully', success: true };
+  //   } else {
+  //     throw new HttpException('Error deleting files', HttpStatus.INTERNAL_SERVER_ERROR);
+  //   }
+  // }
 
 
 }
