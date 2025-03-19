@@ -30,6 +30,7 @@ export class BaseController<TEntity extends {id: number}, TModel> {
     }
 
     @Get(':id')
+    @Public()
     async getById(@Param('id') id: number): Promise<ServiceResponse> {
         var data = await this.baseService.getOne({
             id: id
@@ -39,6 +40,7 @@ export class BaseController<TEntity extends {id: number}, TModel> {
     }
 
     @Post(':id/reference')
+    @Public()
     async GetDetail(@Param('id') id: number, @Body() includeReferences: { [key: string]: boolean } = {} ): Promise<ServiceResponse> {
         var data = await this.baseService.getOneAndReference({
             id: id
