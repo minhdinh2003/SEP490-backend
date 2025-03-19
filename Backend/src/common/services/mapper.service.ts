@@ -22,6 +22,20 @@ import { ReviewDto } from 'src/model/dto/review.dto';
 import { ReviewEntity } from 'src/model/entity/review.entity';
 import { OrderDto, OrderHistoryDto, OrderItemDto } from 'src/model/dto/order.dto';
 import { OrderEntity, OrderHistoryEntity, OrderItemEntity } from 'src/model/entity/order.entity';
+import { PromotionDto } from 'src/model/dto/promotion.dto';
+import { PromotionEntity } from 'src/model/entity/promotion.entity';
+import { VoucherDto } from 'src/model/dto/voucher.dto';
+import { VoucherEntity } from 'src/model/entity/voucher.entity';
+import { TransactionDto } from 'src/model/dto/transaction.dto';
+import { TransactionEntity } from 'src/model/entity/transaction.entity';
+import { RequestDto } from 'src/model/dto/request.dto';
+import { RequestEntity } from 'src/model/entity/request.entity';
+import { RequestHistoryDto } from 'src/model/dto/requestHistory.dto';
+import { RequestHistoryEntity } from 'src/model/entity/requestHistory.entity';
+import { ChatEntity } from 'src/model/entity/chat.entity';
+import { ChatDto } from 'src/model/dto/chat.dto';
+import { TaskDetailEntity } from 'src/model/entity/taskDetail.entity';
+import { TaskDetailDto } from 'src/model/dto/taskDetail.dto';
 
 @Injectable()
 export class MapperService {
@@ -48,7 +62,9 @@ export class MapperService {
     );
     createMap(this.mapper, UserEntity, RegisterResponse);
     createMap(this.mapper, UserEntity, UserDto,
-      forMember((dest) => dest.gender, mapFrom((src) => src.gender))
+      forMember((dest) => dest.gender, mapFrom((src) => src.gender)),
+      forMember((dest) => dest.role, mapFrom((src) => src.role)),
+      forMember((dest) => dest.id, mapFrom((src) => src.id))
 
     );
     createMap(this.mapper, UserDto, UserEntity);
@@ -57,10 +73,19 @@ export class MapperService {
       forMember(
         (dest) => dest.id,
         mapFrom((src) => src.id)
-      )
-
+      ),
+      forMember(
+        (dest) => dest.role,
+        mapFrom((src) => src.role)
+      ),
+      forMember(
+        (dest) => dest.gender,
+        mapFrom((src) => src.gender)
+      ),
     );
-    createMap(this.mapper, Notification, NotificationDto);
+    createMap(this.mapper, Notification, NotificationDto,
+      forMember((dest) => dest.createdAt, mapFrom((src) => src.createdAt))
+    );
     createMap(this.mapper, NotificationDto, Notification);
     createMap(this.mapper, BrandDto, BrandEntity);
     createMap(this.mapper, BrandEntity, BrandDto);
@@ -97,6 +122,26 @@ export class MapperService {
       forMember(
         (dest) => dest.brands,
         mapFrom((src) => src.brands)
+      ),
+      forMember(
+        (dest) => dest.category,
+        mapFrom((src) => src.category)
+      ),
+      forMember(
+        (dest) => dest.status,
+        mapFrom((src) => src.status)
+      ),
+      forMember(
+        (dest) => dest.listImage,
+        mapFrom((src) => src.listImage)
+      ),
+      forMember(
+        (dest) => dest.partType,
+        mapFrom((src) => src.partType)
+      ),
+      forMember(
+        (dest) => dest.review,
+        mapFrom((src) => src.review)
       )
     );
     createMap(this.mapper, InventoryDto, InventoryEntity);
@@ -125,20 +170,56 @@ export class MapperService {
         mapFrom((src) => src.product)
       )
     );
-
     createMap(this.mapper, OrderDto, OrderEntity);
+    createMap(this.mapper, OrderEntity, OrderDto,
+      forMember(
+        (dest) => dest.status,
+        mapFrom((src) => src.status)
+      ),
+      forMember(
+        (dest) => dest.id,
+        mapFrom((src) => src.id)
+      ),
+      forMember(
+        (dest) => dest.userId,
+        mapFrom((src) => src.userId)
+      ),
+      forMember(
+        (dest) => dest.totalAmount,
+        mapFrom((src) => src.totalAmount)
+      ),
+      forMember(
+        (dest) => dest.orderItems,
+        mapFrom((src) => src.orderItems)
+      ),
+      forMember(
+        (dest) => dest.paymentMethod,
+        mapFrom((src) => src.paymentMethod)
+      )
+    )
     createMap(this.mapper, ReviewEntity, OrderDto,
       forMember(
         (dest) => dest.id,
         mapFrom((src) => src.id)
       )
     );
+    createMap(this.mapper, TransactionDto, TransactionEntity);
+    createMap(this.mapper, TransactionEntity, TransactionDto,
+      forMember((dest) => dest.id, mapFrom((src) => src.id)),
+      forMember((dest) => dest.orderId, mapFrom((src) => src.orderId)),
+      forMember((dest) => dest.userId, mapFrom((src) => src.userId)),
+      forMember((dest) => dest.paymentMethod, mapFrom((src) => src.paymentMethod)),
+      forMember((dest) => dest.createdAt, mapFrom((src) => src.createdAt)),
+      forMember((dest) => dest.updatedAt, mapFrom((src) => src.updatedAt)),
+    );
     createMap(this.mapper, OrderItemDto, OrderItemEntity);
     createMap(this.mapper, OrderItemEntity, OrderItemDto,
-      forMember(
-        (dest) => dest.id,
-        mapFrom((src) => src.id)
-      )
+      forMember((dest) => dest.id, mapFrom((src) => src.id)),
+      forMember((dest) => dest.orderId, mapFrom((src) => src.orderId)),
+      forMember((dest) => dest.productId, mapFrom((src) => src.productId)),
+      forMember((dest) => dest.quantity, mapFrom((src) => src.quantity)),
+      forMember((dest) => dest.price, mapFrom((src) => src.price)),
+      forMember((dest) => dest.product, mapFrom((src) => src.product)),
     );
     createMap(this.mapper, OrderHistoryDto, OrderHistoryEntity);
     createMap(this.mapper, OrderHistoryEntity, OrderHistoryDto,
@@ -162,6 +243,72 @@ export class MapperService {
         mapFrom((src) => src.product)
       )
     );
+    createMap(this.mapper, PromotionDto, PromotionEntity);
+    createMap(this.mapper, PromotionEntity, PromotionDto,
+      forMember(
+        (dest) => dest.id,
+        mapFrom((src) => src.id)
+      ),
+      forMember(
+        (dest) => dest.productId,
+        mapFrom((src) => src.productId)
+      ),
+      forMember(
+        (dest) => dest.discount,
+        mapFrom((src) => src.discount)
+      ),
+      forMember(
+        (dest) => dest.type,
+        mapFrom((src) => src.type)
+      ),
+      forMember(
+        (dest) => dest.times,
+        mapFrom((src) => src.times)
+      ),
+    );
+    createMap(this.mapper, VoucherDto, VoucherEntity);
+    createMap(this.mapper, VoucherEntity, VoucherDto,
+      forMember(
+        (dest) => dest.id,
+        mapFrom((src) => src.id)
+      ),
+      forMember(
+        (dest) => dest.promotionId,
+        mapFrom((src) => src.promotionId)
+      ),
+      forMember(
+        (dest) => dest.discount,
+        mapFrom((src) => src.discount)
+      ),
+      forMember(
+        (dest) => dest.usageLimit,
+        mapFrom((src) => src.usageLimit)
+      ),
+      forMember(
+        (dest) => dest.usedCount,
+        mapFrom((src) => src.usedCount)
+      ),
+    );
+    createMap(this.mapper,RequestDto, RequestEntity);
+    createMap(this.mapper, RequestEntity, RequestDto, 
+      forMember((dest) => dest.userId, mapFrom((src) => src.userId)),
+      forMember((dest) => dest.approvedId, mapFrom((src) => src.approvedId)),
+      forMember((dest) => dest.price, mapFrom((src) => src.price)),
+      forMember((dest) => dest.id, mapFrom((src) => src.id)),
+      forMember((dest) => dest.status, mapFrom((src) => src.status)),
+      forMember((dest) => dest.user, mapFrom((src) => src.user)),
+      forMember((dest) => dest.isUserConfirm, mapFrom((src) => src.isUserConfirm)),
+      forMember((dest) => dest.createdAt, mapFrom((src) => src.createdAt))
+    );
+    createMap(this.mapper, RequestHistoryDto, RequestHistoryEntity);
+    createMap(this.mapper, RequestHistoryEntity, RequestHistoryDto);
+    createMap(this.mapper, ChatEntity, ChatDto,
+      forMember((dest) => dest.sender, mapFrom((src) => src.sender)),
+      forMember((dest) => dest.request, mapFrom((src) => src.request))
+    );
+    createMap(this.mapper, ChatDto, ChatEntity);
+    createMap(this.mapper, TaskDetailDto, TaskDetailEntity);
+    createMap(this.mapper, TaskDetailEntity, TaskDetailDto);
   }
 
   mapData<S, D>(source: S, sourceClass: new (...args: unknown[]) => S, destinationClass: new (...args: unknown[]) => D): D {
