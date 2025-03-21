@@ -10,7 +10,7 @@ import { ReviewDto } from 'src/model/dto/review.dto';
 
 @ApiTags('Review')
 @Controller('api/review')
-export class WhitelistController extends BaseController<ReviewEntity, Prisma.ReviewCreateInput> {
+export class ReviewController extends BaseController<ReviewEntity, Prisma.ReviewCreateInput> {
     @EntityType(ReviewEntity)
     entity: ReviewEntity;
 
