@@ -9,9 +9,11 @@ import { RequestEntity } from 'src/model/entity/request.entity';
 import { RequestDto } from 'src/model/dto/request.dto';
 import { ServiceResponse } from 'src/model/response/service.response';
 import { UpdateRequestStatusRequest } from 'src/model/request/updateStatusRequest.request';
+import { AuthGuard } from 'src/core/auth.guard';
 
 @ApiTags('Request')
 @Controller('api/request')
+@UseGuards(AuthGuard)
 export class RequestController extends BaseController<RequestEntity, Prisma.RequestCreateInput> {
     @EntityType(RequestEntity)
     entity: RequestEntity;
@@ -32,6 +34,11 @@ export class RequestController extends BaseController<RequestEntity, Prisma.Requ
     @ApiBody({type: UpdateRequestStatusRequest})
     async updateRequest(@Param('requestId') requestId: number, @Body() param: UpdateRequestStatusRequest): Promise<ServiceResponse> {
         return ServiceResponse.onSuccess(await this.service.updateRequestStatus(requestId, param));
+    }
+
+    @Put("confirm/:requestId")
+    async confirm(@Param('requestId') requestId: number): Promise<ServiceResponse> {
+        return ServiceResponse.onSuccess(await this.service.confirm(requestId));
     }
 
 }

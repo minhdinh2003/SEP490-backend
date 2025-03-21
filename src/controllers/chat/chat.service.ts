@@ -26,14 +26,18 @@ export class ChatService extends BaseService<ChatEntity, Prisma.ChatCreateInput>
         if (request.userId != userId) {
             await this.pushNotification(request.userId, NotificationType.PRODUCT_OWNER_CHAT_REQUEST,
                 JSON.stringify({
-                    id
+                    id,
+                    requestId: request.id,
+                    message: entity.message
                 }),
                 this._authService.getFullname(), this._authService.getUserID()
             )
         } else {
             await this.pushNotificationToProductOnwer(NotificationType.USER_CHAT_REQUEST,
                 JSON.stringify({
-                    id
+                    id,
+                    requestId: request.id,
+                    message: entity.message
                 }),
                 this._authService.getFullname(), this._authService.getUserID()
             )

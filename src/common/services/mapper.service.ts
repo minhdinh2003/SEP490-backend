@@ -289,8 +289,8 @@ export class MapperService {
         mapFrom((src) => src.usedCount)
       ),
     );
-    createMap(this.mapper,RequestDto, RequestEntity);
-    createMap(this.mapper, RequestEntity, RequestDto, 
+    createMap(this.mapper, RequestDto, RequestEntity);
+    createMap(this.mapper, RequestEntity, RequestDto,
       forMember((dest) => dest.userId, mapFrom((src) => src.userId)),
       forMember((dest) => dest.approvedId, mapFrom((src) => src.approvedId)),
       forMember((dest) => dest.price, mapFrom((src) => src.price)),
@@ -298,7 +298,8 @@ export class MapperService {
       forMember((dest) => dest.status, mapFrom((src) => src.status)),
       forMember((dest) => dest.user, mapFrom((src) => src.user)),
       forMember((dest) => dest.isUserConfirm, mapFrom((src) => src.isUserConfirm)),
-      forMember((dest) => dest.createdAt, mapFrom((src) => src.createdAt))
+      forMember((dest) => dest.createdAt, mapFrom((src) => src.createdAt)),
+      forMember((dest) => dest.images, mapFrom((src) => src.images)),
     );
     createMap(this.mapper, RequestHistoryDto, RequestHistoryEntity);
     createMap(this.mapper, RequestHistoryEntity, RequestHistoryDto);
@@ -308,7 +309,16 @@ export class MapperService {
     );
     createMap(this.mapper, ChatDto, ChatEntity);
     createMap(this.mapper, TaskDetailDto, TaskDetailEntity);
-    createMap(this.mapper, TaskDetailEntity, TaskDetailDto);
+    createMap(this.mapper, TaskDetailEntity, TaskDetailDto,
+      forMember((dest) => dest.requestId, mapFrom((src) => src.requestId)),
+      forMember((dest) => dest.assignedTo, mapFrom((src) => src.assignedTo)),
+      forMember((dest) => dest.status, mapFrom((src) => src.status)),
+      forMember((dest) => dest.id, mapFrom((src) => src.id)),
+      forMember((dest) => dest.images, mapFrom((src) => src.images)),
+      forMember((dest) => dest.comments, mapFrom((src) => src.comments)),
+      forMember((dest) => dest.createdAt, mapFrom((src) => src.createdAt)),
+      forMember((dest) => dest.assignee, mapFrom((src) => src.assignee)),
+    );
   }
 
   mapData<S, D>(source: S, sourceClass: new (...args: unknown[]) => S, destinationClass: new (...args: unknown[]) => D): D {

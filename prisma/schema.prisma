@@ -78,7 +78,6 @@ model User {
   review            Review[]
   order             Order[]
   orderHistory      OrderHistory[]
-  task              Task[]
   notification      Notification[]
   Request           Request[]
   RequestHistory    RequestHistory[]
@@ -298,20 +297,6 @@ model Voucher {
   @@index([promotionId]) // Tạo chỉ mục để tối ưu hóa truy vấn theo promotionId
 }
 
-model Task {
-  id           Int          @id @default(autoincrement()) // Khóa chính tự động tăng
-  title        String       @db.VarChar(255) // Tiêu đề nhiệm vụ
-  description  String?      @db.Text // Mô tả nhiệm vụ (tùy chọn)
-  status       TaskStatus   @default(PENDING) // Trạng thái nhiệm vụ
-  assignedTo   User?        @relation(fields: [assignedToId], references: [id]) // Người được giao nhiệm vụ
-  assignedToId Int? // ID của người được giao nhiệm vụ (tùy chọn)
-  createdAt    DateTime     @default(now()) // Thời gian tạo
-  updatedAt    DateTime     @updatedAt // Thời gian cập nhật
-  createdBy    String?      @db.VarChar(100) // Người tạo (có thể null)
-  updatedBy    String?      @db.VarChar(100) // Người cập nhật (có thể null)
-  taskDetails  TaskDetail[] // Liên kết với bảng TaskDetail
-}
-
 // Định nghĩa enum cho trạng thái nhiệm vụ
 enum TaskStatus {
   PENDING // Đang chờ xử lý
@@ -445,19 +430,19 @@ model TaskDetail {
   requestId   Int // Liên kết với bảng Request
   assignedTo  Int? // ID của người được giao task (liên kết với bảng User)
   description String     @db.Text // Mô tả chi tiết task
+  title       String?    @db.Text
   status      TaskStatus @default(PENDING) // Trạng thái task
   deadline    DateTime? // Thời hạn hoàn thành task
   images      Json? // Danh sách hình ảnh (JSON array)
   comments    Json? // Danh sách bình luận (JSON array)
   createdAt   DateTime   @default(now()) // Thời gian tạo
   updatedAt   DateTime   @updatedAt // Thời gian cập nhật
-
-  request  Request @relation(fields: [requestId], references: [id]) // Quan hệ với bảng Request
-  assignee User?   @relation(fields: [assignedTo], references: [id]) // Quan hệ với bảng User
+  createdBy   String?
+  updatedBy   String?
+  request     Request    @relation(fields: [requestId], references: [id]) // Quan hệ với bảng Request
+  assignee    User?      @relation(fields: [assignedTo], references: [id]) // Quan hệ với bảng User
 
   history TaskHistory[] // Lịch sử thay đổi task
-  Task    Task?         @relation(fields: [taskId], references: [id])
-  taskId  Int?
 
   @@index([requestId]) // Tạo chỉ mục để tối ưu hóa truy vấn theo requestId
   @@index([assignedTo]) // Tạo chỉ mục để tối ưu hóa truy vấn theo assignedTo

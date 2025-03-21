@@ -4,6 +4,10 @@ export class NotificationType {
     static readonly PRODUCT_OWNER_REJECT_REQUEST = "PRODUCT_OWNER_REJECT_REQUEST";
     static readonly PRODUCT_OWNER_DONE_REQUEST = "PRODUCT_OWNER_DONE_REQUEST";
     static readonly PRODUCT_OWNER_CHAT_REQUEST = "PRODUCT_OWNER_CHAT_REQUEST";
+    static readonly USER_CONFIRM_REQUEST = "USER_CONFIRM_REQUEST";
     static readonly USER_CHAT_REQUEST = "USER_CHAT_REQUEST";
+    static readonly AMIN_ASSIGN_TASK = "AMIN_ASSIGN_TASK";
+    static readonly DONE_REQUEST = "DONE_REQUEST";
+    static readonly DONE_REQUEST_USER = "DONE_REQUEST_USER";
 }
 
