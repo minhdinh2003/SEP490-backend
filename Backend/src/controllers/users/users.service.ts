@@ -40,34 +40,34 @@ export class UsersService extends BaseService<UserEntity, Prisma.UserCreateInput
         return Number(result.id);
     }
 
-    // async update(id: number, model: Partial<UserEntity>): Promise<boolean> {
-    //     var user = await this.prismaService.userRepo.findOneWithCondition({
-    //         id: {
-    //             not: id
-    //         },
-    //         email: model.email
-    //     })
-    //     if (user) {
-    //         throw new HttpException({ message: 'Email đã tồn tại' }, HttpStatus.BAD_REQUEST)
-    //     }
-    //     await this.repository.update(id, model, this.getMoreUpdateData());
-    //     return true;
-    // }
+    async update(id: number, model: Partial<UserEntity>): Promise<boolean> {
+        var user = await this.prismaService.userRepo.findOneWithCondition({
+            id: {
+                not: id
+            },
+            email: model.email
+        })
+        if (user) {
+            throw new HttpException({ message: 'Email đã tồn tại' }, HttpStatus.BAD_REQUEST)
+        }
+        await this.repository.update(id, model, this.getMoreUpdateData());
+        return true;
+    }
 
-    // async getCurrentUser(): Promise<ServiceResponse>{
-    //     var userCurrent = await this.getOneAndReference({
-    //         id: this._authService.getUserID()
-    //     });
-    //     if (!userCurrent){
-    //         throw new HttpException({message: 'User not exist'}, HttpStatus.BAD_REQUEST);
-    //     }
-    //     const result = this._mapperService.mapData(userCurrent, UserEntity, UserDetail);
-    //     return ServiceResponse.onSuccess(result);
-    // }
+    async getCurrentUser(): Promise<ServiceResponse>{
+        var userCurrent = await this.getOneAndReference({
+            id: this._authService.getUserID()
+        });
+        if (!userCurrent){
+            throw new HttpException({message: 'User not exist'}, HttpStatus.BAD_REQUEST);
+        }
+        const result = this._mapperService.mapData(userCurrent, UserEntity, UserDetail);
+        return ServiceResponse.onSuccess(result);
+    }
 
-    // async getNotification(param: PageRequest) {
-    //     return this.prismaService.notificationRepo.getPaging(param, false);
-    // }
+    async getNotification(param: PageRequest) {
+        return this.prismaService.notificationRepo.getPaging(param, false);
+    }
 
     async updateViewNotification(id: number){
         // await this.prismaService.notification.update({
