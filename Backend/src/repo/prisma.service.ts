@@ -11,10 +11,13 @@ import { Notification } from 'src/model/entity/notification.entity';
 export class PrismaService extends PrismaClient implements OnModuleDestroy {
   public userRepo: UserRepository;
   public otpRepo: BaseRepository<OtpRequest, Prisma.OtpRequestCreateInput>;
+  public notificationRepo: BaseRepository<Notification, Prisma.NotificationCreateInput>;
+
   constructor() {
     super();
     this.userRepo = new UserRepository(this);
     this.otpRepo = new BaseRepository<OtpRequest, Prisma.OtpRequestCreateInput>(this, this.otpRequest);
+    this.notificationRepo = new BaseRepository<Notification, Prisma.NotificationCreateInput>(this, this.notification);
   }
 
   // Đóng kết nối Prisma khi module bị hủy
@@ -61,7 +64,15 @@ export class PrismaService extends PrismaClient implements OnModuleDestroy {
       case "file":
         return this.file;
       case "transaction":
-      return this.transactionHistory;
+        return this.transactionHistory;
+      case "request":
+        return this.request;
+      case "requestHistory":
+        return this.requestHistory;
+      case "chat":
+        return this.chat;
+      case "taskDetail":
+        return this.taskDetail;
     }
     throw new HttpException(
       'Not config repo',
