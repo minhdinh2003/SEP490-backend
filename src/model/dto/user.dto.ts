@@ -34,14 +34,14 @@ export class UserDto extends BaseDto {
     addressLine2?: string; // Địa chỉ 2 (có thể null)
     @AutoMap()
     @ApiProperty()
-    city?: string; // Thành phố (có thể null)
+    province?: string; // Thành phố (có thể null)
     @AutoMap()
     @ApiProperty()
-    state?: string; // Bang hoặc tỉnh (có thể null)
+    district?: string; // Bang hoặc tỉnh (có thể null)
 
     @AutoMap()
     @ApiProperty()
-    country?: string; // Quốc gia (có thể null)
+    ward?: string; // Quốc gia (có thể null)
 
     @AutoMap()
     @ApiProperty()
