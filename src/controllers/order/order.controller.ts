@@ -8,7 +8,7 @@ import { EntityType, ModelType } from 'src/common/reflect.metadata';
 import { OrderEntity } from 'src/model/entity/order.entity';
 import { OrderDto } from 'src/model/dto/order.dto';
 import { AuthGuard } from 'src/core/auth.guard';
-import { OrderItemRequest } from 'src/model/request/orderItem.request';
+import { CreateOrderRequest, OrderItemRequest } from 'src/model/request/orderItem.request';
 import { PayOSService } from 'src/common/services/payos/PayOS.service';
 import { Public } from 'src/utils/public.decorator';
 import { Response } from 'express';
@@ -37,14 +37,14 @@ export class OrderController extends BaseController<OrderEntity, Prisma.OrderCre
     }
 
     @Post("createOrder")
-    @ApiBody({ type: OrderDto })
-    async createOrder(@Body() param: OrderItemRequest[]) {
+    @ApiBody({ type: CreateOrderRequest })
+    async createOrder(@Body() param: CreateOrderRequest) {
         return  ServiceResponse.onSuccess( await this.orderservice.createOrder(param));
     }
 
     @Put("status")
     @ApiBody({})
-    async updateStatus(@Query() orderId: number, @Query() status: OrderStatus) {
+    async updateStatus(@Query('orderId') orderId: number, @Query('status') status: OrderStatus) {
         return this.orderservice.updateStatus(orderId, status);
     }
 

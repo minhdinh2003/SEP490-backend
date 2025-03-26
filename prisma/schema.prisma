@@ -56,30 +56,35 @@ enum PartType {
 }
 
 model User {
-  id                Int            @id @default(autoincrement()) // Khóa chính, tự động tăng
-  fullName          String         @db.VarChar(255) // Họ và tên đầy đủ
-  email             String         @unique @db.VarChar(255) // Địa chỉ email duy nhất
-  passwordHash      String         @db.VarChar(255) // Mã hóa mật khẩu
+  id                Int              @id @default(autoincrement()) // Khóa chính, tự động tăng
+  fullName          String           @db.VarChar(255) // Họ và tên đầy đủ
+  email             String           @unique @db.VarChar(255) // Địa chỉ email duy nhất
+  passwordHash      String           @db.VarChar(255) // Mã hóa mật khẩu
   role              Role // Vai trò người dùng (enum)
-  gender            Gender         @default(OTHER) // Giới tính (enum), mặc định là OTHER
+  gender            Gender           @default(OTHER) // Giới tính (enum), mặc định là OTHER
   dateOfBirth       DateTime? // Ngày sinh (có thể null)
-  phoneNumber       String?        @db.VarChar(20) // Số điện thoại (có thể null)
-  addressLine1      String?        @db.VarChar(255) // Địa chỉ 1 (có thể null)
-  addressLine2      String?        @db.VarChar(255) // Địa chỉ 2 (có thể null)
-  province          String?        @db.VarChar(100) // Thành phố (có thể null)
-  district          String?        @db.VarChar(100) // Bang hoặc tỉnh (có thể null)
-  ward              String?        @db.VarChar(100) // Quốc gia (có thể null)
-  createdAt         DateTime       @default(now()) // Thời gian tạo tài khoản
-  updatedAt         DateTime       @updatedAt // Thời gian cập nhật tài khoản
-  profilePictureURL String?        @db.VarChar(255) // URL ảnh đại diện (có thể null)
-  createdBy         String?        @db.VarChar(100) // Người tạo (có thể null)
-  updatedBy         String?        @db.VarChar(100) // Người cập nhật (có thể null)
+  phoneNumber       String?          @db.VarChar(20) // Số điện thoại (có thể null)
+  addressLine1      String?          @db.VarChar(255) // Địa chỉ 1 (có thể null)
+  addressLine2      String?          @db.VarChar(255) // Địa chỉ 2 (có thể null)
+  province          String?          @db.VarChar(100) // Thành phố (có thể null)
+  district          String?          @db.VarChar(100) // Bang hoặc tỉnh (có thể null)
+  ward              String?          @db.VarChar(100) // Quốc gia (có thể null)
+  createdAt         DateTime         @default(now()) // Thời gian tạo tài khoản
+  updatedAt         DateTime         @updatedAt // Thời gian cập nhật tài khoản
+  profilePictureURL String?          @db.VarChar(255) // URL ảnh đại diện (có thể null)
+  createdBy         String?          @db.VarChar(100) // Người tạo (có thể null)
+  updatedBy         String?          @db.VarChar(100) // Người cập nhật (có thể null)
   whitelist         Whitelist[]
   review            Review[]
   order             Order[]
   orderHistory      OrderHistory[]
-  task              Task[]
   notification      Notification[]
+  Request           Request[]
+  RequestHistory    RequestHistory[]
+  Chat              Chat[]
+  TaskDetail        TaskDetail[]
+  TaskHistory       TaskHistory[]
+  requests          Request[]        @relation("Approver")
 }
 
 model OtpRequest {
@@ -292,20 +297,6 @@ model Voucher {
   @@index([promotionId]) // Tạo chỉ mục để tối ưu hóa truy vấn theo promotionId
 }
 
-model Task {
-  id           Int          @id @default(autoincrement()) // Khóa chính tự động tăng
-  title        String       @db.VarChar(255) // Tiêu đề nhiệm vụ
-  description  String?      @db.Text // Mô tả nhiệm vụ (tùy chọn)
-  status       TaskStatus   @default(PENDING) // Trạng thái nhiệm vụ
-  assignedTo   User?        @relation(fields: [assignedToId], references: [id]) // Người được giao nhiệm vụ
-  assignedToId Int? // ID của người được giao nhiệm vụ (tùy chọn)
-  createdAt    DateTime     @default(now()) // Thời gian tạo
-  updatedAt    DateTime     @updatedAt // Thời gian cập nhật
-  createdBy    String?      @db.VarChar(100) // Người tạo (có thể null)
-  updatedBy    String?      @db.VarChar(100) // Người cập nhật (có thể null)
-  taskDetails  TaskDetail[] // Liên kết với bảng TaskDetail
-}
-
 // Định nghĩa enum cho trạng thái nhiệm vụ
 enum TaskStatus {
   PENDING // Đang chờ xử lý
@@ -314,32 +305,21 @@ enum TaskStatus {
   CANCELLED // Đã hủy
 }
 
-model TaskDetail {
-  id          Int      @id @default(autoincrement()) // Khóa chính tự động tăng
-  task        Task     @relation(fields: [taskId], references: [id]) // Liên kết với bảng Task
-  taskId      Int // ID của nhiệm vụ
-  description String   @db.Text // Mô tả chi tiết nhiệm vụ
-  completed   Boolean  @default(false) // Trạng thái hoàn thành
-  createdAt   DateTime @default(now()) // Thời gian tạo
-  updatedAt   DateTime @updatedAt // Thời gian cập nhật
-  createdBy   String?  @db.VarChar(100) // Người tạo (có thể null)
-  updatedBy   String?  @db.VarChar(100) // Người cập nhật (có thể null)
-
-  @@index([taskId]) // Tạo chỉ mục để tối ưu hóa truy vấn theo taskId
-}
-
 model Notification {
-  id        Int      @id @default(autoincrement()) // Khóa chính tự động tăng
-  user      User     @relation(fields: [userId], references: [id]) // Liên kết với bảng User
-  userId    Int // ID của người nhận thông báo
-  message   String   @db.Text // Nội dung thông báo
-  isRead    Boolean  @default(false) // Trạng thái đã đọc
-  createdAt DateTime @default(now()) // Thời gian tạo
-  updatedAt DateTime @updatedAt // Thời gian cập nhật
-  createdBy String?  @db.VarChar(100) // Người tạo (có thể null)
-  updatedBy String?  @db.VarChar(100) // Người cập nhật (có thể null)
+  id         Int      @id @default(autoincrement()) // Khóa chính, tự động tăng
+  senderId   Int // ID của người gửi
+  senderName String // Tên người gửi
+  receiveId  Int // ID của người nhận
+  type       String // Loại thông báo
+  rawData    String // Dữ liệu thô của thông báo
+  isViewed   Boolean  @default(false) // Trạng thái đã xem
+  createdAt  DateTime @default(now()) // Thời gian tạo
+  updatedAt  DateTime @updatedAt // Thời gian cập nhật
 
-  @@index([userId]) // Tạo chỉ mục để tối ưu hóa truy vấn theo userId
+  // Liên kết với bảng User
+  user      User    @relation(fields: [receiveId], references: [id], onDelete: Cascade)
+  createdBy String?
+  updatedBy String?
 }
 
 model TransactionHistory {
@@ -378,4 +358,106 @@ model File {
   updatedAt           DateTime @updatedAt // Thời gian cập nhật
   createdBy           String?
   updatedBy           String?
+}
+
+model Request {
+  id            Int              @id @default(autoincrement()) // Khóa chính tự động tăng
+  userId        Int // ID của người dùng tạo yêu cầu
+  user          User             @relation(fields: [userId], references: [id]) // Liên kết với bảng User
+  description   String           @db.Text // Mô tả yêu cầu sửa chữa
+  reasonReject  String
+  status        RequestStatus    @default(PENDING) // Trạng thái yêu cầu
+  price         Decimal?         @db.Decimal(10, 2) // Giá sửa chữa (tùy chọn)
+  approvedId    Int? // ID của Product Owner phê duyệt (tùy chọn)
+  approver      User?            @relation("Approver", fields: [approvedId], references: [id]) // Liên kết với bảng User
+  createdAt     DateTime         @default(now()) // Thời gian tạo
+  updatedAt     DateTime         @updatedAt // Thời gian cập nhật
+  createdBy     String?
+  updatedBy     String?
+  completedAt   DateTime? // Thời gian hoàn thành (tùy chọn)
+  images        Json
+  isUserConfirm Boolean
+  type          String
+  history       RequestHistory[] // Lịch sử cập nhật trạng thái
+  Chat          Chat[]
+  TaskDetail    TaskDetail[]
+
+  @@index([userId]) // Tạo chỉ mục để tối ưu hóa truy vấn theo userId
+}
+
+model RequestHistory {
+  id        Int           @id @default(autoincrement()) // Khóa chính tự động tăng
+  requestId Int // ID của yêu cầu liên quan
+  status    RequestStatus // Trạng thái cũ/mới
+  updatedBy String?       @db.VarChar(100) // Người thực hiện thay đổi (lưu tên hoặc ID dạng string)
+  comment   String?       @db.Text // Bình luận hoặc lý do cập nhật
+  updatedAt DateTime      @default(now()) // Thời gian cập nhật
+  User      User?         @relation(fields: [userId], references: [id])
+  userId    Int?
+  Request   Request       @relation(fields: [requestId], references: [id])
+
+  @@index([requestId]) // Tạo chỉ mục để tối ưu hóa truy vấn theo requestId
+}
+
+enum RequestStatus {
+  PENDING // Chờ xử lý
+  APPROVED // Đã phê duyệt
+  REJECTED // Từ chối
+  IN_PROGRESS // Đang tiến hành
+  COMPLETED // Hoàn thành
+  CANCELLED // Hủy
+}
+
+model Chat {
+  id        Int      @id @default(autoincrement()) // Khóa chính tự động tăng
+  requestId Int // Liên kết với bảng Request
+  senderId  Int // Người gửi tin nhắn (có thể là Customer hoặc Product Owner)
+  message   String   @db.Text // Nội dung tin nhắn
+  createdAt DateTime @default(now()) // Thời gian gửi tin nhắn
+  updatedAt DateTime @updatedAt // Thời gian cập nhật bản ghi
+
+  request   Request @relation(fields: [requestId], references: [id]) // Quan hệ với bảng Request
+  sender    User    @relation(fields: [senderId], references: [id]) // Quan hệ với bảng User để xác định ai gửi
+  createdBy String? @db.VarChar(100) // Người tạo (tùy chọn)
+  updatedBy String? @db.VarChar(100) // Người cập nhật (tùy chọn)
+
+  @@index([requestId]) // Tạo chỉ mục để tối ưu hóa truy vấn theo requestId
+  @@index([senderId]) // Tạo chỉ mục để tối ưu hóa truy vấn theo senderId
+}
+
+model TaskDetail {
+  id          Int        @id @default(autoincrement()) // Khóa chính tự động tăng
+  requestId   Int // Liên kết với bảng Request
+  assignedTo  Int? // ID của người được giao task (liên kết với bảng User)
+  description String     @db.Text // Mô tả chi tiết task
+  title       String?    @db.Text
+  status      TaskStatus @default(PENDING) // Trạng thái task
+  deadline    DateTime? // Thời hạn hoàn thành task
+  images      Json? // Danh sách hình ảnh (JSON array)
+  comments    Json? // Danh sách bình luận (JSON array)
+  createdAt   DateTime   @default(now()) // Thời gian tạo
+  updatedAt   DateTime   @updatedAt // Thời gian cập nhật
+  createdBy   String?
+  updatedBy   String?
+  request     Request    @relation(fields: [requestId], references: [id]) // Quan hệ với bảng Request
+  assignee    User?      @relation(fields: [assignedTo], references: [id]) // Quan hệ với bảng User
+
+  history TaskHistory[] // Lịch sử thay đổi task
+
+  @@index([requestId]) // Tạo chỉ mục để tối ưu hóa truy vấn theo requestId
+  @@index([assignedTo]) // Tạo chỉ mục để tối ưu hóa truy vấn theo assignedTo
+}
+
+model TaskHistory {
+  id        Int        @id @default(autoincrement()) // Khóa chính tự động tăng
+  taskId    Int // ID của task liên quan
+  status    TaskStatus // Trạng thái cũ/mới
+  updatedBy Int? // ID của người thực hiện thay đổi (liên kết với bảng User)
+  comment   String?    @db.Text // Bình luận hoặc lý do cập nhật
+  updatedAt DateTime   @default(now()) // Thời gian cập nhật
+
+  task    TaskDetail @relation(fields: [taskId], references: [id]) // Quan hệ với bảng TaskDetail
+  updater User?      @relation(fields: [updatedBy], references: [id]) // Quan hệ với bảng User
+
+  @@index([taskId]) // Tạo chỉ mục để tối ưu hóa truy vấn theo taskId
 }
