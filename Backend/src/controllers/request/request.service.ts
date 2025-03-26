@@ -18,19 +18,19 @@ export class RequestService extends BaseService<RequestEntity, Prisma.RequestCre
     super(prismaService, coreService)
   }
 
-  // async add(entity: RequestEntity): Promise<number> {
-  //   const id = await super.add(entity);
+  async add(entity: RequestEntity): Promise<number> {
+    const id = await super.add(entity);
 
-  //   // push notificatio to productowner
-  //   await this.pushNotificationToProductOnwer(NotificationType.USER_SEND_REQUEST_PRODUCT_OWNER,
-  //     JSON.stringify({
-  //       id
-  //     }),
-  //     this._authService.getFullname(), this._authService.getUserID()
-  //   )
+    // push notificatio to productowner
+    await this.pushNotificationToProductOnwer(NotificationType.USER_SEND_REQUEST_PRODUCT_OWNER,
+      JSON.stringify({
+        id
+      }),
+      this._authService.getFullname(), this._authService.getUserID()
+    )
 
-  //   return id;
-  // }
+    return id;
+  }
 
   // async confirm(requestId: number) {
   //   const updatedRequest = await this.prismaService.request.update({
