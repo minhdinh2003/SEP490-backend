@@ -32,46 +32,46 @@ export class RequestService extends BaseService<RequestEntity, Prisma.RequestCre
     return id;
   }
 
-  // async confirm(requestId: number) {
-  //   const updatedRequest = await this.prismaService.request.update({
-  //     where: { id: requestId },
-  //     data: {
-  //       updatedBy: this._authService.getFullname(),
-  //       updatedAt: new Date(),
-  //       isUserConfirm: true,
-  //       status: RequestStatus.IN_PROGRESS
-  //     },
-  //   });
-  //   // Step 2: Tạo các TaskDetail tự động gắn với yêu cầu
-  //   const tasks = [
-  //     {
-  //       requestId: requestId,
-  //       title: "Kiểm tra tình trạng ban đầu của sản phẩm",
-  //       description: "",
-  //       status: TaskStatus.PENDING,
-  //       deadline: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // Deadline trong 7 ngày
-  //       images: [],
-  //       comments: [],
-  //     },
-  //     {
-  //       requestId: requestId,
-  //       title: "Sửa chữa hoặc thay thế linh kiện bị hỏng",
-  //       description: "",
-  //       status: TaskStatus.PENDING,
-  //       deadline: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000), // Deadline trong 14 ngày
-  //       images: [],
-  //       comments: [],
-  //     },
-  //     {
-  //       requestId: requestId,
-  //       title: "Kiểm tra chất lượng sau sửa chữa",
-  //       description: "",
-  //       status: TaskStatus.PENDING,
-  //       deadline: new Date(Date.now() + 21 * 24 * 60 * 60 * 1000), // Deadline trong 21 ngày
-  //       images: [],
-  //       comments: [],
-  //     },
-  //   ];
+  async confirm(requestId: number) {
+    const updatedRequest = await this.prismaService.request.update({
+      where: { id: requestId },
+      data: {
+        updatedBy: this._authService.getFullname(),
+        updatedAt: new Date(),
+        isUserConfirm: true,
+        status: RequestStatus.IN_PROGRESS
+      },
+    });
+    // Step 2: Tạo các TaskDetail tự động gắn với yêu cầu
+    const tasks = [
+      {
+        requestId: requestId,
+        title: "Kiểm tra tình trạng ban đầu của sản phẩm",
+        description: "",
+        status: TaskStatus.PENDING,
+        deadline: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // Deadline trong 7 ngày
+        images: [],
+        comments: [],
+      },
+      {
+        requestId: requestId,
+        title: "Sửa chữa hoặc thay thế linh kiện bị hỏng",
+        description: "",
+        status: TaskStatus.PENDING,
+        deadline: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000), // Deadline trong 14 ngày
+        images: [],
+        comments: [],
+      },
+      {
+        requestId: requestId,
+        title: "Kiểm tra chất lượng sau sửa chữa",
+        description: "",
+        status: TaskStatus.PENDING,
+        deadline: new Date(Date.now() + 21 * 24 * 60 * 60 * 1000), // Deadline trong 21 ngày
+        images: [],
+        comments: [],
+      },
+    ];
 
   //   // Step 3: Lưu các TaskDetail vào cơ sở dữ liệu
   //   const createdTasks = await this.prismaService.taskDetail.createMany({
