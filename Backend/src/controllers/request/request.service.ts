@@ -73,33 +73,33 @@ export class RequestService extends BaseService<RequestEntity, Prisma.RequestCre
       },
     ];
 
-  //   // Step 3: Lưu các TaskDetail vào cơ sở dữ liệu
-  //   const createdTasks = await this.prismaService.taskDetail.createMany({
-  //     data: tasks,
-  //   });
-  //   // Step 4: Gửi thông báo cho Product Owner
-  //   await this.pushNotificationToProductOnwer(NotificationType.USER_CONFIRM_REQUEST,
-  //     JSON.stringify({
-  //       id: requestId
-  //     }),
-  //     this._authService.getFullname(), this._authService.getUserID()
+    // Step 3: Lưu các TaskDetail vào cơ sở dữ liệu
+    const createdTasks = await this.prismaService.taskDetail.createMany({
+      data: tasks,
+    });
+    // Step 4: Gửi thông báo cho Product Owner
+    await this.pushNotificationToProductOnwer(NotificationType.USER_CONFIRM_REQUEST,
+      JSON.stringify({
+        id: requestId
+      }),
+      this._authService.getFullname(), this._authService.getUserID()
 
-  //   )
-  //   return { updatedRequest, createdTasks };
-  // }
+    )
+    return { updatedRequest, createdTasks };
+  }
 
-  // async updateRequestStatus(
-  //   requestId: number,
-  //   param: UpdateRequestStatusRequest
-  // ) {
-  //   // Bước 1: Tìm yêu cầu theo ID
-  //   const request = await this.prismaService.request.findUnique({
-  //     where: { id: requestId },
-  //   });
+  async updateRequestStatus(
+    requestId: number,
+    param: UpdateRequestStatusRequest
+  ) {
+    // Bước 1: Tìm yêu cầu theo ID
+    const request = await this.prismaService.request.findUnique({
+      where: { id: requestId },
+    });
 
-  //   if (!request) {
-  //     throw new NotFoundException(`Request with ID ${requestId} not found`);
-  //   }
+    if (!request) {
+      throw new NotFoundException(`Request with ID ${requestId} not found`);
+    }
 
   //   // Bước 2: Cập nhật trạng thái mới cho yêu cầu
   //   const updatedRequest = await this.prismaService.request.update({
