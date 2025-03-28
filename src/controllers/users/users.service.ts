@@ -24,9 +24,6 @@ export class UsersService extends BaseService<UserEntity, Prisma.UserCreateInput
             throw new HttpException({ message: 'Email đã tồn tại' }, HttpStatus.BAD_REQUEST)
         }
         let passWord = generateRandomPassword(10);
-        //if (isEnvDevelopment()) {
-        passWord = "12345678";
-        //}
         entity.passwordHash = await hash(passWord, 10);
         var result = await this.repository.create(entity, {
             select: {
@@ -70,15 +67,15 @@ export class UsersService extends BaseService<UserEntity, Prisma.UserCreateInput
     }
 
     async updateViewNotification(id: number){
-        // await this.prismaService.notification.update({
-        //     where: {
-        //         id: id
-        //     },
-        //     data: {
-        //         isViewed: true
-        //     }
-        // })
-        // return true;
+        await this.prismaService.notification.update({
+            where: {
+                id: id
+            },
+            data: {
+                isViewed: true
+            }
+        })
+        return true;
     }
     
 

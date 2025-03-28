@@ -81,7 +81,6 @@ export class OrderService extends BaseService<OrderEntity, Prisma.OrderCreateInp
             if (paymentMethod == PaymentMethod.BankOnline){
                 var deposit = new DepositRequest();
                 deposit.amount = parseInt(order.totalAmount.toString());
-                // get link thanh toán
                 return this.payosService.payOrder(deposit, order)
             }else {
                 return process.env.LinkPayCoinSuccess;
