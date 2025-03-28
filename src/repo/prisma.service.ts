@@ -20,7 +20,6 @@ export class PrismaService extends PrismaClient implements OnModuleDestroy {
     this.notificationRepo = new BaseRepository<Notification, Prisma.NotificationCreateInput>(this, this.notification);
   }
 
-  // Đóng kết nối Prisma khi module bị hủy
   async onModuleDestroy() {
     await this.$disconnect();
   }
@@ -29,8 +28,6 @@ export class PrismaService extends PrismaClient implements OnModuleDestroy {
     switch (modelName) {
       case "users":
         return this.userRepo;
-      // case "optRequest":
-      //   return this.otpRepo;
     }
     return new BaseRepository<T, K>(this, model);
   }
