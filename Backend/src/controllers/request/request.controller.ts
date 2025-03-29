@@ -30,15 +30,15 @@ export class RequestController extends BaseController<RequestEntity, Prisma.Requ
         return null;
     }
 
-    // @Post("updateStatus/:requestId")
-    // @ApiBody({type: UpdateRequestStatusRequest})
-    // async updateRequest(@Param('requestId') requestId: number, @Body() param: UpdateRequestStatusRequest): Promise<ServiceResponse> {
-    //     return ServiceResponse.onSuccess(await this.service.updateRequestStatus(requestId, param));
-    // }
+    @Post("updateStatus/:requestId")
+    @ApiBody({type: UpdateRequestStatusRequest})
+    async updateRequest(@Param('requestId') requestId: number, @Body() param: UpdateRequestStatusRequest): Promise<ServiceResponse> {
+        return ServiceResponse.onSuccess(await this.service.updateRequestStatus(requestId, param));
+    }
 
-    // @Put("confirm/:requestId")
-    // async confirm(@Param('requestId') requestId: number): Promise<ServiceResponse> {
-    //     return ServiceResponse.onSuccess(await this.service.confirm(requestId));
-    // }
+    @Put("confirm/:requestId")
+    async confirm(@Param('requestId') requestId: number): Promise<ServiceResponse> {
+        return ServiceResponse.onSuccess(await this.service.confirm(requestId));
+    }
 
 }
