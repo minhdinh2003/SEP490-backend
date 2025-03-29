@@ -101,60 +101,60 @@ export class RequestService extends BaseService<RequestEntity, Prisma.RequestCre
       throw new NotFoundException(`Request with ID ${requestId} not found`);
     }
 
-  //   // Bước 2: Cập nhật trạng thái mới cho yêu cầu
-  //   const updatedRequest = await this.prismaService.request.update({
-  //     where: { id: requestId },
-  //     data: {
-  //       status: param.status,
-  //       updatedBy: this._authService.getFullname(),
-  //       updatedAt: new Date(),
-  //       reasonReject: param.comment,
-  //       price: param.status == RequestStatus.APPROVED ? param.price : request.price,
-  //       isUserConfirm: param.status == RequestStatus.APPROVED ? false : request.isUserConfirm
-  //     },
-  //   });
+    // Bước 2: Cập nhật trạng thái mới cho yêu cầu
+    const updatedRequest = await this.prismaService.request.update({
+      where: { id: requestId },
+      data: {
+        status: param.status,
+        updatedBy: this._authService.getFullname(),
+        updatedAt: new Date(),
+        reasonReject: param.comment,
+        price: param.status == RequestStatus.APPROVED ? param.price : request.price,
+        isUserConfirm: param.status == RequestStatus.APPROVED ? false : request.isUserConfirm
+      },
+    });
 
-  //   // Bước 3: Tạo bản ghi lịch sử thay đổi trạng thái
-  //   const historyData = {
-  //     requestId: requestId,
-  //     status: param.status,
-  //     updatedBy: this._authService.getFullname(),
-  //     comment: param.comment || null,
-  //   };
+    // Bước 3: Tạo bản ghi lịch sử thay đổi trạng thái
+    const historyData = {
+      requestId: requestId,
+      status: param.status,
+      updatedBy: this._authService.getFullname(),
+      comment: param.comment || null,
+    };
 
-  //   await this.prismaService.requestHistory.create({
-  //     data: {
-  //       ...historyData
-  //     },
-  //     select: {
-  //       id: true
-  //     }
-  //   });
+    await this.prismaService.requestHistory.create({
+      data: {
+        ...historyData
+      },
+      select: {
+        id: true
+      }
+    });
 
-  //   switch (param.status) {
-  //     case RequestStatus.REJECTED:
-  //       await this.pushNotification(request.userId, NotificationType.PRODUCT_OWNER_REJECT_REQUEST,
-  //         JSON.stringify({
-  //           id: request.id,
-  //           description: request.description
-  //         }),
-  //         this._authService.getFullname(), this._authService.getUserID()
+    switch (param.status) {
+      case RequestStatus.REJECTED:
+        await this.pushNotification(request.userId, NotificationType.PRODUCT_OWNER_REJECT_REQUEST,
+          JSON.stringify({
+            id: request.id,
+            description: request.description
+          }),
+          this._authService.getFullname(), this._authService.getUserID()
 
-  //       )
-  //       break;
-  //     case RequestStatus.APPROVED:
-  //       await this.pushNotification(request.userId, NotificationType.PRODUCT_OWNER_ACCEPT_REQUEST,
-  //         JSON.stringify({
-  //           id: request.id,
-  //           price: param.price
-  //         }),
-  //         this._authService.getFullname(), this._authService.getUserID()
+        )
+        break;
+      case RequestStatus.APPROVED:
+        await this.pushNotification(request.userId, NotificationType.PRODUCT_OWNER_ACCEPT_REQUEST,
+          JSON.stringify({
+            id: request.id,
+            price: param.price
+          }),
+          this._authService.getFullname(), this._authService.getUserID()
 
-  //       )
-  //       break;
-  //   }
+        )
+        break;
+    }
 
-  //   // Bước 4: Trả về yêu cầu đã được cập nhật
-  //   return updatedRequest;
-  // }
+    // Bước 4: Trả về yêu cầu đã được cập nhật
+    return updatedRequest;
+  }
 }
