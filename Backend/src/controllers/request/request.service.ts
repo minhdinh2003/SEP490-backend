@@ -1,33 +1,31 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { Prisma, RequestStatus, TaskStatus } from '@prisma/client';
-import { timeout } from 'cron';
-import { title } from 'node:process';
 import { BaseService } from 'src/base/base.service';
 import { NotificationType } from 'src/common/const/notification.type';
 import { CoreService } from 'src/core/core.service';
-import { RequestEntity } from 'src/model/entity/request.entity';
-import { RequestHistoryEntity } from 'src/model/entity/requestHistory.entity';
-import { UpdateRequestStatusRequest } from 'src/model/request/updateStatusRequest.request';
 import { PrismaService } from 'src/repo/prisma.service';
+import { RequestEntity } from 'src/model/entity/request.entity';
+import { UpdateRequestStatusRequest } from 'src/model/request/updateStatusRequest.request';
 
 @Injectable()
 export class RequestService extends BaseService<RequestEntity, Prisma.RequestCreateInput> {
   constructor(
     coreService: CoreService,
-    protected readonly prismaService: PrismaService) {
-    super(prismaService, coreService)
+    protected readonly prismaService: PrismaService,
+  ) {
+    super(prismaService, coreService);
   }
 
   async add(entity: RequestEntity): Promise<number> {
     const id = await super.add(entity);
 
-    // push notificatio to productowner
-    await this.pushNotificationToProductOnwer(NotificationType.USER_SEND_REQUEST_PRODUCT_OWNER,
-      JSON.stringify({
-        id
-      }),
-      this._authService.getFullname(), this._authService.getUserID()
-    )
+    // Push notification to product owner
+    await this.pushNotificationToProductOwner(
+      NotificationType.USER_SEND_REQUEST_PRODUCT_OWNER,
+      JSON.stringify({ id }),
+      this._authService.getFullname(),
+      this._authService.getUserID()
+    );
 
     return id;
   }
@@ -39,60 +37,63 @@ export class RequestService extends BaseService<RequestEntity, Prisma.RequestCre
         updatedBy: this._authService.getFullname(),
         updatedAt: new Date(),
         isUserConfirm: true,
-        status: RequestStatus.IN_PROGRESS
+        status: RequestStatus.IN_PROGRESS,
       },
     });
-    // Step 2: Tạo các TaskDetail tự động gắn với yêu cầu
-    const tasks = [
-      {
-        requestId: requestId,
-        title: "Kiểm tra tình trạng ban đầu của sản phẩm",
-        description: "",
-        status: TaskStatus.PENDING,
-        deadline: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // Deadline trong 7 ngày
-        images: [],
-        comments: [],
-      },
-      {
-        requestId: requestId,
-        title: "Sửa chữa hoặc thay thế linh kiện bị hỏng",
-        description: "",
-        status: TaskStatus.PENDING,
-        deadline: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000), // Deadline trong 14 ngày
-        images: [],
-        comments: [],
-      },
-      {
-        requestId: requestId,
-        title: "Kiểm tra chất lượng sau sửa chữa",
-        description: "",
-        status: TaskStatus.PENDING,
-        deadline: new Date(Date.now() + 21 * 24 * 60 * 60 * 1000), // Deadline trong 21 ngày
-        images: [],
-        comments: [],
-      },
-    ];
 
-    // Step 3: Lưu các TaskDetail vào cơ sở dữ liệu
+    const tasks = this.createTasks(requestId);
+
+    // Save tasks to the database
     const createdTasks = await this.prismaService.taskDetail.createMany({
       data: tasks,
     });
-    // Step 4: Gửi thông báo cho Product Owner
-    await this.pushNotificationToProductOnwer(NotificationType.USER_CONFIRM_REQUEST,
-      JSON.stringify({
-        id: requestId
-      }),
-      this._authService.getFullname(), this._authService.getUserID()
 
-    )
+    // Notify Product Owner
+    await this.pushNotificationToProductOwner(
+      NotificationType.USER_CONFIRM_REQUEST,
+      JSON.stringify({ id: requestId }),
+      this._authService.getFullname(),
+      this._authService.getUserID()
+    );
+
     return { updatedRequest, createdTasks };
+  }
+
+  createTasks(requestId: number) {
+    const tasks = [
+      {
+        title: 'Kiểm tra tình trạng ban đầu của sản phẩm',
+        deadline: 7, // 7 days deadline
+      },
+      {
+        title: 'Sửa chữa hoặc thay thế linh kiện bị hỏng',
+        deadline: 14, // 14 days deadline
+      },
+      {
+        title: 'Kiểm tra chất lượng sau sửa chữa',
+        deadline: 21, // 21 days deadline
+      }
+    ];
+
+    return tasks.map(task => ({
+      requestId,
+      title: task.title,
+      description: '',
+      status: TaskStatus.PENDING,
+      deadline: this.calculateDeadline(task.deadline),
+      images: [],
+      comments: [],
+    }));
+  }
+
+  calculateDeadline(days: number) {
+    return new Date(Date.now() + days * 24 * 60 * 60 * 1000); // Calculate deadline based on number of days
   }
 
   async updateRequestStatus(
     requestId: number,
-    param: UpdateRequestStatusRequest
+    { status, comment, price }: UpdateRequestStatusRequest
   ) {
-    // Bước 1: Tìm yêu cầu theo ID
     const request = await this.prismaService.request.findUnique({
       where: { id: requestId },
     });
@@ -101,60 +102,51 @@ export class RequestService extends BaseService<RequestEntity, Prisma.RequestCre
       throw new NotFoundException(`Request with ID ${requestId} not found`);
     }
 
-    // Bước 2: Cập nhật trạng thái mới cho yêu cầu
     const updatedRequest = await this.prismaService.request.update({
       where: { id: requestId },
       data: {
-        status: param.status,
+        status,
         updatedBy: this._authService.getFullname(),
         updatedAt: new Date(),
-        reasonReject: param.comment,
-        price: param.status == RequestStatus.APPROVED ? param.price : request.price,
-        isUserConfirm: param.status == RequestStatus.APPROVED ? false : request.isUserConfirm
+        reasonReject: comment,
+        price: status === RequestStatus.APPROVED ? price : request.price,
+        isUserConfirm: status === RequestStatus.APPROVED ? false : request.isUserConfirm,
       },
     });
 
-    // Bước 3: Tạo bản ghi lịch sử thay đổi trạng thái
-    const historyData = {
-      requestId: requestId,
-      status: param.status,
-      updatedBy: this._authService.getFullname(),
-      comment: param.comment || null,
-    };
+    await this.createRequestHistory(requestId, status, comment);
 
-    await this.prismaService.requestHistory.create({
-      data: {
-        ...historyData
-      },
-      select: {
-        id: true
-      }
-    });
-
-    switch (param.status) {
+    switch (status) {
       case RequestStatus.REJECTED:
-        await this.pushNotification(request.userId, NotificationType.PRODUCT_OWNER_REJECT_REQUEST,
-          JSON.stringify({
-            id: request.id,
-            description: request.description
-          }),
-          this._authService.getFullname(), this._authService.getUserID()
-
-        )
+        await this.sendNotificationToUser(request, NotificationType.PRODUCT_OWNER_REJECT_REQUEST, { description: request.description });
         break;
       case RequestStatus.APPROVED:
-        await this.pushNotification(request.userId, NotificationType.PRODUCT_OWNER_ACCEPT_REQUEST,
-          JSON.stringify({
-            id: request.id,
-            price: param.price
-          }),
-          this._authService.getFullname(), this._authService.getUserID()
-
-        )
+        await this.sendNotificationToUser(request, NotificationType.PRODUCT_OWNER_ACCEPT_REQUEST, { price });
         break;
     }
 
-    // Bước 4: Trả về yêu cầu đã được cập nhật
     return updatedRequest;
+  }
+
+  async createRequestHistory(requestId: number, status: RequestStatus, comment: string | null) {
+    await this.prismaService.requestHistory.create({
+      data: {
+        requestId,
+        status,
+        updatedBy: this._authService.getFullname(),
+        comment,
+      },
+      select: { id: true },
+    });
+  }
+
+  async sendNotificationToUser(request: any, notificationType: NotificationType, payload: any) {
+    await this.pushNotification(
+      request.userId,
+      notificationType,
+      JSON.stringify({ id: request.id, ...payload }),
+      this._authService.getFullname(),
+      this._authService.getUserID()
+    );
   }
 }
