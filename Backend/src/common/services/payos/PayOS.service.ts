@@ -48,6 +48,24 @@ export class PayOSService {
         });
     }
 
+    async payOrderRequest(requestId, amount, order: any): Promise<string> {
+        const dataOrder = {
+            id: order.id,
+            requestId: requestId,
+            userId: order.userId,
+            paymentMethod: order.paymentMethod,
+            totalAmount: order.totalAmount
+        }
+        const id = await this.createTransaction(JSON.stringify(dataOrder));
+        return this.doPayment({
+            orderCode: id,
+            amount: (amount),
+            name: "Thanh toán tiền",
+            cancelUrl: this.getCancelURLCallBack(OrderInfo.Request),
+            returnUrl: this.getReturnURLCallBack(OrderInfo.Request)
+        });
+    }
+
     private async doPayment({ name = "", desciption = '', amount = 0, orderCode, cancelUrl, returnUrl }): Promise<string> {
         const payos = new PayOS(this.PAYOS_CLIENT_ID, this.PAYOS_API_KEY, this.PAYOS_CHECKSUM);
         const requestData = {
@@ -68,10 +86,6 @@ export class PayOSService {
                 Reflect.set(returnRequest, key, value);
             }
         }
-        // Hủy thanh toán
-        // if (returnRequest.cancel == 'true') {
-        //     return this.LinkPayCancel; 
-        // }
         return await this.handlePaymentBasedOnType(orderType, returnRequest);
     }
 
@@ -80,6 +94,9 @@ export class PayOSService {
             case OrderInfo.Payment:
                 const linkProcess = await this.payment(returnRequest);
                 return !linkProcess ? this.LinkPayCoinSuccess : linkProcess;
+            case OrderInfo.Request:
+                const linkProcess1 = await this.paymentRequest(returnRequest);
+                return !linkProcess1 ? this.LinkPayCoinSuccess : linkProcess1;
             default:
                 return this.LinkPayFail;
         }
@@ -99,7 +116,7 @@ export class PayOSService {
                 id: order.id
             }
         });
-        if (!orderInfo){
+        if (!orderInfo) {
             throw new Error(`Thông tin đơn hàng không tồn tại`);
         }
         if (returnRequest.cancel == 'true') {
@@ -113,7 +130,7 @@ export class PayOSService {
                     quantity: true
                 }
             })
-            for (var item of orderItems){
+            for (var item of orderItems) {
                 var inventory = await this.prismaService.inventory.findUnique({
                     where: {
                         productId: item.productId
@@ -164,6 +181,65 @@ export class PayOSService {
 
         return this.LinkPayCoinSuccess;
     }
+    private async paymentRequest(returnRequest: ReturnURLRequest): Promise<string> {
+        const transactionID = parseInt(returnRequest.orderCode);
+        const transaction = await this.prismaService.transaction.findUnique({
+            where: { id: transactionID },
+        });
+        if (!transaction) return this.LinkPayFail;
+        const order = JSON.parse(transaction.infor);
+        var orderInfo = await this.prismaService.order.findUnique({
+            where: {
+                id: order.id
+            }
+        });
+        if (!orderInfo) {
+            throw new Error(`Thông tin đơn hàng không tồn tại`);
+        }
+        if (returnRequest.cancel == 'true') {
+            await this.prismaService.transactionHistory.create({
+                data: {
+                    userId: order.userId,
+                    object: "Bank",// type coin
+                    description: `Hủy đơn hàng sửa chữa ${transactionID}: với số tiền: ${this.formatVND(order.totalAmount)}`,
+                    paymentMethod: PaymentMethod.BankOnline, //
+                    orderId: transactionID
+                }
+            });
+            await this.updateStatus(order.id, OrderStatus.CANCELLED, order.userId);
+            return this.LinkPayCancel;
+        }
+        await this.prismaService.request.update({
+            where: {
+                id: order.requestId
+            },
+            data: {
+                updatedAt: new Date(),
+                isPay: true
+            }
+        })
+        var orderProccessed = await this.prismaService.transactionHistory.findMany({
+            where: {
+                orderId: transactionID
+            }
+        });
+        if (orderProccessed != null && orderProccessed.length > 0) {
+            // đơn hàng đã xử lý cộng tiền rồi
+            return this.LinkPayCoinSuccess;
+        }
+        await this.prismaService.transactionHistory.create({
+            data: {
+                userId: order.userId,
+                object: "Bank",// type coin
+                description: `Đơn hàng ${transactionID}: thanh toán thành công với số tiền: ${this.formatVND(order.totalAmount)}`,
+                paymentMethod: PaymentMethod.BankOnline, //
+                orderId: transactionID
+            }
+        });
+        await this.updateStatus(order.id, OrderStatus.PROCESSING, order.userId);
+
+        return this.LinkPayCoinSuccess;
+    }
 
 
     private async createTransaction(rawData: string): Promise<number> {
@@ -186,42 +262,46 @@ export class PayOSService {
         switch (type) {
             case OrderInfo.Payment:
                 return `${this.PAYOS_CALLBACKURL}/order/returnurl`;
+            case OrderInfo.Request:
+                return `${this.PAYOS_CALLBACKURL}/order/returnurlrequest`;
         }
-    }S
+    }
     private getCancelURLCallBack(type): string {
         switch (type) {
             case OrderInfo.Payment:
                 return `${this.PAYOS_CALLBACKURL}/order/cancelurl`;
+            case OrderInfo.Request:
+                return `${this.PAYOS_CALLBACKURL}/order/returnurlrequest`;
         }
     }
 
-    private async updateStatus(orderId: number, status: OrderStatus, userId: number){
-            // Bắt đầu transaction để đảm bảo tính toàn vẹn dữ liệu
-            const result = await this.prismaService.$transaction(async (prisma) => {
-                // Step 1: Cập nhật trạng thái của đơn hàng
-                const updatedOrder = await prisma.order.update({
-                    where: { id: orderId },
-                    data: {
-                        status: status,
-                        updatedAt: new Date(),
-                    },
-                });
-    
-                // Step 2: Thêm bản ghi vào bảng OrderHistory
-                const orderHistory = await prisma.orderHistory.create({
-                    data: {
-                        orderId: orderId,
-                        status: status,
-                        updatedById: userId,
-                        updatedAt: new Date(),
-                    },
-                });
-    
-                return { updatedOrder, orderHistory };
+    private async updateStatus(orderId: number, status: OrderStatus, userId: number) {
+        // Bắt đầu transaction để đảm bảo tính toàn vẹn dữ liệu
+        const result = await this.prismaService.$transaction(async (prisma) => {
+            // Step 1: Cập nhật trạng thái của đơn hàng
+            const updatedOrder = await prisma.order.update({
+                where: { id: orderId },
+                data: {
+                    status: status,
+                    updatedAt: new Date(),
+                },
             });
-            return result;
-        }
-    
+
+            // Step 2: Thêm bản ghi vào bảng OrderHistory
+            const orderHistory = await prisma.orderHistory.create({
+                data: {
+                    orderId: orderId,
+                    status: status,
+                    updatedById: userId,
+                    updatedAt: new Date(),
+                },
+            });
+
+            return { updatedOrder, orderHistory };
+        });
+        return result;
+    }
+
 
 }
 

@@ -33,13 +33,22 @@ export class RequestEntity extends BaseEntity {
     images: any; // Thay đổi thành kiểu dữ liệu cụ thể nếu có cấu trúc JSON xác định
 
     @AutoMap()
+    imageRepairs: any;
+    
+    @AutoMap()
     isUserConfirm: boolean;
+
+    @AutoMap()
+    isPay: boolean;
 
     @AutoMap()
     type: string;
 
     @AutoMap()
     reasonReject: string;
+
+    @AutoMap()
+    repairType: any;
 
     constructor(partial?: Partial<RequestEntity>) {
         super();
