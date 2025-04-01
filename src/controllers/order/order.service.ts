@@ -3,9 +3,9 @@ import { OrderStatus, Prisma } from '@prisma/client';
 import { BaseService } from 'src/base/base.service';
 import { CoreService } from 'src/core/core.service';
 import { OrderEntity } from 'src/model/entity/order.entity';
-import { CreateOrderRequest, OrderItemRequest } from 'src/model/request/orderItem.request';
+import { CreateOrderRequest, CreateOrderRequestRepair, OrderItemRequest } from 'src/model/request/orderItem.request';
 import { PrismaService } from 'src/repo/prisma.service';
-import { PayOSService } from 'src/common/services/payos/PayOS.service' ;
+import { PayOSService } from 'src/common/services/payos/PayOS.service';
 import { DepositRequest } from 'src/model/request/deposit.request';
 import { OrderInfo } from 'src/model/enum/order.enum';
 import { PaymentMethod } from 'src/model/enum/payment.enum';
@@ -15,12 +15,12 @@ export class OrderService extends BaseService<OrderEntity, Prisma.OrderCreateInp
     constructor(
         coreService: CoreService,
         protected readonly prismaService: PrismaService,
-        protected readonly payosService: PayOSService 
+        protected readonly payosService: PayOSService
     ) {
         super(prismaService, coreService)
     }
 
-    createOrder = async ( request: CreateOrderRequest)  => {
+    createOrder = async (request: CreateOrderRequest) => {
         var orderItems = request.orderItems;
         var userId = this._authService.getUserID();
         try {
@@ -54,7 +54,7 @@ export class OrderService extends BaseService<OrderEntity, Prisma.OrderCreateInp
                     data: {
                         userId,
                         totalAmount,
-                        status: paymentMethod == PaymentMethod.BankOnline ?  'PENDING' : 'PROCESSING',
+                        status: paymentMethod == PaymentMethod.BankOnline ? 'PENDING' : 'PROCESSING',
                         fullName: request.fullName,
                         address: request.address,
                         phoneNumber: request.phoneNumber,
@@ -78,25 +78,70 @@ export class OrderService extends BaseService<OrderEntity, Prisma.OrderCreateInp
 
                 return newOrder;
             });
-            if (paymentMethod == PaymentMethod.BankOnline){
+            if (paymentMethod == PaymentMethod.BankOnline) {
                 var deposit = new DepositRequest();
                 deposit.amount = parseInt(order.totalAmount.toString());
+                // get link thanh toán
                 return this.payosService.payOrder(deposit, order)
-            }else {
+            } else {
                 return process.env.LinkPayCoinSuccess;
             }
-            
+
         } catch (error) {
             console.error('Lỗi khi tạo đơn hàng:', error.message);
             throw error;
         }
     }
+
+    createOrderRepair = async (request: CreateOrderRequestRepair) => {
+        var userId = this._authService.getUserID();
+        try {
+            let paymentMethod = request.paymentMethod;
+            const data = await this.prismaService.request.findFirst({
+                where: {
+                    id: request.requestId
+                }
+            })
+            const order = await this.prismaService.$transaction(async (prisma) => {
+
+                const newOrder = await prisma.order.create({
+                    data: {
+                        totalAmount: data.price,
+                        status: paymentMethod == PaymentMethod.BankOnline ? 'PENDING' : 'PROCESSING',
+                        fullName: request.fullName,
+                        address: request.address,
+                        phoneNumber: request.phoneNumber,
+                        isRepair: true,
+                        user: {
+                            connect: {id: userId}
+                        },
+                        Request: {
+                            connect: {id: request.requestId}
+                        }
+                    },
+                });
+
+                return newOrder;
+            });
+            if (paymentMethod == PaymentMethod.BankOnline) {
+                return this.payosService.payOrderRequest(request.requestId, parseInt(order.totalAmount.toString()), order)
+            } else {
+                return process.env.LinkPayCoinSuccess;
+            }
+
+        } catch (error) {
+            console.error('Lỗi khi tạo đơn hàng:', error.message);
+            throw error;
+        }
+    }
+
+
     updateStatus = async (orderId: number, status: OrderStatus) => {
         // Bắt đầu transaction để đảm bảo tính toàn vẹn dữ liệu
         const result = await this.prismaService.$transaction(async (prisma) => {
             // Step 1: Cập nhật trạng thái của đơn hàng
             const updatedOrder = await prisma.order.update({
-                where: { id: orderId},
+                where: { id: orderId },
                 data: {
                     status: status,
                     updatedAt: new Date(),
@@ -118,15 +163,23 @@ export class OrderService extends BaseService<OrderEntity, Prisma.OrderCreateInp
         return result;
     }
 
-    async processCallback(request: any){
+    async processCallback(request: any) {
         return await this.payosService.processReturnURL(request, OrderInfo.Payment);
     }
 
-    async processCancelURL(request: any){
+    async processCancelURL(request: any) {
         return await this.payosService.processReturnURL(request, OrderInfo.Payment);
     }
 
-    async processReturnURL(request: any){
+    async processReturnURL(request: any) {
+        return await this.payosService.processReturnURL(request, OrderInfo.Payment);
+    }
+    
+    async processCancelURLRequest(request: any) {
+        return await this.payosService.processReturnURL(request, OrderInfo.Request);
+    }
+
+    async processReturnURLRequest(request: any) {
         return await this.payosService.processReturnURL(request, OrderInfo.Payment);
     }
 }

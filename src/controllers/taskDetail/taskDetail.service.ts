@@ -15,6 +15,24 @@ export class TaskDetailService extends BaseService<TaskDetailEntity, Prisma.Task
         super(prismaService, coreService)
     }
 
+    async add(entity: TaskDetailEntity): Promise<number> {
+        var id = await super.add(entity);
+        var data = await this.prismaService.taskDetail.findFirst({
+            where: {
+                id: id
+            }
+        })
+        if (data.assignedTo) {
+            await this.pushNotification(data.assignedTo, NotificationType.AMIN_ASSIGN_TASK,
+                JSON.stringify({
+                    id: data.requestId
+                }),
+                this._authService.getFullname(), this._authService.getUserID()
+            )
+        }
+
+        return id;
+    }
 
     async update(id: number, model: Partial<TaskDetailEntity>): Promise<boolean> {
         var dataOld = await super.getById(id);
@@ -24,7 +42,7 @@ export class TaskDetailService extends BaseService<TaskDetailEntity, Prisma.Task
             await this.pushNotification(dataNew.assignedTo, NotificationType.AMIN_ASSIGN_TASK,
                 JSON.stringify({
                     id: model.id,
-                    title: model.title ?? dataNew.title 
+                    title: model.title
                 }),
                 this._authService.getFullname(), this._authService.getUserID()
 
@@ -43,25 +61,25 @@ export class TaskDetailService extends BaseService<TaskDetailEntity, Prisma.Task
 
             // Step 2: Kiểm tra xem có task nào ở trạng thái IN_PROGRESS hoặc PENDING không
             const hasPendingOrInProgressTasks = tasks.some(
-                (task) => task.status === TaskStatus.IN_PROGRESS || task.status === TaskStatus.CANCELLED
+                (task) => task.status === TaskStatus.IN_PROGRESS || task.status === TaskStatus.PENDING
             );
 
             // Step 3: Nếu không có task nào ở trạng thái PENDING hoặc IN_PROGRESS, cập nhật trạng thái của Request
             if (!hasPendingOrInProgressTasks) {
-                await this.prismaService.request.update({
-                    where: { id: requestId },
-                    data: {
-                        status: RequestStatus.COMPLETED,
-                        completedAt: new Date(),
-                        updatedBy: this._authService.getFullname(),
-                        updatedAt: new Date(),
-                    },
-                });
-                var request = await this.prismaService.request.findFirst({
-                    where: {
-                        id: requestId
-                    }
-                })
+                // await this.prismaService.request.update({
+                //     where: { id: requestId },
+                //     data: {
+                //         status: RequestStatus.COMPLETED,
+                //         completedAt: new Date(),
+                //         updatedBy: this._authService.getFullname(),
+                //         updatedAt: new Date(),
+                //     },
+                // });
+                // var request = await this.prismaService.request.findFirst({
+                //     where: {
+                //         id: requestId
+                //     }
+                // })
                 await this.pushNotificationToProductOnwer(NotificationType.DONE_REQUEST,
                     JSON.stringify({
                         id: requestId
@@ -69,12 +87,12 @@ export class TaskDetailService extends BaseService<TaskDetailEntity, Prisma.Task
                     this._authService.getFullname(), this._authService.getUserID()
                 )
 
-                await this.pushNotification(request.userId, NotificationType.DONE_REQUEST_USER,
-                    JSON.stringify({
-                        id: requestId
-                    }),
-                    this._authService.getFullname(), this._authService.getUserID()
-                )
+                // await this.pushNotification(request.userId, NotificationType.DONE_REQUEST_USER,
+                //     JSON.stringify({
+                //         id: requestId
+                //     }),
+                //     this._authService.getFullname(), this._authService.getUserID()
+                // )
             }
         } catch (error) {
             console.error("Lỗi khi kiểm tra và cập nhật trạng thái của Request:", error.message);

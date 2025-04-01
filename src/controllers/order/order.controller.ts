@@ -8,7 +8,7 @@ import { EntityType, ModelType } from 'src/common/reflect.metadata';
 import { OrderEntity } from 'src/model/entity/order.entity';
 import { OrderDto } from 'src/model/dto/order.dto';
 import { AuthGuard } from 'src/core/auth.guard';
-import { CreateOrderRequest, OrderItemRequest } from 'src/model/request/orderItem.request';
+import { CreateOrderRequest, CreateOrderRequestRepair, OrderItemRequest } from 'src/model/request/orderItem.request';
 import { PayOSService } from 'src/common/services/payos/PayOS.service';
 import { Public } from 'src/utils/public.decorator';
 import { Response } from 'express';
@@ -42,6 +42,12 @@ export class OrderController extends BaseController<OrderEntity, Prisma.OrderCre
         return  ServiceResponse.onSuccess( await this.orderservice.createOrder(param));
     }
 
+    @Post("createOrderRepair")
+    @ApiBody({ type: CreateOrderRequestRepair })
+    async createOrderRepair(@Body() param: CreateOrderRequestRepair) {
+        return  ServiceResponse.onSuccess( await this.orderservice.createOrderRepair(param));
+    }
+
     @Put("status")
     @ApiBody({})
     async updateStatus(@Query('orderId') orderId: number, @Query('status') status: OrderStatus) {
@@ -69,5 +75,25 @@ export class OrderController extends BaseController<OrderEntity, Prisma.OrderCre
         return res.redirect(link);
     }
 
+    @Public()
+    @Get("cancelurlrequest")
+    async cancelurlrequest(@Query() query: any, @Res() res: Response) {
+        let link = '';
+        if (Object.keys(query).length) {
+            link = await this.orderservice.processCancelURLRequest(query);
+        }
+        return res.redirect(link);
+    }
+
+    @Public()
+    @Get("returnurlrequest")
+    async returnrequest(@Query() query: any, @Res() res: Response) {
+        let link = '';
+        console.log("returnurl")
+        if (Object.keys(query).length) {
+            link = await this.orderservice.processReturnURLRequest(query);
+        }
+        return res.redirect(link);
+    }
 
 }
