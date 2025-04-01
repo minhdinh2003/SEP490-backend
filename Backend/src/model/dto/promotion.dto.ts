@@ -1,7 +1,7 @@
 import { BaseDto } from './base.dto';
 import { ApiProperty } from '@nestjs/swagger';
 import { AutoMap } from '@automapper/classes';
-import { PromotionType } from '@prisma/client'; // Giả sử bạn đã định nghĩa enum trong Prisma
+
 
 export class PromotionDto extends BaseDto {
     @ApiProperty()
@@ -28,10 +28,6 @@ export class PromotionDto extends BaseDto {
     @AutoMap()
     endDate: Date; // Ngày kết thúc khuyến mãi
 
-    @ApiProperty({ enum: PromotionType })
-    @AutoMap()
-    type: PromotionType; // Loại khuyến mãi (enum)
-
     @ApiProperty()
     @AutoMap()
     times: number; // Số lần áp dụng khuyến mãi
@@ -39,5 +35,10 @@ export class PromotionDto extends BaseDto {
     @ApiProperty()
     @AutoMap()
     productId: number; // ID của sản phẩm liên quan
+
+    @AutoMap()
+    image: any;
+    @AutoMap()
+    content: string;
 
 }
