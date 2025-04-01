@@ -1,5 +1,4 @@
 import { BaseEntity } from './base.entity';
-import { PromotionType } from '@prisma/client'; // Giả sử bạn đã định nghĩa enum trong Prisma
 import { AutoMap } from '@automapper/classes';
 
 export class PromotionEntity extends BaseEntity {
@@ -21,13 +20,16 @@ export class PromotionEntity extends BaseEntity {
     endDate: Date; // Ngày kết thúc khuyến mãi
 
     @AutoMap()
-    type: PromotionType; // Loại khuyến mãi (enum)
-
-    @AutoMap()
     times: number; // Số lần áp dụng khuyến mãi
 
     @AutoMap()
     productId: number; // ID của sản phẩm liên quan
+
+    @AutoMap()
+    image: any;
+
+    @AutoMap()
+    content: string;
 
     constructor(partial?: Partial<PromotionEntity>) {
         super();
