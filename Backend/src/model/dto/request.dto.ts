@@ -66,6 +66,9 @@ export class RequestDto extends BaseDto {
     @AutoMap()
     repairType: any;
 
+    @AutoMap()
+    TaskDetail: any[];
+
     constructor(partial?: Partial<RequestDto>) {
         super();
         Object.assign(this, partial);

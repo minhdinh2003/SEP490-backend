@@ -70,15 +70,15 @@ export class UsersService extends BaseService<UserEntity, Prisma.UserCreateInput
     }
 
     async updateViewNotification(id: number){
-        // await this.prismaService.notification.update({
-        //     where: {
-        //         id: id
-        //     },
-        //     data: {
-        //         isViewed: true
-        //     }
-        // })
-        // return true;
+        await this.prismaService.notification.update({
+            where: {
+                id: id
+            },
+            data: {
+                isViewed: true
+            }
+        })
+        return true;
     }
     
 
