@@ -49,7 +49,7 @@ export class RequestService extends BaseService<RequestEntity, Prisma.RequestCre
       })
       // Step 2: Tạo các TaskDetail tự động gắn với yêu cầu
       const tasks = [
-        // {
+        {
         //   requestId: id,
         //   title: "Kiểm tra tình trạng ban đầu của sản phẩm",
         //   description: "",
@@ -59,7 +59,7 @@ export class RequestService extends BaseService<RequestEntity, Prisma.RequestCre
         //   comments: [],
         // }
         // ,
-        {
+        // {
           requestId: id,
           title: "Sửa chữa hoặc thay thế linh kiện bị hỏng",
           description: "",
