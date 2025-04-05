@@ -69,25 +69,19 @@ export class UsersService extends BaseService<UserEntity, Prisma.UserCreateInput
         return this.prismaService.notificationRepo.getPaging(param, false);
     }
 
-    // async updateViewNotification(id: number){
-    //     await this.prismaService.notification.update({
-    //         where: {
-    //             id: id
-    //         },
-    //         data: {
-    //             isViewed: true
-    //         }
-    //     })
-    //     return true;
-    // }
-
-    updateViewNotification = async (id: number): Promise<boolean> => {
+    async updateViewNotification(id: number){
         await this.prismaService.notification.update({
-            where: { id },
-            data: { isViewed: true }
-        });
+            where: {
+                id: id
+            },
+            data: {
+                isViewed: true
+            }
+        })
         return true;
     }
+
+
     
 
 }
