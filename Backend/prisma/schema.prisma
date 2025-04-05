@@ -28,8 +28,10 @@ enum Gender {
 }
 
 enum PromotionType {
-  BUY
-  REPAIR
+  CAR_WASH // Rửa xe
+  DISCOUNT // Giảm giá
+  OIL_CHANGE // Thay dầu
+  MAINTENANCE // Bảo dưỡng
 }
 
 enum PartType {
@@ -265,17 +267,34 @@ model OrderHistory {
 }
 
 model Promotion {
-  id          Int      @id @default(autoincrement()) // Khóa chính tự động tăng
-  content     String   @db.Text
-  name        String   @db.VarChar(255) // Tên chương trình khuyến mãi
-  description String?  @db.Text // Mô tả chi tiết (tùy chọn)
+  id          Int       @id @default(autoincrement()) // Khóa chính tự động tăng
+  content     String    @db.Text
+  name        String    @db.VarChar(255) // Tên chương trình khuyến mãi
+  description String?   @db.Text // Mô tả chi tiết (tùy chọn)
   startDate   DateTime // Ngày bắt đầu khuyến mãi
   endDate     DateTime // Ngày kết thúc khuyến mãi
   image       Json?
-  createdAt   DateTime @default(now()) // Thời gian tạo
-  updatedAt   DateTime @updatedAt // Thời gian cập nhật
-  createdBy   String?  @db.VarChar(100) // Người tạo (có thể null)
-  updatedBy   String?  @db.VarChar(100) // Người cập nhật (có thể null)
+  createdAt   DateTime  @default(now()) // Thời gian tạo
+  updatedAt   DateTime  @updatedAt // Thời gian cập nhật
+  createdBy   String?   @db.VarChar(100) // Người tạo (có thể null)
+  updatedBy   String?   @db.VarChar(100) // Người cập nhật (có thể null)
+  Voucher     Voucher[]
+}
+
+model Voucher {
+  id          Int       @id @default(autoincrement()) // Khóa chính tự động tăng
+  promotionId Int // Liên kết với bảng Promotion
+  code        String    @unique @db.VarChar(255) // Mã voucher (duy nhất)
+  discount    Decimal   @db.Decimal(10, 2) // Giá trị giảm giá (ví dụ: 10% hoặc 100.000đ)
+  usageLimit  Int // Số lượt sử dụng tối đa
+  usedCount   Int       @default(0) // Số lượt đã sử dụng
+  validFrom   DateTime // Thời gian bắt đầu hiệu lực
+  validTo     DateTime // Thời gian kết thúc hiệu lực
+  createdAt   DateTime  @default(now()) // Thời gian tạo
+  updatedAt   DateTime  @updatedAt // Thời gian cập nhật
+  promotion   Promotion @relation(fields: [promotionId], references: [id]) // Quan hệ với bảng Promotion
+
+  @@index([promotionId]) // Tạo chỉ mục để tối ưu hóa truy vấn theo promotionId
 }
 
 // Định nghĩa enum cho trạng thái nhiệm vụ
@@ -426,6 +445,7 @@ model TaskDetail {
   deadline    DateTime? // Thời hạn hoàn thành task
   images      Json? // Danh sách hình ảnh (JSON array)
   comments    Json? // Danh sách bình luận (JSON array)
+  price       Int? // Giá sửa chữa (tùy chọn)
   createdAt   DateTime   @default(now()) // Thời gian tạo
   updatedAt   DateTime   @updatedAt // Thời gian cập nhật
   createdBy   String?
