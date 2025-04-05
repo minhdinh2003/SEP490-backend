@@ -15,7 +15,6 @@ import { ReviewModule } from './controllers/review/review.module';
 import { OrderModule } from './controllers/order/order.module';
 import { OrderHistoryModule } from './controllers/orderHistory/orderHistory.module';
 import { PromotionModule } from './controllers/promotion/promotion.module';
-import { VoucherModule } from './controllers/voucher/voucher.module';
 import { FilesModule } from './controllers/file/files.module';
 import { TransactionModule } from './controllers/transaction/transaction.module';
 import { RequestModule } from './controllers/request/request.module';
@@ -37,7 +36,6 @@ import { TaskDetailModule } from './controllers/taskDetail/taskDetail.module';
     OrderModule,
     OrderHistoryModule,
     PromotionModule,
-    VoucherModule,
     FilesModule,
     TransactionModule,
     RequestModule,

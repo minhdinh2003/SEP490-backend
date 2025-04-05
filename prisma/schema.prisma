@@ -28,8 +28,10 @@ enum Gender {
 }
 
 enum PromotionType {
-  BUY
-  REPAIR
+  CAR_WASH // Rửa xe
+  DISCOUNT // Giảm giá
+  OIL_CHANGE // Thay dầu
+  MAINTENANCE // Bảo dưỡng
 }
 
 enum PartType {
@@ -141,7 +143,6 @@ model Product {
   whitelist       Whitelist[]
   review          Review[]
   orderItem       OrderItem[]
-  promotion       Promotion[]
   inventory       Inventory?
 }
 
@@ -182,7 +183,6 @@ model Whitelist {
   createdBy String?  @db.VarChar(100) // Người tạo (có thể null)
   updatedBy String?  @db.VarChar(100) // Người cập nhật (có thể null)
 
-  @@unique([userId, productId]) // Đảm bảo mỗi người dùng chỉ có thể thêm một sản phẩm vào wishlist một lần
   @@index([userId]) // Tạo chỉ mục để tối ưu hóa truy vấn theo userId
   @@index([productId]) // Tạo chỉ mục để tối ưu hóa truy vấn theo productId
 }
@@ -206,21 +206,25 @@ model Review {
 }
 
 model Order {
-  id            Int            @id @default(autoincrement()) // Khóa chính tự động tăng
-  user          User           @relation(fields: [userId], references: [id]) // Liên kết với bảng User
+  id            Int         @id @default(autoincrement()) // Khóa chính tự động tăng
+  user          User        @relation(fields: [userId], references: [id]) // Liên kết với bảng User
   userId        Int // ID của người dùng
-  totalAmount   Decimal        @db.Decimal(10, 2) // Tổng số tiền của đơn hàng
-  status        OrderStatus    @default(PENDING) // Trạng thái đơn hàng
-  createdAt     DateTime       @default(now()) // Thời gian tạo
-  updatedAt     DateTime       @updatedAt // Thời gian cập nhật
-  createdBy     String?        @db.VarChar(100) // Người tạo (có thể null)
-  updatedBy     String?        @db.VarChar(100) // Người cập nhật (có thể null)
+  totalAmount   Decimal     @db.Decimal(10, 2) // Tổng số tiền của đơn hàng
+  status        OrderStatus @default(PENDING) // Trạng thái đơn hàng
+  createdAt     DateTime    @default(now()) // Thời gian tạo
+  updatedAt     DateTime    @updatedAt // Thời gian cập nhật
+  createdBy     String?     @db.VarChar(100) // Người tạo (có thể null)
+  updatedBy     String?     @db.VarChar(100) // Người cập nhật (có thể null)
   orderItems    OrderItem[] // Liên kết với bảng OrderItem (các mục trong đơn hàng)
-  paymentMethod Int            @default(0)
-  fullName      String         @default("")
-  address       String         @default("")
-  phoneNumber   String         @default("")
-  OrderHistory  OrderHistory[]
+  paymentMethod Int         @default(0)
+  fullName      String?     @default("")
+  address       String?     @default("")
+  phoneNumber   String?     @default("")
+  isRepair      Boolean     @default(false)
+  requestId     Int?
+  Request       Request?    @relation(fields: [requestId], references: [id], onDelete: SetNull) // Mối quan hệ optional
+
+  OrderHistory OrderHistory[]
 }
 
 // Định nghĩa enum cho trạng thái đơn hàng
@@ -263,36 +267,32 @@ model OrderHistory {
 }
 
 model Promotion {
-  id          Int           @id @default(autoincrement()) // Khóa chính tự động tăng
-  name        String        @db.VarChar(255) // Tên chương trình khuyến mãi
-  description String?       @db.Text // Mô tả chi tiết (tùy chọn)
-  discount    Decimal       @db.Decimal(5, 2) // Phần trăm giảm giá (ví dụ: 10.00 = 10%)
+  id          Int       @id @default(autoincrement()) // Khóa chính tự động tăng
+  content     String    @db.Text
+  name        String    @db.VarChar(255) // Tên chương trình khuyến mãi
+  description String?   @db.Text // Mô tả chi tiết (tùy chọn)
   startDate   DateTime // Ngày bắt đầu khuyến mãi
   endDate     DateTime // Ngày kết thúc khuyến mãi
-  type        PromotionType @default(BUY)
-  times       Int
-  createdAt   DateTime      @default(now()) // Thời gian tạo
-  updatedAt   DateTime      @updatedAt // Thời gian cập nhật
-  productId   Int
-  createdBy   String?       @db.VarChar(100) // Người tạo (có thể null)
-  updatedBy   String?       @db.VarChar(100) // Người cập nhật (có thể null)
-  vouchers    Voucher[] // Liên kết với bảng Voucher
-  product     Product       @relation(fields: [productId], references: [id])
-}
-
-model Voucher {
-  id          Int       @id @default(autoincrement()) // Khóa chính tự động tăng
-  code        String    @unique @db.VarChar(50) // Mã giảm giá (duy nhất)
-  promotion   Promotion @relation(fields: [promotionId], references: [id]) // Liên kết với bảng Promotion
-  promotionId Int // ID của chương trình khuyến mãi
-  discount    Decimal   @db.Decimal(5, 2) // Phần trăm giảm giá (ví dụ: 10.00 = 10%)
-  usageLimit  Int // Số lần sử dụng tối đa
-  usedCount   Int       @default(0) // Số lần đã sử dụng
-  expiryDate  DateTime // Ngày hết hạn của mã giảm giá
+  image       Json?
   createdAt   DateTime  @default(now()) // Thời gian tạo
   updatedAt   DateTime  @updatedAt // Thời gian cập nhật
   createdBy   String?   @db.VarChar(100) // Người tạo (có thể null)
   updatedBy   String?   @db.VarChar(100) // Người cập nhật (có thể null)
+  Voucher     Voucher[]
+}
+
+model Voucher {
+  id          Int       @id @default(autoincrement()) // Khóa chính tự động tăng
+  promotionId Int // Liên kết với bảng Promotion
+  code        String    @unique @db.VarChar(255) // Mã voucher (duy nhất)
+  discount    Decimal   @db.Decimal(10, 2) // Giá trị giảm giá (ví dụ: 10% hoặc 100.000đ)
+  usageLimit  Int // Số lượt sử dụng tối đa
+  usedCount   Int       @default(0) // Số lượt đã sử dụng
+  validFrom   DateTime // Thời gian bắt đầu hiệu lực
+  validTo     DateTime // Thời gian kết thúc hiệu lực
+  createdAt   DateTime  @default(now()) // Thời gian tạo
+  updatedAt   DateTime  @updatedAt // Thời gian cập nhật
+  promotion   Promotion @relation(fields: [promotionId], references: [id]) // Quan hệ với bảng Promotion
 
   @@index([promotionId]) // Tạo chỉ mục để tối ưu hóa truy vấn theo promotionId
 }
@@ -360,6 +360,11 @@ model File {
   updatedBy           String?
 }
 
+enum RepairType {
+  IN_SHOP // Sửa ở quán
+  AT_HOME // Sửa ở nhà
+}
+
 model Request {
   id            Int              @id @default(autoincrement()) // Khóa chính tự động tăng
   userId        Int // ID của người dùng tạo yêu cầu
@@ -374,13 +379,18 @@ model Request {
   updatedAt     DateTime         @updatedAt // Thời gian cập nhật
   createdBy     String?
   updatedBy     String?
+  repairType    RepairType       @default(IN_SHOP) // Loại sửa chữa (ở nhà hoặc ở quán)
+  address       String?          @db.Text // Địa chỉ liên quan đến yêu cầu sửa chữa
   completedAt   DateTime? // Thời gian hoàn thành (tùy chọn)
   images        Json
+  imageRepairs  Json?
   isUserConfirm Boolean
   type          String
+  isPay         Boolean          @default(false)
   history       RequestHistory[] // Lịch sử cập nhật trạng thái
   Chat          Chat[]
   TaskDetail    TaskDetail[]
+  Order         Order[]
 
   @@index([userId]) // Tạo chỉ mục để tối ưu hóa truy vấn theo userId
 }
@@ -435,6 +445,7 @@ model TaskDetail {
   deadline    DateTime? // Thời hạn hoàn thành task
   images      Json? // Danh sách hình ảnh (JSON array)
   comments    Json? // Danh sách bình luận (JSON array)
+  price       Int? // Giá sửa chữa (tùy chọn)
   createdAt   DateTime   @default(now()) // Thời gian tạo
   updatedAt   DateTime   @updatedAt // Thời gian cập nhật
   createdBy   String?

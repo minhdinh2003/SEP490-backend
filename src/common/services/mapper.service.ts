@@ -195,7 +195,13 @@ export class MapperService {
       forMember(
         (dest) => dest.paymentMethod,
         mapFrom((src) => src.paymentMethod)
-      )
+      ),
+      forMember(
+        (dest) => dest.Request,
+        mapFrom((src) => src.Request)
+      ),
+      forMember((dest) => dest.createdAt, mapFrom((src) => src.createdAt)),
+      forMember((dest) => dest.updatedAt, mapFrom((src) => src.updatedAt)),
     )
     createMap(this.mapper, ReviewEntity, OrderDto,
       forMember(
@@ -258,12 +264,12 @@ export class MapperService {
         mapFrom((src) => src.discount)
       ),
       forMember(
-        (dest) => dest.type,
-        mapFrom((src) => src.type)
-      ),
-      forMember(
         (dest) => dest.times,
         mapFrom((src) => src.times)
+      ),
+      forMember(
+        (dest) => dest.image,
+        mapFrom((src) => src.image)
       ),
     );
     createMap(this.mapper, VoucherDto, VoucherEntity);
@@ -300,6 +306,9 @@ export class MapperService {
       forMember((dest) => dest.isUserConfirm, mapFrom((src) => src.isUserConfirm)),
       forMember((dest) => dest.createdAt, mapFrom((src) => src.createdAt)),
       forMember((dest) => dest.images, mapFrom((src) => src.images)),
+      forMember((dest) => dest.imageRepairs, mapFrom((src) => src.imageRepairs)),
+      forMember((dest) => dest.repairType, mapFrom((src) => src.repairType)),
+      forMember((dest) => dest.TaskDetail, mapFrom((src) => src.TaskDetail)),
     );
     createMap(this.mapper, RequestHistoryDto, RequestHistoryEntity);
     createMap(this.mapper, RequestHistoryEntity, RequestHistoryDto);
@@ -318,6 +327,8 @@ export class MapperService {
       forMember((dest) => dest.comments, mapFrom((src) => src.comments)),
       forMember((dest) => dest.createdAt, mapFrom((src) => src.createdAt)),
       forMember((dest) => dest.assignee, mapFrom((src) => src.assignee)),
+      forMember((dest) => dest.isPay, mapFrom((src) => src.isPay)),
+      forMember((dest) => dest.price, mapFrom((src) => src.price)),
     );
   }
 
@@ -333,6 +344,7 @@ export class MapperService {
   }
 
 }
+
 
 
 

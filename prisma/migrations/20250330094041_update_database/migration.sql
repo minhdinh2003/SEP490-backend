@@ -172,7 +172,7 @@ CREATE TABLE `OrderItem` (
 CREATE TABLE `OrderHistory` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `orderId` INTEGER NOT NULL,
-    `status` ENUM('PENDING', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED') NOT NULL,
+    `status` ENUM('PENDING','UPDATING','PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED') NOT NULL,
     `updatedById` INTEGER NULL,
     `updatedAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `createdBy` VARCHAR(100) NULL,
@@ -305,7 +305,7 @@ CREATE TABLE `Request` (
     `isUserConfirm` BOOLEAN NOT NULL,
     `type` VARCHAR(191) NOT NULL,
     `isPay` BOOLEAN NOT NULL DEFAULT false,
-    `isRepair` BOOLEAN NOT NULL DEFAULT false,
+
     INDEX `Request_userId_idx`(`userId`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
