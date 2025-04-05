@@ -14,6 +14,13 @@ import { WhitelistModule } from './controllers/whitelist/whitelist.module';
 import { ReviewModule } from './controllers/review/review.module';
 import { OrderModule } from './controllers/order/order.module';
 import { OrderHistoryModule } from './controllers/orderHistory/orderHistory.module';
+import { PromotionModule } from './controllers/promotion/promotion.module';
+import { FilesModule } from './controllers/file/files.module';
+import { TransactionModule } from './controllers/transaction/transaction.module';
+import { RequestModule } from './controllers/request/request.module';
+import { RequestHistoryModule } from './controllers/requestHistory/requestHistory.module';
+import { ChatModule } from './controllers/chat/chat.module';
+import { TaskDetailModule } from './controllers/taskDetail/taskDetail.module';
 
 @Module({
   imports: [
@@ -27,7 +34,12 @@ import { OrderHistoryModule } from './controllers/orderHistory/orderHistory.modu
     WhitelistModule,
     ReviewModule,
     OrderModule,
-    OrderHistoryModule
+    OrderHistoryModule,
+    PromotionModule,
+    FilesModule,
+    TransactionModule,
+    RequestModule,
+    TaskDetailModule
   ],
   controllers: [AppController],
   providers: [AppService,
