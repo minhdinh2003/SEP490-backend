@@ -37,7 +37,7 @@ export class RequestService extends BaseService<RequestEntity, Prisma.RequestCre
     const id = await super.add(entity);
 
     const role = this._authService.getRole();
-    if (role == Role.OWNER) {
+    if (role == Role.OWNER || role == Role.EMPLOYEE) {
       await this.prismaService.request.update({
         where: {
           id: id
@@ -50,16 +50,6 @@ export class RequestService extends BaseService<RequestEntity, Prisma.RequestCre
       // Step 2: Tạo các TaskDetail tự động gắn với yêu cầu
       const tasks = [
         {
-        //   requestId: id,
-        //   title: "Kiểm tra tình trạng ban đầu của sản phẩm",
-        //   description: "",
-        //   status: TaskStatus.PENDING,
-        //   deadline: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // Deadline trong 7 ngày
-        //   images: [],
-        //   comments: [],
-        // }
-        // ,
-        // {
           requestId: id,
           title: "Sửa chữa hoặc thay thế linh kiện bị hỏng",
           description: "",
@@ -83,7 +73,10 @@ export class RequestService extends BaseService<RequestEntity, Prisma.RequestCre
       const createdTasks = await this.prismaService.taskDetail.createMany({
         data: tasks,
       });
-    } else {
+    } else if (role == Role.EMPLOYEE) {
+
+    }
+    else {
       // push notificatio to productowner
       await this.pushNotificationToProductOnwer(NotificationType.USER_SEND_REQUEST_PRODUCT_OWNER,
         JSON.stringify({

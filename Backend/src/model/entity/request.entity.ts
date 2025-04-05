@@ -50,6 +50,9 @@ export class RequestEntity extends BaseEntity {
     @AutoMap()
     repairType: any;
 
+    @AutoMap()
+    TaskDetail: any[];
+
     constructor(partial?: Partial<RequestEntity>) {
         super();
         Object.assign(this, partial);
