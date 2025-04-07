@@ -22,8 +22,6 @@ export class VoucherEntity extends BaseEntity {
   @AutoMap()
   expiryDate: Date; // Ngày hết hạn của mã giảm giá
   
-  @AutoMap()
-  validDates?: string[]; // 
 
   constructor(partial?: Partial<VoucherEntity>) {
     super();
