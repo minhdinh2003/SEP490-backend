@@ -31,4 +31,13 @@ export class VoucherDto extends BaseDto {
     @AutoMap()
     expiryDate: Date; // Ngày hết hạn của mã giảm giá
 
+    @ApiProperty()
+    @AutoMap()
+    validFrom: Date;
+
+    @ApiProperty()
+    @AutoMap()
+    validTo: Date;
+
+
 }
