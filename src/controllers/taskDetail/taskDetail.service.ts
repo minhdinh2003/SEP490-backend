@@ -4,6 +4,7 @@ import { title } from 'process';
 import { BaseService } from 'src/base/base.service';
 import { NotificationType } from 'src/common/const/notification.type';
 import { CoreService } from 'src/core/core.service';
+import { RequestEntity } from 'src/model/entity/request.entity';
 import { TaskDetailEntity } from 'src/model/entity/taskDetail.entity';
 import { PrismaService } from 'src/repo/prisma.service';
 
@@ -17,19 +18,22 @@ export class TaskDetailService extends BaseService<TaskDetailEntity, Prisma.Task
 
     async add(entity: TaskDetailEntity): Promise<number> {
         var id = await super.add(entity);
-        var data = await this.prismaService.taskDetail.findFirst({
-            where: {
-                id: id
+        if (this._authService.getRole() == Role.OWNER) {
+            var data = await this.prismaService.taskDetail.findFirst({
+                where: {
+                    id: id
+                }
+            })
+            if (data.assignedTo) {
+                await this.pushNotification(data.assignedTo, NotificationType.AMIN_ASSIGN_TASK,
+                    JSON.stringify({
+                        id: data.requestId
+                    }),
+                    this._authService.getFullname(), this._authService.getUserID()
+                )
             }
-        })
-        if (data.assignedTo) {
-            await this.pushNotification(data.assignedTo, NotificationType.AMIN_ASSIGN_TASK,
-                JSON.stringify({
-                    id: data.requestId
-                }),
-                this._authService.getFullname(), this._authService.getUserID()
-            )
         }
+
 
         return id;
     }
@@ -66,20 +70,7 @@ export class TaskDetailService extends BaseService<TaskDetailEntity, Prisma.Task
 
             // Step 3: Nếu không có task nào ở trạng thái PENDING hoặc IN_PROGRESS, cập nhật trạng thái của Request
             if (!hasPendingOrInProgressTasks) {
-                // await this.prismaService.request.update({
-                //     where: { id: requestId },
-                //     data: {
-                //         status: RequestStatus.COMPLETED,
-                //         completedAt: new Date(),
-                //         updatedBy: this._authService.getFullname(),
-                //         updatedAt: new Date(),
-                //     },
-                // });
-                // var request = await this.prismaService.request.findFirst({
-                //     where: {
-                //         id: requestId
-                //     }
-                // })
+
                 await this.pushNotificationToProductOnwer(NotificationType.DONE_REQUEST,
                     JSON.stringify({
                         id: requestId
@@ -87,12 +78,6 @@ export class TaskDetailService extends BaseService<TaskDetailEntity, Prisma.Task
                     this._authService.getFullname(), this._authService.getUserID()
                 )
 
-                // await this.pushNotification(request.userId, NotificationType.DONE_REQUEST_USER,
-                //     JSON.stringify({
-                //         id: requestId
-                //     }),
-                //     this._authService.getFullname(), this._authService.getUserID()
-                // )
             }
         } catch (error) {
             console.error("Lỗi khi kiểm tra và cập nhật trạng thái của Request:", error.message);

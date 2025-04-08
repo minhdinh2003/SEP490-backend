@@ -45,9 +45,15 @@ export class RequestDto extends BaseDto {
     @AutoMap()
     images: any; // Thay đổi thành kiểu dữ liệu cụ thể nếu có cấu trúc JSON xác định
 
+    @AutoMap()
+    imageRepairs: any;
+    
     @ApiProperty()
     @AutoMap()
     isUserConfirm: boolean;
+
+    @AutoMap()
+    isPay: boolean;
 
     @ApiProperty()
     @AutoMap()
@@ -56,6 +62,12 @@ export class RequestDto extends BaseDto {
     @ApiProperty()
     @AutoMap()
     reasonReject: string;
+
+    @AutoMap()
+    repairType: any;
+
+    @AutoMap()
+    TaskDetail: any[];
 
     constructor(partial?: Partial<RequestDto>) {
         super();

@@ -46,6 +46,15 @@ export class TaskDetailDto extends BaseDto {
   @AutoMap()
   images?: any; // Thay đổi thành kiểu dữ liệu cụ thể nếu có cấu trúc JSON xác định
 
+  @AutoMap()
+  imageRepairs?: any;
+
+  @AutoMap()
+  isPay: boolean;
+
+  @AutoMap()
+  price?: number;
+
   @ApiProperty({ required: false })
   @AutoMap()
   comments?: any; // Thay đổi thành kiểu dữ liệu cụ thể nếu có cấu trúc JSON xác định
