@@ -1,7 +1,8 @@
 import { BaseDto } from './base.dto';
 import { ApiProperty } from '@nestjs/swagger';
 import { AutoMap } from '@automapper/classes';
-
+import { IsDate, ValidateIf } from 'class-validator';
+import { Type } from 'class-transformer';
 export class VoucherDto extends BaseDto {
     @ApiProperty()
     @AutoMap()
@@ -34,10 +35,11 @@ export class VoucherDto extends BaseDto {
     @ApiProperty()
     @AutoMap()
     validFrom: Date;
-
+  
     @ApiProperty()
     @AutoMap()
     validTo: Date;
+
 
 
 }
