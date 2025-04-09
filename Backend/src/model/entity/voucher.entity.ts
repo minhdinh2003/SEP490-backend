@@ -28,6 +28,13 @@ export class VoucherEntity extends BaseEntity {
   @AutoMap()
   validTo: Date;
 
+  @AutoMap()
+  userId?: number; 
+
+  @AutoMap()
+  voucherType: 'individual' | 'public'; 
+
+
   constructor(partial?: Partial<VoucherEntity>) {
     super();
     if (partial) {

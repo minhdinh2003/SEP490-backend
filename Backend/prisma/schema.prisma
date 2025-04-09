@@ -293,7 +293,9 @@ model Voucher {
   createdAt   DateTime  @default(now()) // Thời gian tạo
   updatedAt   DateTime  @updatedAt // Thời gian cập nhật
   promotion   Promotion @relation(fields: [promotionId], references: [id]) // Quan hệ với bảng Promotion
-
+  user          User        @relation(fields: [userId], references: [id])
+  userId       Int
+  voucherType  String   
   @@index([promotionId]) // Tạo chỉ mục để tối ưu hóa truy vấn theo promotionId
 }
 
