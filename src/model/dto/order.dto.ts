@@ -2,6 +2,8 @@ import { BaseDto } from './base.dto';
 import { ApiProperty } from '@nestjs/swagger';
 import { AutoMap } from '@automapper/classes';
 import { OrderStatus } from '@prisma/client';
+import { ProductDto } from './product.dto';
+import { RequestDto } from './request.dto';
 
 export class OrderDto extends BaseDto {
     @ApiProperty()
@@ -19,6 +21,26 @@ export class OrderDto extends BaseDto {
     @ApiProperty({ enum: OrderStatus })
     @AutoMap()
     status: OrderStatus; // Trạng thái đơn hàng
+
+    @ApiProperty()
+    @AutoMap()
+    paymentMethod: number;
+
+    @ApiProperty()
+    @AutoMap()
+    fullName: string;
+  
+    @ApiProperty()
+    @AutoMap()
+    address: string;
+  
+    @ApiProperty()
+    @AutoMap()
+    phoneNumber: string;
+
+    orderItems: OrderItemDto[];
+
+    Request: RequestDto;
 }
 
 export class OrderItemDto extends BaseDto {
@@ -41,6 +63,8 @@ export class OrderItemDto extends BaseDto {
     @ApiProperty()
     @AutoMap()
     price: number; // Giá của sản phẩm tại thời điểm đặt hàng
+
+    product: ProductDto;
 
 }
 
