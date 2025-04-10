@@ -27,13 +27,6 @@ enum Gender {
   OTHER
 }
 
-enum PromotionType {
-  CAR_WASH // Rửa xe
-  DISCOUNT // Giảm giá
-  OIL_CHANGE // Thay dầu
-  MAINTENANCE // Bảo dưỡng
-}
-
 enum PartType {
   ENGINE
   TRANSMISSION
@@ -87,6 +80,7 @@ model User {
   TaskDetail        TaskDetail[]
   TaskHistory       TaskHistory[]
   requests          Request[]        @relation("Approver")
+  Voucher           Voucher[]
 }
 
 model OtpRequest {
@@ -222,6 +216,7 @@ model Order {
   phoneNumber   String?     @default("")
   isRepair      Boolean     @default(false)
   requestId     Int?
+  voucherCode   String?     @db.VarChar(255) // Mã voucher (có thể null)
   Request       Request?    @relation(fields: [requestId], references: [id], onDelete: SetNull) // Mối quan hệ optional
 
   OrderHistory OrderHistory[]
@@ -266,24 +261,44 @@ model OrderHistory {
   @@index([orderId]) // Tạo chỉ mục để tối ưu hóa truy vấn theo orderId
 }
 
+enum PromotionType {
+  EVENT // Rửa xe
+  DISCOUNT // Giảm giá
+  MAINTENANCE // Bảo dưỡng
+}
+
+enum DiscountType {
+  PERCENTAGE // Giảm giá theo phần trăm
+  AMOUNT // Giảm giá theo số tiền cụ thể
+}
+
 model Promotion {
-  id          Int       @id @default(autoincrement()) // Khóa chính tự động tăng
-  content     String    @db.Text
-  name        String    @db.VarChar(255) // Tên chương trình khuyến mãi
-  description String?   @db.Text // Mô tả chi tiết (tùy chọn)
-  startDate   DateTime // Ngày bắt đầu khuyến mãi
-  endDate     DateTime // Ngày kết thúc khuyến mãi
-  image       Json?
-  createdAt   DateTime  @default(now()) // Thời gian tạo
-  updatedAt   DateTime  @updatedAt // Thời gian cập nhật
-  createdBy   String?   @db.VarChar(100) // Người tạo (có thể null)
-  updatedBy   String?   @db.VarChar(100) // Người cập nhật (có thể null)
-  Voucher     Voucher[]
+  id              Int           @id @default(autoincrement()) // Khóa chính tự động tăng
+  content         String        @db.Text // Nội dung chi tiết của chương trình khuyến mãi
+  name            String        @db.VarChar(255) // Tên chương trình khuyến mãi
+  description     String?       @db.Text // Mô tả chi tiết (tùy chọn)
+  type            PromotionType // Loại chương trình khuyến mãi (rửa xe, giảm giá, thay dầu...)
+  startDate       DateTime // Ngày bắt đầu khuyến mãi
+  endDate         DateTime // Ngày kết thúc khuyến mãi
+  image           Json? // Danh sách hình ảnh (JSON array)
+  discountType    DiscountType  @default(PERCENTAGE) // Loại giảm giá (phần trăm hoặc số tiền cụ thể)
+  discountValue   Decimal       @db.Decimal(10, 2) // Giá trị giảm giá (ví dụ: 10% hoặc 100.000đ)
+  minUseRequest   Int // Số lần tối thiểu sử dụng dịch vụ sửa chữa để áp dụng khuyến mãi
+  minUseAmount    Int // giá tiền tối thiểu để áp dụng khuyến mãi
+  voucherQuantity Int           @default(0) // Tổng số lượng voucher có thể phát hành
+  voucherUsed     Int           @default(0) // Số lượng voucher đã phát hành
+  createdAt       DateTime      @default(now()) // Thời gian tạo
+  updatedAt       DateTime      @updatedAt // Thời gian cập nhật
+  createdBy       String?       @db.VarChar(100) // Người tạo (có thể null)
+  updatedBy       String?       @db.VarChar(100) // Người cập nhật (có thể null)
+  vouchers        Voucher[] // Các voucher liên quan đến chương trình khuyến mãi
 }
 
 model Voucher {
   id          Int       @id @default(autoincrement()) // Khóa chính tự động tăng
   promotionId Int // Liên kết với bảng Promotion
+  userId      Int? // ID của người dùng được cấp voucher
+  user        User?     @relation(fields: [userId], references: [id]) // Quan hệ với bảng User
   code        String    @unique @db.VarChar(255) // Mã voucher (duy nhất)
   discount    Decimal   @db.Decimal(10, 2) // Giá trị giảm giá (ví dụ: 10% hoặc 100.000đ)
   usageLimit  Int // Số lượt sử dụng tối đa
@@ -292,6 +307,8 @@ model Voucher {
   validTo     DateTime // Thời gian kết thúc hiệu lực
   createdAt   DateTime  @default(now()) // Thời gian tạo
   updatedAt   DateTime  @updatedAt // Thời gian cập nhật
+  createdBy   String?   @db.VarChar(100) // Người tạo (có thể null)
+  updatedBy   String?   @db.VarChar(100) // Người cập nhật (có thể null)
   promotion   Promotion @relation(fields: [promotionId], references: [id]) // Quan hệ với bảng Promotion
 
   @@index([promotionId]) // Tạo chỉ mục để tối ưu hóa truy vấn theo promotionId
