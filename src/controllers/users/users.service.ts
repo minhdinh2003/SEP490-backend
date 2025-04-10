@@ -24,6 +24,9 @@ export class UsersService extends BaseService<UserEntity, Prisma.UserCreateInput
             throw new HttpException({ message: 'Email đã tồn tại' }, HttpStatus.BAD_REQUEST)
         }
         let passWord = generateRandomPassword(10);
+        //if (isEnvDevelopment()) {
+        passWord = "12345678";
+        //}
         entity.passwordHash = await hash(passWord, 10);
         var result = await this.repository.create(entity, {
             select: {

@@ -12,4 +12,19 @@ export class WhitelistService extends BaseService<WhitelistEntity, Prisma.Whitel
         protected readonly prismaService: PrismaService) {
         super(prismaService, coreService)
     }
+
+    async add(entity: WhitelistEntity): Promise<number> {
+        entity.userId = this._authService.getUserID()
+        const exist = await this.prismaService.whitelist.findFirst({
+            where: {
+                userId: entity.userId,
+                productId: entity.productId
+            }
+        })
+        if (exist){
+            return exist.id;
+        }
+        var id = await super.add(entity);
+        return Number(id);
+    }
 }

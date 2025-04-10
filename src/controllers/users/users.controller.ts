@@ -44,9 +44,18 @@ export class UsersController extends BaseController<UserEntity, Prisma.UserCreat
         return ServiceResponse.onSuccess(await this.usersService.getNotification(param));
     }
 
-    @Put("notification/:id")
-    async updateViewNotification(@Param('id') id: number) {
-        return ServiceResponse.onSuccess(await this.usersService.updateViewNotification(id));
+    // @Put("notification/:id")
+    // async updateViewNotification(@Param('id') id: number) {
+    //     return ServiceResponse.onSuccess(await this.usersService.updateViewNotification(id));
+    // }
+
+    @Put("notification/view")
+    async updateViewNotification(@Body() param: [number]) {
+        for (let i = 0; i < param.length; i++) {
+            const id = param[i];
+            await this.usersService.updateViewNotification(id);
+        }
+        return ServiceResponse.onSuccess(true);
     }
 
     @Public()
