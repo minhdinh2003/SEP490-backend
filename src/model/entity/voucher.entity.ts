@@ -1,5 +1,6 @@
 import { BaseEntity } from './base.entity';
 import { AutoMap } from '@automapper/classes';
+import { PromotionEntity } from './promotion.entity';
 
 export class VoucherEntity extends BaseEntity {
   id: number; // Khóa chính tự động tăng
@@ -21,6 +22,14 @@ export class VoucherEntity extends BaseEntity {
 
   @AutoMap()
   expiryDate: Date; // Ngày hết hạn của mã giảm giá
+
+  @AutoMap()
+  validFrom: Date; // Ngày hết hạn của mã giảm giá
+
+  @AutoMap()
+  validTo: Date; // Ngày hết hạn của mã giảm giá
+
+  promotion: PromotionEntity;
 
   constructor(partial?: Partial<VoucherEntity>) {
     super();
