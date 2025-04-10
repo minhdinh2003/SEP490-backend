@@ -17,7 +17,6 @@ export class PromotionService extends BaseService<PromotionEntity, Prisma.Promot
         try {
             console.log('Bắt đầu kiểm tra promotion và tạo voucher...');
 
-            // Step 1: Lấy danh sách promotion thỏa mãn điều kiện startDate và endDate
             const currentDate = new Date();
             const promotions = await this.prismaService.promotion.findMany({
                 where: {
@@ -32,17 +31,15 @@ export class PromotionService extends BaseService<PromotionEntity, Prisma.Promot
                 const orders = await this.prismaService.order.findMany({
                     where: {
                         createdAt: { gte: promotion.startDate, lte: promotion.endDate },
-                        status: { in: ['DELIVERED', 'SHIPPED'] }, // Chỉ lấy đơn hàng đã hoàn thành hoặc đã thanh toán
+                        status: { in: ['DELIVERED', 'SHIPPED'] }, 
                     },
                     select: {
-                        userId: true, // Lấy userId từ đơn hàng
+                        userId: true, 
                     },
                 });
 
-                // Step 3: Tạo danh sách userId duy nhất
                 const userIds = Array.from(new Set(orders.map((order) => order.userId)));
 
-                // Step 4: Kiểm tra số lượng đơn hàng của từng userId
                 for (const userId of userIds) {
                     const userOrders = await this.prismaService.order.count({
                         where: {
@@ -51,7 +48,6 @@ export class PromotionService extends BaseService<PromotionEntity, Prisma.Promot
                             status: { in: ['COMPLETED', 'PAID'] },
                         },
                     });
-                    // Step 5: Kiểm tra nếu người dùng đã có voucher với promotion này
                     const existingVoucher = await this.prismaService.voucher.findFirst({
                         where: {
                             promotionId: promotion.id
@@ -60,23 +56,23 @@ export class PromotionService extends BaseService<PromotionEntity, Prisma.Promot
 
                     if (existingVoucher) {
                         console.log(`User ID ${userId} đã có voucher cho promotion ID ${promotion.id}. Bỏ qua.`);
-                        continue; // Bỏ qua nếu đã có voucher
+                        continue; 
                     }
 
-                    // Step 6: Nếu số lượng đơn hàng >= times, tạo voucher
+                    
                     if (userOrders >= promotion.times) {
-                        const voucherCode = this.generateVoucherCode(); // Sinh mã giảm giá ngẫu nhiên
+                        const voucherCode = this.generateVoucherCode();
 
                         const voucher = await this.prismaService.voucher.create({
                             data: {
                                 code: voucherCode,
                                 promotionId: promotion.id,
                                 discount: promotion.discount,
-                                usageLimit: 1, // Giới hạn sử dụng 1 lần
+                                usageLimit: 1, 
                                 usedCount: 0,
-                                startDate: new Date(), // Ngày bắt đầu là ngày tạo voucher
-                                expiryDate: promotion.endDate, // Ngày hết hạn là endDate của promotion
-                                createdBy: `User-${userId}`, // Gắn với người dùng
+                                startDate: new Date(), 
+                                expiryDate: promotion.endDate, 
+                                createdBy: `User-${userId}`,
                             },
                         });
 
