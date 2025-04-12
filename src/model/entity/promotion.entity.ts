@@ -31,6 +31,21 @@ export class PromotionEntity extends BaseEntity {
     @AutoMap()
     content: string;
 
+    @AutoMap()
+    type: any;
+
+    @AutoMap()
+    discountType: any;
+
+    @AutoMap()
+    discountValue: any;
+
+    @AutoMap()
+    minUseRequest: number;
+
+    @AutoMap()
+    minUseAmount: number;
+
     constructor(partial?: Partial<PromotionEntity>) {
         super();
         if (partial) {

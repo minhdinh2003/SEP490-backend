@@ -41,4 +41,19 @@ export class PromotionDto extends BaseDto {
     @AutoMap()
     content: string;
 
+    @AutoMap()
+    type: any;
+
+    @AutoMap()
+    discountType: any;
+
+    @AutoMap()
+    discountValue: any;
+
+    @AutoMap()
+    minUseRequest: number;
+
+    @AutoMap()
+    minUseAmount: number;
+
 }
