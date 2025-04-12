@@ -1,6 +1,6 @@
 // page-request.dto.ts
 import { ApiProperty } from '@nestjs/swagger';
-import { IsArray, IsInt, IsString, ValidateNested } from 'class-validator';
+import { IsArray, IsInt, IsOptional, IsString, ValidateNested } from 'class-validator';
 import { PaymentMethod } from '../enum/payment.enum';
 import { Type } from 'class-transformer';
 
@@ -33,9 +33,38 @@ export class CreateOrderRequest {
 
   @ApiProperty()
   @IsString()
+  @IsOptional()
+  address?: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  phoneNumber?: string;
+}
+
+
+
+export class CreateOrderRequestRepair {
+
+  @ApiProperty()
+  @IsString()
+  fullName: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
   address: string;
 
   @ApiProperty()
   @IsString()
-  phoneNumber: string;
+  @IsOptional()
+  phoneNumber?: string;
+
+  @ApiProperty()
+  @IsInt()
+  paymentMethod: number;
+
+  @ApiProperty()
+  @IsInt()
+  requestId: number;
 }

@@ -20,6 +20,7 @@ export class PrismaService extends PrismaClient implements OnModuleDestroy {
     this.notificationRepo = new BaseRepository<Notification, Prisma.NotificationCreateInput>(this, this.notification);
   }
 
+  // Đóng kết nối Prisma khi module bị hủy
   async onModuleDestroy() {
     await this.$disconnect();
   }
@@ -28,6 +29,8 @@ export class PrismaService extends PrismaClient implements OnModuleDestroy {
     switch (modelName) {
       case "users":
         return this.userRepo;
+      // case "optRequest":
+      //   return this.otpRepo;
     }
     return new BaseRepository<T, K>(this, model);
   }
@@ -56,8 +59,6 @@ export class PrismaService extends PrismaClient implements OnModuleDestroy {
         return this.orderHistory;
       case "promotion":
         return this.promotion;
-      case "voucher":
-        return this.voucher;
       case "file":
         return this.file;
       case "transaction":
@@ -70,6 +71,8 @@ export class PrismaService extends PrismaClient implements OnModuleDestroy {
         return this.chat;
       case "taskDetail":
         return this.taskDetail;
+      case "voucher":
+        return this.voucher;
     }
     throw new HttpException(
       'Not config repo',

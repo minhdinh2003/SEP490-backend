@@ -1,3 +1,4 @@
 export enum OrderInfo {
-    Payment = 'Payment'
+    Payment = 'Payment',
+    Request = 'Request'
 }
