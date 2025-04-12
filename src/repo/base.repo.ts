@@ -220,6 +220,9 @@ export class BaseRepository<T extends { id: number }, U> {
             case 'subquery':
               query.where[cond.key] = cond.value;
               break;
+            case "different":
+              query.where[cond.key] = { not: cond.value };
+              break;
             // truyền cả where lên
             case 'raw':
               query.where = cond.value;
