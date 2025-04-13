@@ -40,6 +40,11 @@ export class CreateOrderRequest {
   @IsString()
   @IsOptional()
   phoneNumber?: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  voucherCode?: string;
 }
 
 
@@ -67,4 +72,9 @@ export class CreateOrderRequestRepair {
   @ApiProperty()
   @IsInt()
   requestId: number;
+
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  voucherCode?: string;
 }
