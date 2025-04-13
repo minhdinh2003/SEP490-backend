@@ -1,5 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { Prisma, Role } from '@prisma/client';
+import { OrderStatus, Prisma, Role } from '@prisma/client';
 import { hash } from 'bcrypt'
 import { BaseService } from 'src/base/base.service';
 import { CoreService } from 'src/core/core.service';
@@ -54,12 +54,12 @@ export class UsersService extends BaseService<UserEntity, Prisma.UserCreateInput
         return true;
     }
 
-    async getCurrentUser(): Promise<ServiceResponse>{
+    async getCurrentUser(): Promise<ServiceResponse> {
         var userCurrent = await this.getOneAndReference({
             id: this._authService.getUserID()
         });
-        if (!userCurrent){
-            throw new HttpException({message: 'User not exist'}, HttpStatus.BAD_REQUEST);
+        if (!userCurrent) {
+            throw new HttpException({ message: 'User not exist' }, HttpStatus.BAD_REQUEST);
         }
         const result = this._mapperService.mapData(userCurrent, UserEntity, UserDetail);
         return ServiceResponse.onSuccess(result);
@@ -69,7 +69,7 @@ export class UsersService extends BaseService<UserEntity, Prisma.UserCreateInput
         return this.prismaService.notificationRepo.getPaging(param, false);
     }
 
-    async updateViewNotification(id: number){
+    async updateViewNotification(id: number) {
         await this.prismaService.notification.update({
             where: {
                 id: id
@@ -80,6 +80,69 @@ export class UsersService extends BaseService<UserEntity, Prisma.UserCreateInput
         })
         return true;
     }
-    
+
+    generateReport = async (startDate: string, endDate: string) => {
+        const fromDate = new Date(startDate);
+        const toDate = new Date(endDate);
+        try {
+            // 1. Tổng doanh thu
+            const totalRevenue = await this.prismaService.order.aggregate({
+                where: {
+                    createdAt: { gte: fromDate, lte: toDate },
+                    status: OrderStatus.SHIPPED,
+                },
+                _sum: { totalAmount: true },
+            });
+
+            // 2. Số người đăng ký
+            const totalRegistrations = await this.prismaService.user.count({
+                where: {
+                    createdAt: { gte: fromDate, lte: toDate },
+                },
+            });
+
+            // 3. Doanh thu theo phương thức thanh toán (dùng cho Pie Chart)
+            const revenueByPaymentMethod = await this.prismaService.order.groupBy({
+                by: ["paymentMethod"],
+                where: {
+                    createdAt: { gte: fromDate, lte: toDate },
+                    status: OrderStatus.SHIPPED,
+                },
+                _sum: { totalAmount: true },
+            });
+
+            // 4. Doanh thu theo tháng (dùng cho Line/Area/Bar Chart)
+            const revenueByMonth = await this.prismaService.order.groupBy({
+                by: ["createdAt"],
+                where: {
+                    createdAt: { gte: fromDate, lte: toDate },
+                    status: OrderStatus.SHIPPED,
+                },
+                _sum: { totalAmount: true },
+            });
+            // 5. Số lượng người dùng đăng ký theo tháng (dùng cho Bar Chart)
+            const registrationsByMonth = await this.prismaService.user.groupBy({
+                by: ["createdAt"],
+                where: {
+                    createdAt: { gte: fromDate, lte: toDate },
+                },
+                _count: { id: true },
+            });  
+
+            // Trả về kết quả báo cáo
+            return {
+                totalRevenue: totalRevenue._sum.totalAmount || 0,
+                totalRegistrations: totalRegistrations,
+                revenueByPaymentMethod: revenueByPaymentMethod.map((item) => ({
+                    paymentMethod: item.paymentMethod,
+                    totalAmount: parseFloat(item._sum.totalAmount?.toString() || "0"),
+                })),
+            };
+        } catch (error) {
+            console.error("Lỗi khi tạo báo cáo:", error);
+            throw error;
+        }
+    }
+
 
 }
