@@ -12,6 +12,7 @@ import { ServiceResponse } from 'src/model/response/service.response';
 import { PageRequest } from 'src/model/request/page.request';
 import { hash, compare } from 'bcrypt'
 import { Public } from 'src/utils/public.decorator';
+import { ReportRequest } from 'src/model/request/report.request';
 
 
 @ApiTags('User')
@@ -42,6 +43,13 @@ export class UsersController extends BaseController<UserEntity, Prisma.UserCreat
     async getNotification(@Body() param: PageRequest) {
         // to-do
         return ServiceResponse.onSuccess(await this.usersService.getNotification(param));
+    }
+
+    @Post("report")
+    @Public()
+    async getReport(@Body() param: ReportRequest) {
+        // to-do
+        return ServiceResponse.onSuccess(await this.usersService.generateReport(param.fromDate, param.toDate));
     }
 
     // @Put("notification/:id")
