@@ -120,6 +120,17 @@ export class UsersService extends BaseService<UserEntity, Prisma.UserCreateInput
                 },
                 _sum: { totalAmount: true },
             });
+
+            // Format dữ liệu doanh thu theo tháng
+            const formattedRevenueByMonth = revenueByMonth.reduce((acc, item) => {
+                const month = new Date(item.createdAt).toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "short",
+                });
+                acc[month] = (acc[month] || 0) + parseFloat(item._sum.totalAmount?.toString() || "0");
+                return acc;
+            }, {} as Record<string, number>);
+
             // 5. Số lượng người dùng đăng ký theo tháng (dùng cho Bar Chart)
             const registrationsByMonth = await this.prismaService.user.groupBy({
                 by: ["createdAt"],
@@ -127,7 +138,17 @@ export class UsersService extends BaseService<UserEntity, Prisma.UserCreateInput
                     createdAt: { gte: fromDate, lte: toDate },
                 },
                 _count: { id: true },
-            });  
+            });
+
+            // Format dữ liệu số lượng người dùng theo tháng
+            const formattedRegistrationsByMonth = registrationsByMonth.reduce((acc, item) => {
+                const month = new Date(item.createdAt).toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "short",
+                });
+                acc[month] = (acc[month] || 0) + item._count.id;
+                return acc;
+            }, {} as Record<string, number>);
 
             // Trả về kết quả báo cáo
             return {
@@ -137,6 +158,8 @@ export class UsersService extends BaseService<UserEntity, Prisma.UserCreateInput
                     paymentMethod: item.paymentMethod,
                     totalAmount: parseFloat(item._sum.totalAmount?.toString() || "0"),
                 })),
+                revenueByMonth: formattedRevenueByMonth,
+                registrationsByMonth: formattedRegistrationsByMonth,
             };
         } catch (error) {
             console.error("Lỗi khi tạo báo cáo:", error);
