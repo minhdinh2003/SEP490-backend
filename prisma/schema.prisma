@@ -69,6 +69,7 @@ model User {
   profilePictureURL String?          @db.VarChar(255) // URL ảnh đại diện (có thể null)
   createdBy         String?          @db.VarChar(100) // Người tạo (có thể null)
   updatedBy         String?          @db.VarChar(100) // Người cập nhật (có thể null)
+  isConfirm         Boolean          @default(false) // Trạng thái xác thực tài khoản
   whitelist         Whitelist[]
   review            Review[]
   order             Order[]
