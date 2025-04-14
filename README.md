@@ -8,3 +8,6 @@ npx prisma migrate deploy
 ### Migration data
 
 npx prisma migrate dev --name your_migration_name
+
+### Docker Compose
+docker-compose up
