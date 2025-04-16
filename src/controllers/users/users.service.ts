@@ -46,7 +46,7 @@ export class UsersService extends BaseService<UserEntity, Prisma.UserCreateInput
             }
         }, this.getMoreCreateData());
         await this._emailService.sendEmail(entity.email, "Quản trị đã tạo tài khoản cho bạn", "AdminCreateAccountForStudent.html", {
-            userName: entity.email,
+userName: entity.email,
             passWord: passWord,
             confirmLink: process.env.CONFIRM_USER + result.id,
         })
