@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Account Creation Notification</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            padding: 20px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .header h1 {
+            color: #333333;
+        }
+        .content {
+            margin: 20px 0;
+        }
+        .user-info {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .user-info p {
+            font-size: 18px;
+            margin: 5px 0;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 12px;
+            color: #999999;
+        }
+        .btn {
+            background-color: #28a745; /* Màu xanh lá cây cho nút Confirm */
+            color: #ffffff;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 16px;
+            display: inline-block;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Welcome to ShopCar</h1>
+        </div>
+        <div class="content">
+            <p>Your account has been successfully created by the admin. Below are your account details:</p>
+            <div class="user-info">
+                <p><strong>Username:</strong> ##userName##</p>
+                <p><strong>Password:</strong> ##passWord##</p>
+            </div>
+            <p>Please confirm your account by clicking the button below. After confirmation, you will be redirected to the login page.</p>
+            <div style="text-align: center;">
+                <!-- Nút Confirm -->
+                <a href="##confirmLink##" class="btn">Confirm</a>
+            </div>
+        </div>
+        <div class="footer">
+            <p>Thank you</p>
+        </div>
+    </div>
+</body>
+</html>
