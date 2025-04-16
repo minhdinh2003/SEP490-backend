@@ -1,6 +1,7 @@
 import { BaseDto } from './base.dto';
 import { ApiProperty } from '@nestjs/swagger';
 import { AutoMap } from '@automapper/classes';
+import { PromotionDto } from './promotion.dto';
 
 export class VoucherDto extends BaseDto {
     @ApiProperty()
@@ -29,6 +30,12 @@ export class VoucherDto extends BaseDto {
 
     @ApiProperty()
     @AutoMap()
-    expiryDate: Date; // Ngày hết hạn của mã giảm giá
+    validFrom: Date; // Ngày hết hạn của mã giảm giá
+
+    @ApiProperty()
+    @AutoMap()
+    validTo: Date; // Ngày hết hạn của mã giảm giá
+
+    promotion: PromotionDto;
 
 }
