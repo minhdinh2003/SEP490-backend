@@ -35,7 +35,7 @@ export class AuthService extends BaseService<User, Prisma.UserCreateInput> {
         userCreate.role = Role.USER;
         userCreate.fullName = "";
         userCreate.isConfirm = false;
-    
+
         const result = await this.prismaService.userRepo.create(userCreate, {
             email: true,
             role: true,

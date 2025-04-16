@@ -32,6 +32,9 @@ export class UserEntity extends BaseEntity {
   @AutoMap()
   description?: string; // Mô tả người dùng
 
+  @AutoMap()
+  isConfirm?: any;
+
   constructor(partial?: Partial<UserEntity>) {
     super();
     if (partial) {

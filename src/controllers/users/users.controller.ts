@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Redirect, UseGuards } from '@nestjs/common';
 import { ApiBody, ApiTags } from '@nestjs/swagger';
 import { Prisma, Role } from '@prisma/client';
 import { BaseController } from 'src/base/base.controller';
@@ -50,6 +50,14 @@ export class UsersController extends BaseController<UserEntity, Prisma.UserCreat
     async getReport(@Body() param: ReportRequest) {
         // to-do
         return ServiceResponse.onSuccess(await this.usersService.generateReport(param.fromDate, param.toDate));
+    }
+
+    @Get("confirm/:id")
+    @Public()
+    @Redirect() 
+    async confirmUser(@Param('id') id: number) {
+        await this.usersService.confirmUser(id);
+        return { url: process.env.FRONTEND_URL_LOGIN};
     }
 
     // @Put("notification/:id")
