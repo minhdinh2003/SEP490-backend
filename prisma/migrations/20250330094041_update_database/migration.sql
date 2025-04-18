@@ -18,7 +18,6 @@ CREATE TABLE `User` (
     `profilePictureURL` VARCHAR(255) NULL,
     `createdBy` VARCHAR(100) NULL,
     `updatedBy` VARCHAR(100) NULL,
-    `isConfirm` BOOLEAN NOT NULL DEFAULT false,
 
     UNIQUE INDEX `User_email_key`(`email`),
     PRIMARY KEY (`id`)
@@ -148,7 +147,6 @@ CREATE TABLE `Order` (
     `phoneNumber` VARCHAR(191) NULL DEFAULT '',
     `isRepair` BOOLEAN NOT NULL DEFAULT false,
     `requestId` INTEGER NULL,
-    `voucherCode` VARCHAR(255) NULL,
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -186,21 +184,16 @@ CREATE TABLE `OrderHistory` (
 -- CreateTable
 CREATE TABLE `Promotion` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
-    `content` TEXT NOT NULL,
     `name` VARCHAR(255) NOT NULL,
     `description` TEXT NULL,
-    `type` ENUM('EVENT', 'DISCOUNT', 'MAINTENANCE') NOT NULL,
+    `discount` DECIMAL(5, 2) NOT NULL,
     `startDate` DATETIME(3) NOT NULL,
     `endDate` DATETIME(3) NOT NULL,
-    `image` JSON NULL,
-    `discountType` ENUM('PERCENTAGE', 'AMOUNT') NOT NULL DEFAULT 'PERCENTAGE',
-    `discountValue` DECIMAL(10, 2) NOT NULL,
-    `minUseRequest` INTEGER NOT NULL,
-    `minUseAmount` INTEGER NOT NULL,
-    `voucherQuantity` INTEGER NOT NULL DEFAULT 0,
-    `voucherUsed` INTEGER NOT NULL DEFAULT 0,
+    `type` ENUM('BUY', 'REPAIR') NOT NULL DEFAULT 'BUY',
+    `times` INTEGER NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
+    `productId` INTEGER NOT NULL,
     `createdBy` VARCHAR(100) NULL,
     `updatedBy` VARCHAR(100) NULL,
 
@@ -210,14 +203,12 @@ CREATE TABLE `Promotion` (
 -- CreateTable
 CREATE TABLE `Voucher` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `code` VARCHAR(50) NOT NULL,
     `promotionId` INTEGER NOT NULL,
-    `userId` INTEGER NULL,
-    `code` VARCHAR(255) NOT NULL,
-    `discount` DECIMAL(10, 2) NOT NULL,
+    `discount` DECIMAL(5, 2) NOT NULL,
     `usageLimit` INTEGER NOT NULL,
     `usedCount` INTEGER NOT NULL DEFAULT 0,
-    `validFrom` DATETIME(3) NOT NULL,
-    `validTo` DATETIME(3) NOT NULL,
+    `expiryDate` DATETIME(3) NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
     `createdBy` VARCHAR(100) NULL,
@@ -334,17 +325,6 @@ CREATE TABLE `RequestHistory` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `Work` (
-    `id` INTEGER NOT NULL AUTO_INCREMENT,
-    `name` VARCHAR(255) NOT NULL,
-    `price` DECIMAL(10, 2) NOT NULL,
-    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-    `updatedAt` DATETIME(3) NOT NULL,
-
-    PRIMARY KEY (`id`)
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
--- CreateTable
 CREATE TABLE `Chat` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `requestId` INTEGER NOT NULL,
@@ -371,7 +351,6 @@ CREATE TABLE `TaskDetail` (
     `deadline` DATETIME(3) NULL,
     `images` JSON NULL,
     `comments` JSON NULL,
-    `price` INTEGER NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
     `createdBy` VARCHAR(191) NULL,
@@ -438,7 +417,7 @@ ALTER TABLE `OrderHistory` ADD CONSTRAINT `OrderHistory_orderId_fkey` FOREIGN KE
 ALTER TABLE `OrderHistory` ADD CONSTRAINT `OrderHistory_updatedById_fkey` FOREIGN KEY (`updatedById`) REFERENCES `User`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Voucher` ADD CONSTRAINT `Voucher_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE `Promotion` ADD CONSTRAINT `Promotion_productId_fkey` FOREIGN KEY (`productId`) REFERENCES `Product`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `Voucher` ADD CONSTRAINT `Voucher_promotionId_fkey` FOREIGN KEY (`promotionId`) REFERENCES `Promotion`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
