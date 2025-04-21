@@ -183,7 +183,7 @@ export class OrderService extends BaseService<OrderEntity, Prisma.OrderCreateInp
                     updatedAt: new Date(),
                 },
             });
-            if (status === OrderStatus.SHIPPED && order.paymentMethod == PaymentMethod.BankOnline) {
+            if (status === OrderStatus.SHIPPED) {
                 const paymentDate = new Date();
                 if (!order) {
                     throw new Error("Không tìm thấy đơn hàng.");
@@ -194,7 +194,16 @@ export class OrderService extends BaseService<OrderEntity, Prisma.OrderCreateInp
                 if (order.isRepair) {
                     type = PromotionType.MAINTENANCE;
                 }
-
+                const maintenanceCount = order.isRepair
+                    ? await prisma.order.count({
+                        where: {
+                            userId: order.userId,
+                            isRepair: true,
+                            status: OrderStatus.SHIPPED
+                        },
+                    })
+                    : 0;
+                // Tìm các mã giảm giá hợp lệ (type: DISCOUNT, trong khoảng startDate và endDate)
                 const validPromotions = await prisma.promotion.findMany({
                     where: {
                         type: type, // Chỉ lấy các chương trình giảm giá
@@ -205,6 +214,10 @@ export class OrderService extends BaseService<OrderEntity, Prisma.OrderCreateInp
                             {
                                 type: PromotionType.DISCOUNT,
                                 minUseAmount: { lte: parseInt(order.totalAmount + "") },
+                            },
+                            {
+                                type: PromotionType.MAINTENANCE,
+                                minUseRequest: { lte: maintenanceCount },
                             },
                         ],
                     },
