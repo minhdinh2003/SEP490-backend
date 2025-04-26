@@ -33,6 +33,7 @@ export class AuthService extends BaseService<User, Prisma.UserCreateInput> {
         userCreate.dateOfBirth = null;
         userCreate.role = Role.USER;
         userCreate.fullName = "";
+        userCreate.isConfirm = false;
         const result = await this.prismaService.userRepo.create(userCreate, {
             email: true,
             role: true,
@@ -64,6 +65,7 @@ export class AuthService extends BaseService<User, Prisma.UserCreateInput> {
                 passwordHash: true,
                 role: true,
                 id: true,
+                isConfirm: true,
             }
         );
 
@@ -74,6 +76,10 @@ export class AuthService extends BaseService<User, Prisma.UserCreateInput> {
         const match = await compare(userPayload.password, user.passwordHash);
         if (!match) {
             throw new HttpException({ message: "Email or password is invalid" }, HttpStatus.UNAUTHORIZED);
+        }
+
+        if (!user.isConfirm) {
+            throw new HttpException({ message: "Người dùng chưa xác nhận email. Vui lòng vào email để xác nhận" }, HttpStatus.UNAUTHORIZED);
         }
         // ingore generate
         user.passwordHash = "";

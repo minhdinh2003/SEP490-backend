@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Redirect, UseGuards } from '@nestjs/common';
 import { ApiBody, ApiTags } from '@nestjs/swagger';
 import { Prisma, Role } from '@prisma/client';
 import { BaseController } from 'src/base/base.controller';
@@ -12,6 +12,7 @@ import { ServiceResponse } from 'src/model/response/service.response';
 import { PageRequest } from 'src/model/request/page.request';
 import { hash, compare } from 'bcrypt'
 import { Public } from 'src/utils/public.decorator';
+import { ReportRequest } from 'src/model/request/report.request';
 
 
 @ApiTags('User')
@@ -42,6 +43,21 @@ export class UsersController extends BaseController<UserEntity, Prisma.UserCreat
     async getNotification(@Body() param: PageRequest) {
         // to-do
         return ServiceResponse.onSuccess(await this.usersService.getNotification(param));
+    }
+
+    @Post("report")
+    @Public()
+    async getReport(@Body() param: ReportRequest) {
+        // to-do
+        return ServiceResponse.onSuccess(await this.usersService.generateReport(param.fromDate, param.toDate));
+    }
+
+    @Get("confirm/:id")
+    @Public()
+    @Redirect() 
+    async confirmUser(@Param('id') id: number) {
+        await this.usersService.confirmUser(id);
+        return { url: process.env.FRONTEND_URL_LOGIN};
     }
 
     // @Put("notification/:id")

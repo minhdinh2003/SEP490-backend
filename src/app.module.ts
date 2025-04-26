@@ -21,6 +21,7 @@ import { RequestModule } from './controllers/request/request.module';
 import { RequestHistoryModule } from './controllers/requestHistory/requestHistory.module';
 import { ChatModule } from './controllers/chat/chat.module';
 import { TaskDetailModule } from './controllers/taskDetail/taskDetail.module';
+import { VoucherModule } from './controllers/voucher/voucher.module';
 
 @Module({
   imports: [
@@ -41,7 +42,8 @@ import { TaskDetailModule } from './controllers/taskDetail/taskDetail.module';
     RequestModule,
     RequestHistoryModule,
     ChatModule,
-    TaskDetailModule
+    TaskDetailModule,
+    VoucherModule
   ],
   controllers: [AppController],
   providers: [AppService,

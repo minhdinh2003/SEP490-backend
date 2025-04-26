@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Refund Notification</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            padding: 20px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .header h1 {
+            color: #333333;
+            margin-bottom: 5px;
+        }
+        .header p.subtitle {
+            font-size: 16px;
+            color: #555555;
+            margin-top: 0;
+        }
+        .content {
+            margin: 20px 0;
+        }
+        .order-info {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+        .order-info p {
+            font-size: 16px;
+            margin: 5px 0;
+        }
+        .refund-amount {
+            font-size: 24px;
+            font-weight: bold;
+            color: #28a745;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .confirm-section {
+            text-align: center;
+            margin-top: 30px;
+        }
+        .confirm-section p {
+            font-size: 16px;
+            margin-bottom: 15px;
+            color: #333333;
+        }
+        .confirm-button {
+            display: inline-block;
+            padding: 10px 20px;
+            font-size: 16px;
+            color: white;
+            background-color: #007bff;
+            border: none;
+            border-radius: 5px;
+            text-decoration: none;
+        }
+        .confirm-button:hover {
+            background-color: #0056b3;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 12px;
+            color: #999999;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Thông Báo Hoàn Tiền</h1>
+            <p class="subtitle">Xác nhận thông tin hoàn tiền đơn hàng của bạn</p>
+        </div>
+        <div class="content">
+            <p>Xin chào <strong>##customerName##</strong>,</p>
+            <p>Chúng tôi xin thông báo rằng yêu cầu hoàn tiền của bạn đã được xử lý thành công. Dưới đây là chi tiết đơn hàng và số tiền hoàn:</p>
+            
+            <div class="order-info">
+                <p><strong>Tên đơn hàng:</strong> ##orderName##</p>
+                <p><strong>Số lượng:</strong> ##quantity##</p>
+            </div>
+
+            <div class="refund-amount">
+                Số tiền hoàn: <span>##refundAmount##</span>
+            </div>
+
+            <p>Nếu bạn có bất kỳ câu hỏi hoặc thắc mắc nào, vui lòng liên hệ với chúng tôi qua email hoặc số điện thoại hỗ trợ.</p>
+            <p>Chúng tôi rất cảm ơn bạn đã sử dụng dịch vụ của chúng tôi!</p>
+
+            <div class="confirm-section">
+                <p><strong>Nếu bạn đã nhận được hàng, hãy nhấn "Xác nhận" bên dưới:</strong></p>
+                <a href="##confirmLink##" class="confirm-button">Xác nhận</a>
+            </div>
+        </div>
+        <div class="footer">
+            <p>Trân trọng,<br>Đội ngũ hỗ trợ khách hàng</p>
+        </div>
+    </div>
+</body>
+</html>

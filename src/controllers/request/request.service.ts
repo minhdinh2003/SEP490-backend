@@ -37,7 +37,7 @@ export class RequestService extends BaseService<RequestEntity, Prisma.RequestCre
     const id = await super.add(entity);
 
     const role = this._authService.getRole();
-    if (role == Role.OWNER || role == Role.EMPLOYEE) {
+    if (role == Role.OWNER) {
       await this.prismaService.request.update({
         where: {
           id: id
@@ -74,7 +74,12 @@ export class RequestService extends BaseService<RequestEntity, Prisma.RequestCre
         data: tasks,
       });
     } else if (role == Role.EMPLOYEE) {
-
+      await this.pushNotificationToProductOnwer(NotificationType.EMPLOYEE_SEND_REQUEST_PRODUCT_OWNER,
+        JSON.stringify({
+          id
+        }),
+        this._authService.getFullname(), this._authService.getUserID()
+      )
     }
     else {
       // push notificatio to productowner

@@ -28,6 +28,9 @@ export class OrderEntity extends BaseEntity {
   @AutoMap()
   phoneNumber: string;
 
+  @AutoMap()
+  voucherCode: string; // Mã giảm giá (nếu có)
+
   orderItems: OrderItemEntity[];
   Request: RequestEntity;
   constructor(partial?: Partial<OrderEntity>) {

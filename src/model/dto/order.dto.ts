@@ -29,14 +29,16 @@ export class OrderDto extends BaseDto {
     @ApiProperty()
     @AutoMap()
     fullName: string;
-  
+
     @ApiProperty()
     @AutoMap()
     address: string;
-  
+
     @ApiProperty()
     @AutoMap()
     phoneNumber: string;
+    @AutoMap()
+    voucherCode: string; // Mã giảm giá (nếu có)
 
     orderItems: OrderItemDto[];
 
