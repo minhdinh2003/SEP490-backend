@@ -1,4 +1,3 @@
-
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
@@ -129,7 +128,6 @@ model Product {
   origin          String?     @db.VarChar(100) // Xuất xứ
   seats           Int? // Số chỗ ngồi
   doors           Int? // Số cửa
-  address         String?
   createdAt       DateTime    @default(now()) // Thời gian tạo
   updatedAt       DateTime    @updatedAt // Thời gian cập nhật
   createdBy       String?     @db.VarChar(100) // Người tạo (có thể null)
@@ -202,24 +200,26 @@ model Review {
 }
 
 model Order {
-  id            Int         @id @default(autoincrement()) // Khóa chính tự động tăng
-  user          User        @relation(fields: [userId], references: [id]) // Liên kết với bảng User
-  userId        Int // ID của người dùng
-  totalAmount   Decimal     @db.Decimal(10, 2) // Tổng số tiền của đơn hàng
-  status        OrderStatus @default(PENDING) // Trạng thái đơn hàng
-  createdAt     DateTime    @default(now()) // Thời gian tạo
-  updatedAt     DateTime    @updatedAt // Thời gian cập nhật
-  createdBy     String?     @db.VarChar(100) // Người tạo (có thể null)
-  updatedBy     String?     @db.VarChar(100) // Người cập nhật (có thể null)
-  orderItems    OrderItem[] // Liên kết với bảng OrderItem (các mục trong đơn hàng)
-  paymentMethod Int         @default(0)
-  fullName      String?     @default("")
-  address       String?     @default("")
-  phoneNumber   String?     @default("")
-  isRepair      Boolean     @default(false)
-  requestId     Int?
-  voucherCode   String?     @db.VarChar(255) // Mã voucher (có thể null)
-  Request       Request?    @relation(fields: [requestId], references: [id], onDelete: SetNull) // Mối quan hệ optional
+  id              Int         @id @default(autoincrement()) // Khóa chính tự động tăng
+  user            User        @relation(fields: [userId], references: [id]) // Liên kết với bảng User
+  userId          Int // ID của người dùng
+  totalAmount     Decimal     @db.Decimal(10, 2) // Tổng số tiền của đơn hàng
+  status          OrderStatus @default(PENDING) // Trạng thái đơn hàng
+  createdAt       DateTime    @default(now()) // Thời gian tạo
+  updatedAt       DateTime    @updatedAt // Thời gian cập nhật
+  createdBy       String?     @db.VarChar(100) // Người tạo (có thể null)
+  updatedBy       String?     @db.VarChar(100) // Người cập nhật (có thể null)
+  orderItems      OrderItem[] // Liên kết với bảng OrderItem (các mục trong đơn hàng)
+  paymentMethod   Int         @default(0)
+  fullName        String?     @default("")
+  address         String?     @default("")
+  phoneNumber     String?     @default("")
+  isRepair        Boolean     @default(false)
+  isConfirmRefund Boolean     @default(false) // Trạng thái xác nhận hoàn tiền
+  isPay           Boolean     @default(false) // Trạng thái thanh toán
+  requestId       Int?
+  voucherCode     String?     @db.VarChar(255) // Mã voucher (có thể null)
+  Request         Request?    @relation(fields: [requestId], references: [id], onDelete: SetNull) // Mối quan hệ optional
 
   OrderHistory OrderHistory[]
 }
@@ -491,4 +491,3 @@ model TaskHistory {
 
   @@index([taskId]) // Tạo chỉ mục để tối ưu hóa truy vấn theo taskId
 }
-
