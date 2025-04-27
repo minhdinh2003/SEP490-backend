@@ -54,6 +54,12 @@ export class OrderController extends BaseController<OrderEntity, Prisma.OrderCre
         return this.orderservice.updateStatus(orderId, status);
     }
 
+    @Put("refund")
+    @ApiBody({})
+    async refund(@Query('orderId') orderId: number) {
+        return ServiceResponse.onSuccess(await this.orderservice.refund(orderId));
+    }
+
     @Public()
     @Get("cancelurl")
     async cancelurl(@Query() query: any, @Res() res: Response) {
