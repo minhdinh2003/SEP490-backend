@@ -460,6 +460,7 @@ model TaskDetail {
   assignedTo  Int? // ID của người được giao task (liên kết với bảng User)
   description String     @db.Text // Mô tả chi tiết task
   title       String?    @db.Text
+  address     String?    @db.Text // Địa chỉ liên quan đến task (có thể null)
   status      TaskStatus @default(PENDING) // Trạng thái task
   deadline    DateTime? // Thời hạn hoàn thành task
   images      Json? // Danh sách hình ảnh (JSON array)

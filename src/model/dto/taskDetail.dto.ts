@@ -34,6 +34,10 @@ export class TaskDetailDto extends BaseDto {
   @AutoMap()
   title: string;
 
+  @ApiProperty()
+  @AutoMap()
+  address: string;
+
   @ApiProperty({ enum: TaskStatus })
   @AutoMap()
   status: TaskStatus;
@@ -59,10 +63,6 @@ export class TaskDetailDto extends BaseDto {
   @AutoMap()
   comments?: any; // Thay đổi thành kiểu dữ liệu cụ thể nếu có cấu trúc JSON xác định
 
-
-  @ApiProperty()
-  @AutoMap()
-  address: string;
   constructor(partial?: Partial<TaskDetailDto>) {
     super();
     Object.assign(this, partial);
