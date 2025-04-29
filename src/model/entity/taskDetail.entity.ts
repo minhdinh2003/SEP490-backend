@@ -27,6 +27,9 @@ export class TaskDetailEntity extends BaseEntity {
     title: string;
 
     @AutoMap()
+    address: string;
+
+    @AutoMap()
     status: TaskStatus;
 
     @AutoMap()
@@ -46,9 +49,7 @@ export class TaskDetailEntity extends BaseEntity {
 
     @AutoMap()
     comments?: any; // Thay đổi thành kiểu dữ liệu cụ thể nếu có cấu trúc JSON xác định
-   
-    @AutoMap()
-    address: string;
+
     constructor(partial?: Partial<TaskDetailEntity>) {
         super();
         Object.assign(this, partial);
