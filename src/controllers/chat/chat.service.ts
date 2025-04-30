@@ -46,4 +46,40 @@ export class ChatService extends BaseService<ChatEntity, Prisma.ChatCreateInput>
 
         return id;
     }
+
+    async update(id: number, entity: Partial<ChatEntity>): Promise<boolean> {
+        const chat = await super.getById(id);
+        const request = await this.prismaService.request.findFirst({
+            where: {
+                id: chat.requestId
+            }
+        });
+        
+        await super.update(id, entity);
+        
+        const userId = this._authService.getUserID();
+        if (request.userId != userId) {
+            await this.pushNotification(request.userId, NotificationType.PRODUCT_OWNER_CHAT_REQUEST,
+                JSON.stringify({
+                    id,
+                    requestId: request.id,
+                    message: entity.message
+                }),
+                this._authService.getFullname(), this._authService.getUserID()
+            );
+        } else {
+            await this.pushNotificationToProductOnwer(NotificationType.USER_CHAT_REQUEST,
+                JSON.stringify({
+                    id,
+                    requestId: request.id,
+                    message: entity.message
+                }),
+                this._authService.getFullname(), this._authService.getUserID()
+            );
+        }
+
+        return true;
+    }
+
+    
 }
