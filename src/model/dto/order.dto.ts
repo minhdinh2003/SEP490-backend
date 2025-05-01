@@ -40,7 +40,15 @@ export class OrderDto extends BaseDto {
     @AutoMap()
     voucherCode: string; // Mã giảm giá (nếu có)
 
+    @AutoMap()
+    isConfirmRefund: boolean;
+
+    @AutoMap()
+    isPay: boolean;
+
     orderItems: OrderItemDto[];
+
+
 
     Request: RequestDto;
 }
