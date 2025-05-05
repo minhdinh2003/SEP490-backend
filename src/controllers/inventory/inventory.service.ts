@@ -47,6 +47,31 @@ export class InventoryService extends BaseService<InventoryEntity, Prisma.Invent
                 ...this.getMoreUpdateData()
             }
         });
+
+        // Cập nhật trạng thái sản phẩm nếu cần
+        if (inventory.quantity + quantity > 0) {
+            await this.prismaService.product.update({
+                where: { id: productId },
+                data: {
+                    status: 'AVAILABLE',
+                    ...this.getMoreUpdateData()
+                }
+            });
+        }
+
+        // Gửi thông báo cho admin
+        await this.pushNotificationToAdmin(
+            NotificationType.INVENTORY_IMPORT,
+            JSON.stringify({
+                productId,
+                productName: product.name,
+                quantity,
+                totalQuantity: inventory.quantity + quantity
+            }),
+            this._authService.getFullname(),
+            this._authService.getUserID()
+        );
+
         return true;
     }
 
@@ -62,4 +87,25 @@ export class InventoryService extends BaseService<InventoryEntity, Prisma.Invent
         return inventory;
     }
 
+    async getProductInventoryStatus(productId: number): Promise<{
+        quantity: number;
+        status: string;
+    }> {
+        const inventory = await this.prismaService.inventory.findUnique({
+            where: { productId }
+        });
+
+        const product = await this.prismaService.product.findUnique({
+            where: { id: productId }
+        });
+
+        if (!inventory || !product) {
+            throw new Error('Product or inventory not found');
+        }
+
+        return {
+            quantity: inventory.quantity,
+            status: product.status
+        };
+    }
 }

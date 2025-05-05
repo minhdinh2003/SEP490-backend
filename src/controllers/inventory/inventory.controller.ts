@@ -41,6 +41,11 @@ export class InventoryController extends BaseController<InventoryEntity, Prisma.
         return await this.inventoryService.importProduct(data.productId, data.quantity);
     }
 
+    @Get("product/:id")
+    @ApiOperation({ summary: 'Get inventory status for a product' })
+    @ApiParam({ name: 'id', description: 'Product ID' })
+    @ApiResponse({ status: 200, description: 'Returns inventory status' })
+    @ApiResponse({ status: 404, description: 'Product or inventory not found' })
     async getProductInventory(@Param('id') productId: string) {
         return await this.inventoryService.getProductInventoryStatus(Number(productId));
     }
