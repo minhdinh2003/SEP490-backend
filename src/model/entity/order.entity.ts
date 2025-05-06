@@ -31,6 +31,12 @@ export class OrderEntity extends BaseEntity {
   @AutoMap()
   voucherCode: string; // Mã giảm giá (nếu có)
 
+  @AutoMap()
+  isConfirmRefund: boolean;
+
+  @AutoMap()
+  isPay: boolean;
+
   orderItems: OrderItemEntity[];
   Request: RequestEntity;
   constructor(partial?: Partial<OrderEntity>) {

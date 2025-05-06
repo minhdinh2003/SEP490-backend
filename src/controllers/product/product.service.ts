@@ -30,7 +30,7 @@ export class ProductService extends BaseService<ProductEntity, Prisma.ProductCre
             }
         });
         var inventoryData = new InventoryEntity();
-        inventoryData.quantity = 0;
+        inventoryData.quantity = 1;
         inventoryData.productId = result.id;
         var inventory = await this.prismaService.inventory.create({
             data: {

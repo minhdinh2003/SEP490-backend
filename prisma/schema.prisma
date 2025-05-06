@@ -427,7 +427,13 @@ model RequestHistory {
 
   @@index([requestId]) // Tạo chỉ mục để tối ưu hóa truy vấn theo requestId
 }
-
+model Work {
+  id        Int      @id @default(autoincrement()) // Primary key, auto-increment
+  name      String   @db.VarChar(255) // Name of the work
+  price     Decimal  @db.Decimal(10, 2) // Price of the work
+  createdAt DateTime @default(now()) // Timestamp for creation
+  updatedAt DateTime @updatedAt // Timestamp for last update
+}
 enum RequestStatus {
   PENDING // Chờ xử lý
   APPROVED // Đã phê duyệt

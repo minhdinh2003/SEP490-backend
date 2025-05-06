@@ -284,6 +284,7 @@ export class PayOSService {
                 data: {
                     status: status,
                     updatedAt: new Date(),
+                    isPay: status == OrderStatus.PROCESSING
                 },
             });
 
@@ -301,7 +302,6 @@ export class PayOSService {
         });
         return result;
     }
-
 
 }
 

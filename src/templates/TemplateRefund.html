@@ -20,16 +20,10 @@
         }
         .header {
             text-align: center;
-            margin-bottom: 10px;
+            margin-bottom: 20px;
         }
         .header h1 {
             color: #333333;
-            margin-bottom: 5px;
-        }
-        .header p.subtitle {
-            font-size: 16px;
-            color: #555555;
-            margin-top: 0;
         }
         .content {
             margin: 20px 0;
@@ -44,6 +38,12 @@
             font-size: 16px;
             margin: 5px 0;
         }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 12px;
+            color: #999999;
+        }
         .refund-amount {
             font-size: 24px;
             font-weight: bold;
@@ -51,41 +51,12 @@
             text-align: center;
             margin: 20px 0;
         }
-        .confirm-section {
-            text-align: center;
-            margin-top: 30px;
-        }
-        .confirm-section p {
-            font-size: 16px;
-            margin-bottom: 15px;
-            color: #333333;
-        }
-        .confirm-button {
-            display: inline-block;
-            padding: 10px 20px;
-            font-size: 16px;
-            color: white;
-            background-color: #007bff;
-            border: none;
-            border-radius: 5px;
-            text-decoration: none;
-        }
-        .confirm-button:hover {
-            background-color: #0056b3;
-        }
-        .footer {
-            text-align: center;
-            margin-top: 20px;
-            font-size: 12px;
-            color: #999999;
-        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
             <h1>Thông Báo Hoàn Tiền</h1>
-            <p class="subtitle">Xác nhận thông tin hoàn tiền đơn hàng của bạn</p>
         </div>
         <div class="content">
             <p>Xin chào <strong>##customerName##</strong>,</p>
@@ -102,11 +73,6 @@
 
             <p>Nếu bạn có bất kỳ câu hỏi hoặc thắc mắc nào, vui lòng liên hệ với chúng tôi qua email hoặc số điện thoại hỗ trợ.</p>
             <p>Chúng tôi rất cảm ơn bạn đã sử dụng dịch vụ của chúng tôi!</p>
-
-            <div class="confirm-section">
-                <p><strong>Nếu bạn đã nhận được hàng, hãy nhấn "Xác nhận" bên dưới:</strong></p>
-                <a href="##confirmLink##" class="confirm-button">Xác nhận</a>
-            </div>
         </div>
         <div class="footer">
             <p>Trân trọng,<br>Đội ngũ hỗ trợ khách hàng</p>

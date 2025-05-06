@@ -12,7 +12,7 @@ import { ChangePasswordRequest, ForgotPassswordRequest, LoginRequest, ResetPassw
 import { generateOtp } from 'src/utils/common.utils';
 import { OTPEntity } from 'src/model/entity/otp.enity';
 import { Gender, Prisma, Role, User } from '@prisma/client';
-import * as jwt from 'jsonwebtoken';
+
 @Injectable()
 export class AuthService extends BaseService<User, Prisma.UserCreateInput> {
     private readonly tokenBlacklist: Set<string> = new Set(); // Set để lưu token bị blacklist
@@ -23,11 +23,10 @@ export class AuthService extends BaseService<User, Prisma.UserCreateInput> {
         super(prismaService, coreService)
     }
     register = async (userData: RegisterDto): Promise<ServiceResponse> => {
-        const user = await this.prismaService.userRepo.findByEmail(userData.email);
+        const user = await this.prismaService.userRepo.findByEmail(userData.email)
         if (user) {
-            throw new HttpException({ message: 'Email đã tồn tại' }, HttpStatus.BAD_REQUEST);
+            throw new HttpException({ message: 'Email đã tồn tại' }, HttpStatus.BAD_REQUEST)
         }
-    
         const hashPassword = await hash(userData.password, 10);
         const userCreate = this._mapperService.mapData(userData, RegisterDto, UserEntity);
         userCreate.passwordHash = hashPassword;
@@ -35,64 +34,17 @@ export class AuthService extends BaseService<User, Prisma.UserCreateInput> {
         userCreate.role = Role.USER;
         userCreate.fullName = "";
         userCreate.isConfirm = false;
-
         const result = await this.prismaService.userRepo.create(userCreate, {
             email: true,
             role: true,
             id: true
         });
-    
-        // Tạo token xác nhận
-        const confirmToken = generateToken({ id: result.id, email: result.email });
-    
-        // Gửi email với liên kết xác nhận
-        await this._emailService.sendEmail(result.email, "Xác nhận tài khoản", "TemplateConfirmAccount.html", {
-            confirmLink: `http://localhost:5000/confirm-account?token=${confirmToken}`
-        });
-    
         return ServiceResponse.onSuccess({
             ...result,
             token: generateToken(result)
-        });
+        })
     }
-    confirmAccount = async (token: string): Promise<ServiceResponse> => {
-        try {
-            // Xác minh token
-            const decoded: any = jwt.verify(token, process.env.JWT_SECRET);
-            const userId = decoded.id;
-            const email = decoded.email;
 
-            // Kiểm tra xem người dùng có tồn tại không
-            const user = await this.prismaService.userRepo.findByEmail(email);
-            if (!user) {
-                throw new HttpException('Người dùng không tồn tại', HttpStatus.BAD_REQUEST);
-            }
-
-            // Kiểm tra xem tài khoản đã xác nhận chưa
-            if (user.isConfirm) {
-                return ServiceResponse.onSuccess({ message: 'Tài khoản đã được xác nhận' });
-            }
-
-            // Cập nhật trạng thái xác nhận tài khoản
-            user.isConfirm = true;
-            await this.prismaService.userRepo.update(userId, { isConfirm: true });
-
-            return ServiceResponse.onSuccess({ message: 'Tài khoản xác nhận thành công' });
-        } catch (error) {
-            // Nếu token không hợp lệ hoặc hết hạn
-            throw new HttpException('Token xác nhận không hợp lệ hoặc đã hết hạn', HttpStatus.UNAUTHORIZED);
-        }
-    };
-    verifyToken = (token: string): any => {
-        try {
-            const decoded = jwt.verify(token, process.env.JWT_SECRET); // Use jwt.verify() from jsonwebtoken
-            return decoded;
-        } catch (error) {
-            throw new HttpException('Invalid token', HttpStatus.UNAUTHORIZED);
-        }
-    }
-    
-    
     login = async (userPayload: LoginRequest): Promise<ServiceResponse> => {
 
         if (!userPayload.email) {

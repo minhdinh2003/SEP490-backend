@@ -202,6 +202,8 @@ export class MapperService {
       ),
       forMember((dest) => dest.createdAt, mapFrom((src) => src.createdAt)),
       forMember((dest) => dest.updatedAt, mapFrom((src) => src.updatedAt)),
+      forMember((dest) => dest.isConfirmRefund, mapFrom((src) => src.isConfirmRefund)),
+      forMember((dest) => dest.isPay, mapFrom((src) => src.isPay)),
     )
     createMap(this.mapper, ReviewEntity, OrderDto,
       forMember(
