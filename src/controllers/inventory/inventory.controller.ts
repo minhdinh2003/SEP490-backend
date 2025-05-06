@@ -7,10 +7,12 @@ import { CoreService } from 'src/core/core.service';
 import { EntityType, ModelType } from 'src/common/reflect.metadata';
 import { InventoryEntity } from 'src/model/entity/inventory.entity';
 import { InventoryDto } from 'src/model/dto/inventory.dto';
-
+import { RolesGuard } from 'src/common/guards/roles.guard';
+import { Roles } from 'src/common/decorators/roles.decorator';
 
 @ApiTags('Inventory')
 @Controller('api/inventory')
+@UseGuards(RolesGuard)
 export class InventoryController extends BaseController<InventoryEntity, Prisma.InventoryCreateInput> {
     @EntityType(InventoryEntity)
     entity: InventoryEntity;
@@ -22,6 +24,7 @@ export class InventoryController extends BaseController<InventoryEntity, Prisma.
     }
 
     @Post("import")
+    @Roles(Role.ADMIN, Role.OWNER)
     @ApiOperation({ summary: 'Import products into inventory' })
     @ApiBody({
         schema: {
@@ -38,6 +41,11 @@ export class InventoryController extends BaseController<InventoryEntity, Prisma.
         return await this.inventoryService.importProduct(data.productId, data.quantity);
     }
 
+    @Get("product/:id")
+    @ApiOperation({ summary: 'Get inventory status for a product' })
+    @ApiParam({ name: 'id', description: 'Product ID' })
+    @ApiResponse({ status: 200, description: 'Returns inventory status' })
+    @ApiResponse({ status: 404, description: 'Product or inventory not found' })
     async getProductInventory(@Param('id') productId: string) {
         return await this.inventoryService.getProductInventoryStatus(Number(productId));
     }
