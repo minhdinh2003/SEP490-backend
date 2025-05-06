@@ -9,5 +9,6 @@ export class NotificationType {
     static readonly AMIN_ASSIGN_TASK = "AMIN_ASSIGN_TASK";
     static readonly DONE_REQUEST = "DONE_REQUEST";
     static readonly DONE_REQUEST_USER = "DONE_REQUEST_USER";
+    static readonly INVENTORY_IMPORT = "INVENTORY_IMPORT";
 }
 
