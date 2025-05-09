@@ -27,6 +27,9 @@ export class TaskDetailEntity extends BaseEntity {
     title: string;
 
     @AutoMap()
+    address: string;
+
+    @AutoMap()
     status: TaskStatus;
 
     @AutoMap()

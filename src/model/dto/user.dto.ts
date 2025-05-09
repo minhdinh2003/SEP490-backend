@@ -47,6 +47,10 @@ export class UserDto extends BaseDto {
     @ApiProperty()
     profilePictureURL?: string; // URL ảnh đại diện (có thể null)
 
+
+    @AutoMap()
+    isConfirm?: any;
+
     // Phương thức khởi tạo để tạo một UserEntity từ dữ liệu
     constructor(partial: Partial<BaseDto>) {
         super();

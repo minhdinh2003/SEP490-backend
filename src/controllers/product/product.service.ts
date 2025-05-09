@@ -4,6 +4,7 @@ import { BaseService } from 'src/base/base.service';
 import { CoreService } from 'src/core/core.service';
 import { InventoryEntity } from 'src/model/entity/inventory.entity';
 import { ProductEntity } from 'src/model/entity/product.entity';
+import { AddStockRequest } from 'src/model/request/stock.request';
 import { PrismaService } from 'src/repo/prisma.service';
 
 @Injectable()
@@ -30,7 +31,7 @@ export class ProductService extends BaseService<ProductEntity, Prisma.ProductCre
             }
         });
         var inventoryData = new InventoryEntity();
-        inventoryData.quantity = 0;
+        inventoryData.quantity = 1;
         inventoryData.productId = result.id;
         var inventory = await this.prismaService.inventory.create({
             data: {
@@ -52,5 +53,55 @@ export class ProductService extends BaseService<ProductEntity, Prisma.ProductCre
             }
         }, this.getMoreUpdateData());
         return true;
-      }
+    }
+
+    async addStock(body: AddStockRequest) {
+        const { productId, quantity, price } = body;
+
+        // Lấy thông tin sản phẩm và tồn kho hiện tại
+        const product = await this.prismaService.product.findUnique({
+            where: { id: productId },
+            include: { inventory: true },
+        });
+
+        if (!product) {
+            throw new Error("Product not found");
+        }
+
+        let inventory = product.inventory;
+
+        if (!inventory) {
+            // Nếu chưa có tồn kho, tạo mới
+            inventory = await this.prismaService.inventory.create({
+                data: {
+                    productId,
+                    quantity: 0
+                },
+            });
+        }
+
+        // Tính giá trung bình mới
+        const totalValue = product.price * inventory.quantity;
+        const newTotalValue = totalValue + quantity * price;
+        const newTotalQuantity = inventory.quantity + quantity;
+        const newAveragePrice = Math.round(newTotalValue / newTotalQuantity);
+
+        // Cập nhật tồn kho
+        await this.prismaService.inventory.update({
+            where: { id: inventory.id },
+            data: {
+                quantity: newTotalQuantity
+            },
+        });
+
+        // Lưu lịch sử nhập kho
+        await this.prismaService.product.update({
+            where: { id: productId },
+            data: {
+                price: newAveragePrice,
+            },
+        });
+
+        return { success: true, message: "Stock added successfully" };
+    }
 }

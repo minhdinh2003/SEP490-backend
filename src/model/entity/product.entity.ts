@@ -57,9 +57,6 @@ export class ProductEntity extends BaseEntity {
     origin?: string; // Xuất xứ
 
     @AutoMap()
-    address?: string;
-
-    @AutoMap()
     seats?: number; // Số chỗ ngồi
 
     @AutoMap()

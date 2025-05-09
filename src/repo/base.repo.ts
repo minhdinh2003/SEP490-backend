@@ -193,7 +193,7 @@ export class BaseRepository<T extends { id: number }, U> {
 
     // Xử lý searchKey và searchFields
     if (pageRequest.searchKey && pageRequest.searchFields) {
-      query.where.OR = pageRequest.searchFields
+      query.where.AND = pageRequest.searchFields
         .filter((field) => !ignoreFields.includes(field)) // Lọc các trường hợp lệ
         .map((field) => ({
           [field]: { contains: pageRequest.searchKey }, // Tìm kiếm không phân biệt hoa thường
@@ -225,7 +225,12 @@ export class BaseRepository<T extends { id: number }, U> {
               break;
             // truyền cả where lên
             case 'raw':
-              query.where = cond.value;
+              //to-do: fix 
+              if (query?.where?.AND?.length > 0 && cond.value?.AND?.length > 0) {
+                query.where.AND = [...query.where.AND, ...cond.value.AND];
+              }else {
+                query.where = cond.value;
+              }
               break;
             // Thêm các điều kiện khác nếu cần
             default:

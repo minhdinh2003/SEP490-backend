@@ -12,4 +12,8 @@ export class PromotionService extends BaseService<PromotionEntity, Prisma.Promot
         protected readonly prismaService: PrismaService) {
         super(prismaService, coreService)
     }
+
+    generateVoucherCode = (): string => {
+        return `VOUCHER-${Math.random().toString(36).substring(2, 10).toUpperCase()}`;
+    }
 }

@@ -93,10 +93,6 @@ export class ProductDto extends BaseDto {
 
     @ApiProperty()
     @AutoMap()
-    address?: string;
-
-    @ApiProperty()
-    @AutoMap()
     promotionId?: number; // ID của chương trình khuyến mãi (tùy chọn)
 
     @ApiProperty()

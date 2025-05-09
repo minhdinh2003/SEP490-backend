@@ -34,6 +34,10 @@ export class TaskDetailDto extends BaseDto {
   @AutoMap()
   title: string;
 
+  @ApiProperty()
+  @AutoMap()
+  address: string;
+
   @ApiProperty({ enum: TaskStatus })
   @AutoMap()
   status: TaskStatus;

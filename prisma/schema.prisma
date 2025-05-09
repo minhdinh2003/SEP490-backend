@@ -1,0 +1,500 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// Định nghĩa các enum Role và Gender
+enum Role {
+  ADMIN
+  USER
+  OWNER
+  EMPLOYEE
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum PartType {
+  ENGINE
+  TRANSMISSION
+  BRAKE_SYSTEM
+  SUSPENSION
+  ELECTRICAL
+  COOLING_SYSTEM
+  FUEL_SYSTEM
+  EXHAUST_SYSTEM
+  BODY_PARTS
+  INTERIOR
+  EXTERIOR
+  TIRES_WHEELS
+  LIGHTING
+  FILTERS
+  BELTS
+  BATTERIES
+  STEERING
+  AIR_CONDITIONING
+  SAFETY
+  OTHERS
+}
+
+model User {
+  id                Int              @id @default(autoincrement()) // Khóa chính, tự động tăng
+  fullName          String           @db.VarChar(255) // Họ và tên đầy đủ
+  email             String           @unique @db.VarChar(255) // Địa chỉ email duy nhất
+  passwordHash      String           @db.VarChar(255) // Mã hóa mật khẩu
+  role              Role // Vai trò người dùng (enum)
+  gender            Gender           @default(OTHER) // Giới tính (enum), mặc định là OTHER
+  dateOfBirth       DateTime? // Ngày sinh (có thể null)
+  phoneNumber       String?          @db.VarChar(20) // Số điện thoại (có thể null)
+  addressLine1      String?          @db.VarChar(255) // Địa chỉ 1 (có thể null)
+  addressLine2      String?          @db.VarChar(255) // Địa chỉ 2 (có thể null)
+  province          String?          @db.VarChar(100) // Thành phố (có thể null)
+  district          String?          @db.VarChar(100) // Bang hoặc tỉnh (có thể null)
+  ward              String?          @db.VarChar(100) // Quốc gia (có thể null)
+  createdAt         DateTime         @default(now()) // Thời gian tạo tài khoản
+  updatedAt         DateTime         @updatedAt // Thời gian cập nhật tài khoản
+  profilePictureURL String?          @db.VarChar(255) // URL ảnh đại diện (có thể null)
+  createdBy         String?          @db.VarChar(100) // Người tạo (có thể null)
+  updatedBy         String?          @db.VarChar(100) // Người cập nhật (có thể null)
+  isConfirm         Boolean          @default(false) // Trạng thái xác thực tài khoản
+  whitelist         Whitelist[]
+  review            Review[]
+  order             Order[]
+  orderHistory      OrderHistory[]
+  notification      Notification[]
+  Request           Request[]
+  RequestHistory    RequestHistory[]
+  Chat              Chat[]
+  TaskDetail        TaskDetail[]
+  TaskHistory       TaskHistory[]
+  requests          Request[]        @relation("Approver")
+  Voucher           Voucher[]
+}
+
+model OtpRequest {
+  id         Int      @id @default(autoincrement()) // Khóa chính tự động tăng
+  email      String   @unique // Địa chỉ email, duy nhất
+  otp        String // Mã OTP
+  expiryTime DateTime // Thời gian hết hạn của OTP
+  createdAt  DateTime @default(now()) // Thời gian tạo
+  updatedAt  DateTime @updatedAt // Thời gian cập nhật cuối cùng
+}
+
+model Brand {
+  id          Int      @id @default(autoincrement()) // Khóa chính, tự động tăng
+  name        String   @db.VarChar(255) // Tên thương hiệu
+  description String?  @db.Text // Mô tả thương hiệu (có thể null)
+  logoURL     String?  @db.VarChar(255) // Đường dẫn hình ảnh logo (có thể null)
+  createdAt   DateTime @default(now()) // Thời gian tạo thương hiệu
+  updatedAt   DateTime @updatedAt // Thời gian cập nhật thương hiệu
+  createdBy   String?  @db.VarChar(100) // Người tạo (có thể null)
+  updatedBy   String?  @db.VarChar(100) // Người cập nhật (có thể null)
+
+  // to-do: bỏ comment product
+  // products          Product[] // Liên kết với bảng Products
+  products Product[]
+}
+
+model Product {
+  id              Int         @id @default(autoincrement()) // Khóa chính tự động tăng
+  name            String      @db.VarChar(255) // Tên sản phẩm
+  description     String?     @db.Text // Mô tả sản phẩm (có thể null)
+  price           Int
+  category        Category // Loại sản phẩm: 'car' hoặc 'part'
+  model           String?     @db.VarChar(100) // Mẫu xe (nếu là xe)
+  year            Int? // Năm sản xuất (nếu là xe)
+  status          Status      @default(AVAILABLE) // Trạng thái sản phẩm
+  listImage       Json? // Danh sách hình ảnh (JSON)
+  style           String?     @db.VarChar(100) // Kiểu dáng
+  engine_capacity String?     @db.VarChar(50) // Dung tích động cơ
+  fuel_type       String?     @db.VarChar(50) // Loại nhiên liệu
+  transmission    String?     @db.VarChar(50) // Hộp số
+  mileage         Int? // Chỉ số đồng hồ (số km đã đi)
+  exterior_color  String?     @db.VarChar(50) // Màu xe
+  interior_color  String?     @db.VarChar(50) // Màu nội thất
+  origin          String?     @db.VarChar(100) // Xuất xứ
+  seats           Int? // Số chỗ ngồi
+  doors           Int? // Số cửa
+  createdAt       DateTime    @default(now()) // Thời gian tạo
+  updatedAt       DateTime    @updatedAt // Thời gian cập nhật
+  createdBy       String?     @db.VarChar(100) // Người tạo (có thể null)
+  updatedBy       String?     @db.VarChar(100) // Người cập nhật (có thể null)
+  partType        PartType    @default(OTHERS)
+  brands          Brand[]
+  whitelist       Whitelist[]
+  review          Review[]
+  orderItem       OrderItem[]
+  inventory       Inventory?
+}
+
+// Định nghĩa enum cho category
+enum Category {
+  CAR
+  PART
+}
+
+// Định nghĩa enum cho status
+enum Status {
+  AVAILABLE
+  SOLD
+  OUT_OF_STOCK
+}
+
+model Inventory {
+  id        Int      @id @default(autoincrement()) // Khóa chính tự động tăng
+  product   Product  @relation(fields: [productId], references: [id]) // Liên kết với bảng Product
+  productId Int      @unique // ID của sản phẩm
+  quantity  Int // Số lượng sản phẩm trong kho
+  createdAt DateTime @default(now()) // Thời gian tạo
+  updatedAt DateTime @updatedAt // Thời gian cập nhật
+  createdBy String?  @db.VarChar(100) // Người tạo (có thể null)
+  updatedBy String?  @db.VarChar(100) // Người cập nhật (có thể null)
+
+  @@index([productId]) // Tạo chỉ mục để tối ưu hóa truy vấn theo productId
+}
+
+model Whitelist {
+  id        Int      @id @default(autoincrement()) // Khóa chính tự động tăng
+  user      User     @relation(fields: [userId], references: [id]) // Liên kết với bảng User
+  userId    Int      @unique // ID của người dùng
+  product   Product  @relation(fields: [productId], references: [id]) // Liên kết với bảng Product
+  productId Int      @unique // ID của sản phẩm
+  createdAt DateTime @default(now()) // Thời gian tạo
+  updatedAt DateTime @updatedAt // Thời gian cập nhật
+  createdBy String?  @db.VarChar(100) // Người tạo (có thể null)
+  updatedBy String?  @db.VarChar(100) // Người cập nhật (có thể null)
+
+  @@index([userId]) // Tạo chỉ mục để tối ưu hóa truy vấn theo userId
+  @@index([productId]) // Tạo chỉ mục để tối ưu hóa truy vấn theo productId
+}
+
+model Review {
+  id        Int      @id @default(autoincrement()) // Khóa chính tự động tăng
+  user      User     @relation(fields: [userId], references: [id]) // Liên kết với bảng User
+  userId    Int // ID của người dùng
+  product   Product  @relation(fields: [productId], references: [id]) // Liên kết với bảng Product
+  productId Int // ID của sản phẩm
+  rating    Int // Số sao đánh giá (1-5)
+  comment   String?  @db.Text // Nội dung đánh giá (tùy chọn)
+  createdAt DateTime @default(now()) // Thời gian tạo
+  updatedAt DateTime @updatedAt // Thời gian cập nhật
+  createdBy String?  @db.VarChar(100) // Người tạo (có thể null)
+  updatedBy String?  @db.VarChar(100) // Người cập nhật (có thể null)
+  fullName  String?  @default("")
+
+  @@index([userId]) // Tạo chỉ mục để tối ưu hóa truy vấn theo userId
+  @@index([productId]) // Tạo chỉ mục để tối ưu hóa truy vấn theo productId
+}
+
+model Order {
+  id              Int         @id @default(autoincrement()) // Khóa chính tự động tăng
+  user            User        @relation(fields: [userId], references: [id]) // Liên kết với bảng User
+  userId          Int // ID của người dùng
+  totalAmount     Decimal     @db.Decimal(10, 2) // Tổng số tiền của đơn hàng
+  status          OrderStatus @default(PENDING) // Trạng thái đơn hàng
+  createdAt       DateTime    @default(now()) // Thời gian tạo
+  updatedAt       DateTime    @updatedAt // Thời gian cập nhật
+  createdBy       String?     @db.VarChar(100) // Người tạo (có thể null)
+  updatedBy       String?     @db.VarChar(100) // Người cập nhật (có thể null)
+  orderItems      OrderItem[] // Liên kết với bảng OrderItem (các mục trong đơn hàng)
+  paymentMethod   Int         @default(0)
+  fullName        String?     @default("")
+  address         String?     @default("")
+  phoneNumber     String?     @default("")
+  isRepair        Boolean     @default(false)
+  isConfirmRefund Boolean     @default(false) // Trạng thái xác nhận hoàn tiền
+  isPay           Boolean     @default(false) // Trạng thái thanh toán
+  requestId       Int?
+  voucherCode     String?     @db.VarChar(255) // Mã voucher (có thể null)
+  Request         Request?    @relation(fields: [requestId], references: [id], onDelete: SetNull) // Mối quan hệ optional
+
+  OrderHistory OrderHistory[]
+}
+
+// Định nghĩa enum cho trạng thái đơn hàng
+enum OrderStatus {
+  PENDING // Đang xử lý
+  PROCESSING // Đang giao hàng
+  SHIPPED // Đã giao hàng
+  DELIVERED // Đã nhận hàng
+  CANCELLED // Đã hủy
+}
+
+model OrderItem {
+  id        Int      @id @default(autoincrement()) // Khóa chính tự động tăng
+  order     Order    @relation(fields: [orderId], references: [id]) // Liên kết với bảng Order
+  orderId   Int // ID của đơn hàng
+  product   Product  @relation(fields: [productId], references: [id]) // Liên kết với bảng Product
+  productId Int // ID của sản phẩm
+  quantity  Int // Số lượng sản phẩm trong đơn hàng
+  price     Decimal  @db.Decimal(10, 2) // Giá của sản phẩm tại thời điểm đặt hàng
+  createdAt DateTime @default(now()) // Thời gian tạo
+  updatedAt DateTime @updatedAt // Thời gian cập nhật
+  createdBy String?  @db.VarChar(100) // Người tạo (có thể null)
+  updatedBy String?  @db.VarChar(100) // Người cập nhật (có thể null)
+
+  @@index([orderId]) // Tạo chỉ mục để tối ưu hóa truy vấn theo orderId
+  @@index([productId]) // Tạo chỉ mục để tối ưu hóa truy vấn theo productId
+}
+
+model OrderHistory {
+  id          Int         @id @default(autoincrement()) // Khóa chính tự động tăng
+  order       Order       @relation(fields: [orderId], references: [id]) // Liên kết với bảng Order
+  orderId     Int // ID của đơn hàng
+  status      OrderStatus // Trạng thái đơn hàng
+  updatedBy   User?       @relation(fields: [updatedById], references: [id]) // Người thực hiện thay đổi
+  updatedById Int? // ID của người thực hiện thay đổi (tùy chọn)
+  updatedAt   DateTime    @default(now()) // Thời gian cập nhật
+  createdBy   String?     @db.VarChar(100) // Người tạo (có thể null)
+
+  @@index([orderId]) // Tạo chỉ mục để tối ưu hóa truy vấn theo orderId
+}
+
+enum PromotionType {
+  EVENT // Rửa xe
+  DISCOUNT // Giảm giá
+  MAINTENANCE // Bảo dưỡng
+}
+
+enum DiscountType {
+  PERCENTAGE // Giảm giá theo phần trăm
+  AMOUNT // Giảm giá theo số tiền cụ thể
+}
+
+model Promotion {
+  id              Int           @id @default(autoincrement()) // Khóa chính tự động tăng
+  content         String        @db.Text // Nội dung chi tiết của chương trình khuyến mãi
+  name            String        @db.VarChar(255) // Tên chương trình khuyến mãi
+  description     String?       @db.Text // Mô tả chi tiết (tùy chọn)
+  type            PromotionType // Loại chương trình khuyến mãi (rửa xe, giảm giá, thay dầu...)
+  startDate       DateTime // Ngày bắt đầu khuyến mãi
+  endDate         DateTime // Ngày kết thúc khuyến mãi
+  image           Json? // Danh sách hình ảnh (JSON array)
+  discountType    DiscountType  @default(PERCENTAGE) // Loại giảm giá (phần trăm hoặc số tiền cụ thể)
+  discountValue   Decimal       @db.Decimal(10, 2) // Giá trị giảm giá (ví dụ: 10% hoặc 100.000đ)
+  minUseRequest   Int // Số lần tối thiểu sử dụng dịch vụ sửa chữa để áp dụng khuyến mãi
+  minUseAmount    Int // giá tiền tối thiểu để áp dụng khuyến mãi
+  voucherQuantity Int           @default(0) // Tổng số lượng voucher có thể phát hành
+  voucherUsed     Int           @default(0) // Số lượng voucher đã phát hành
+  createdAt       DateTime      @default(now()) // Thời gian tạo
+  updatedAt       DateTime      @updatedAt // Thời gian cập nhật
+  createdBy       String?       @db.VarChar(100) // Người tạo (có thể null)
+  updatedBy       String?       @db.VarChar(100) // Người cập nhật (có thể null)
+  vouchers        Voucher[] // Các voucher liên quan đến chương trình khuyến mãi
+}
+
+model Voucher {
+  id          Int       @id @default(autoincrement()) // Khóa chính tự động tăng
+  promotionId Int // Liên kết với bảng Promotion
+  userId      Int? // ID của người dùng được cấp voucher
+  user        User?     @relation(fields: [userId], references: [id]) // Quan hệ với bảng User
+  code        String    @unique @db.VarChar(255) // Mã voucher (duy nhất)
+  discount    Decimal   @db.Decimal(10, 2) // Giá trị giảm giá (ví dụ: 10% hoặc 100.000đ)
+  usageLimit  Int // Số lượt sử dụng tối đa
+  usedCount   Int       @default(0) // Số lượt đã sử dụng
+  validFrom   DateTime // Thời gian bắt đầu hiệu lực
+  validTo     DateTime // Thời gian kết thúc hiệu lực
+  createdAt   DateTime  @default(now()) // Thời gian tạo
+  updatedAt   DateTime  @updatedAt // Thời gian cập nhật
+  createdBy   String?   @db.VarChar(100) // Người tạo (có thể null)
+  updatedBy   String?   @db.VarChar(100) // Người cập nhật (có thể null)
+  promotion   Promotion @relation(fields: [promotionId], references: [id]) // Quan hệ với bảng Promotion
+
+  @@index([promotionId]) // Tạo chỉ mục để tối ưu hóa truy vấn theo promotionId
+}
+
+// Định nghĩa enum cho trạng thái nhiệm vụ
+enum TaskStatus {
+  PENDING // Đang chờ xử lý
+  IN_PROGRESS // Đang thực hiện
+  COMPLETED // Đã hoàn thành
+  CANCELLED // Đã hủy
+}
+
+model Notification {
+  id         Int      @id @default(autoincrement()) // Khóa chính, tự động tăng
+  senderId   Int // ID của người gửi
+  senderName String // Tên người gửi
+  receiveId  Int // ID của người nhận
+  type       String // Loại thông báo
+  rawData    String // Dữ liệu thô của thông báo
+  isViewed   Boolean  @default(false) // Trạng thái đã xem
+  createdAt  DateTime @default(now()) // Thời gian tạo
+  updatedAt  DateTime @updatedAt // Thời gian cập nhật
+
+  // Liên kết với bảng User
+  user      User    @relation(fields: [receiveId], references: [id], onDelete: Cascade)
+  createdBy String?
+  updatedBy String?
+}
+
+model TransactionHistory {
+  id            Int      @id @default(autoincrement()) // ID tự động tăng
+  orderId       Int // ID của đơn hàng
+  description   String? // Mô tả giao dịch
+  userId        Int // ID của người dùng
+  object        String? // Đối tượng liên quan (có thể null)
+  paymentMethod Int // Phương thức thanh toán
+  createdBy     String?
+  updatedBy     String?
+  createdAt     DateTime @default(now()) // Thời gian tạo
+  updatedAt     DateTime @updatedAt // Thời gian cập nhật
+}
+
+model Transaction {
+  id        Int      @id @default(autoincrement()) // Khóa chính tự động tăng
+  infor     String? // Thông tin chi tiết về giao dịch
+  orderId   Int // ID của đơn hàng liên kết
+  createdAt DateTime @default(now()) // Ngày tạo
+  updatedAt DateTime @updatedAt // Ngày cập nhật
+}
+
+model File {
+  id                  Int      @id @default(autoincrement()) // ID tự động tăng
+  fileKey             String   @unique // Key của file từ UploadThing
+  fileUrl             String // URL file từ UploadThing
+  appUrl              String // Đường dẫn URL trong ứng dụng
+  fileName            String // Tên file
+  fileType            String // Loại file (ví dụ: image/png)
+  fileSize            Int // Kích thước file
+  isTemp              Boolean  @default(true) // Đánh dấu file là tạm thời
+  associatedTableType String? // Loại bảng liên kết (User, Course, ...)
+  associatedTableId   Int? // ID của bảng liên kết
+  createdAt           DateTime @default(now()) // Thời gian tạo
+  updatedAt           DateTime @updatedAt // Thời gian cập nhật
+  createdBy           String?
+  updatedBy           String?
+}
+
+enum RepairType {
+  IN_SHOP // Sửa ở quán
+  AT_HOME // Sửa ở nhà
+}
+
+model Request {
+  id            Int              @id @default(autoincrement()) // Khóa chính tự động tăng
+  userId        Int // ID của người dùng tạo yêu cầu
+  user          User             @relation(fields: [userId], references: [id]) // Liên kết với bảng User
+  description   String           @db.Text // Mô tả yêu cầu sửa chữa
+  reasonReject  String
+  status        RequestStatus    @default(PENDING) // Trạng thái yêu cầu
+  price         Decimal?         @db.Decimal(10, 2) // Giá sửa chữa (tùy chọn)
+  approvedId    Int? // ID của Product Owner phê duyệt (tùy chọn)
+  approver      User?            @relation("Approver", fields: [approvedId], references: [id]) // Liên kết với bảng User
+  createdAt     DateTime         @default(now()) // Thời gian tạo
+  updatedAt     DateTime         @updatedAt // Thời gian cập nhật
+  createdBy     String?
+  updatedBy     String?
+  repairType    RepairType       @default(IN_SHOP) // Loại sửa chữa (ở nhà hoặc ở quán)
+  address       String?          @db.Text // Địa chỉ liên quan đến yêu cầu sửa chữa
+  completedAt   DateTime? // Thời gian hoàn thành (tùy chọn)
+  images        Json
+  imageRepairs  Json?
+  isUserConfirm Boolean
+  type          String
+  isPay         Boolean          @default(false)
+  history       RequestHistory[] // Lịch sử cập nhật trạng thái
+  Chat          Chat[]
+  TaskDetail    TaskDetail[]
+  Order         Order[]
+
+  @@index([userId]) // Tạo chỉ mục để tối ưu hóa truy vấn theo userId
+}
+
+model RequestHistory {
+  id        Int           @id @default(autoincrement()) // Khóa chính tự động tăng
+  requestId Int // ID của yêu cầu liên quan
+  status    RequestStatus // Trạng thái cũ/mới
+  updatedBy String?       @db.VarChar(100) // Người thực hiện thay đổi (lưu tên hoặc ID dạng string)
+  comment   String?       @db.Text // Bình luận hoặc lý do cập nhật
+  updatedAt DateTime      @default(now()) // Thời gian cập nhật
+  User      User?         @relation(fields: [userId], references: [id])
+  userId    Int?
+  Request   Request       @relation(fields: [requestId], references: [id])
+
+  @@index([requestId]) // Tạo chỉ mục để tối ưu hóa truy vấn theo requestId
+}
+model Work {
+  id        Int      @id @default(autoincrement()) // Primary key, auto-increment
+  name      String   @db.VarChar(255) // Name of the work
+  price     Decimal  @db.Decimal(10, 2) // Price of the work
+  createdAt DateTime @default(now()) // Timestamp for creation
+  updatedAt DateTime @updatedAt // Timestamp for last update
+}
+enum RequestStatus {
+  PENDING // Chờ xử lý
+  APPROVED // Đã phê duyệt
+  REJECTED // Từ chối
+  IN_PROGRESS // Đang tiến hành
+  COMPLETED // Hoàn thành
+  CANCELLED // Hủy
+}
+
+model Chat {
+  id        Int      @id @default(autoincrement()) // Khóa chính tự động tăng
+  requestId Int // Liên kết với bảng Request
+  senderId  Int // Người gửi tin nhắn (có thể là Customer hoặc Product Owner)
+  message   String   @db.Text // Nội dung tin nhắn
+  createdAt DateTime @default(now()) // Thời gian gửi tin nhắn
+  updatedAt DateTime @updatedAt // Thời gian cập nhật bản ghi
+
+  request   Request @relation(fields: [requestId], references: [id]) // Quan hệ với bảng Request
+  sender    User    @relation(fields: [senderId], references: [id]) // Quan hệ với bảng User để xác định ai gửi
+  createdBy String? @db.VarChar(100) // Người tạo (tùy chọn)
+  updatedBy String? @db.VarChar(100) // Người cập nhật (tùy chọn)
+
+  @@index([requestId]) // Tạo chỉ mục để tối ưu hóa truy vấn theo requestId
+  @@index([senderId]) // Tạo chỉ mục để tối ưu hóa truy vấn theo senderId
+}
+
+model TaskDetail {
+  id          Int        @id @default(autoincrement()) // Khóa chính tự động tăng
+  requestId   Int // Liên kết với bảng Request
+  assignedTo  Int? // ID của người được giao task (liên kết với bảng User)
+  description String     @db.Text // Mô tả chi tiết task
+  title       String?    @db.Text
+  address     String?    @db.Text // Địa chỉ liên quan đến task (có thể null)
+  status      TaskStatus @default(PENDING) // Trạng thái task
+  deadline    DateTime? // Thời hạn hoàn thành task
+  images      Json? // Danh sách hình ảnh (JSON array)
+  comments    Json? // Danh sách bình luận (JSON array)
+  price       Int? // Giá sửa chữa (tùy chọn)
+  createdAt   DateTime   @default(now()) // Thời gian tạo
+  updatedAt   DateTime   @updatedAt // Thời gian cập nhật
+  createdBy   String?
+  updatedBy   String?
+  request     Request    @relation(fields: [requestId], references: [id]) // Quan hệ với bảng Request
+  assignee    User?      @relation(fields: [assignedTo], references: [id]) // Quan hệ với bảng User
+
+  history TaskHistory[] // Lịch sử thay đổi task
+
+  @@index([requestId]) // Tạo chỉ mục để tối ưu hóa truy vấn theo requestId
+  @@index([assignedTo]) // Tạo chỉ mục để tối ưu hóa truy vấn theo assignedTo
+}
+
+model TaskHistory {
+  id        Int        @id @default(autoincrement()) // Khóa chính tự động tăng
+  taskId    Int // ID của task liên quan
+  status    TaskStatus // Trạng thái cũ/mới
+  updatedBy Int? // ID của người thực hiện thay đổi (liên kết với bảng User)
+  comment   String?    @db.Text // Bình luận hoặc lý do cập nhật
+  updatedAt DateTime   @default(now()) // Thời gian cập nhật
+
+  task    TaskDetail @relation(fields: [taskId], references: [id]) // Quan hệ với bảng TaskDetail
+  updater User?      @relation(fields: [updatedBy], references: [id]) // Quan hệ với bảng User
+
+  @@index([taskId]) // Tạo chỉ mục để tối ưu hóa truy vấn theo taskId
+}

@@ -39,8 +39,6 @@ export class BaseService<T extends { id: number }, K> {
     return Number(result.id);
   }
 
-  
-
   async getById(id: number): Promise<T> {
     const data = await this.repository.findOneWithCondition({
       id
