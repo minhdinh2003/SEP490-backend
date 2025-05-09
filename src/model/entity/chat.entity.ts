@@ -22,6 +22,15 @@ export class ChatEntity extends BaseEntity {
     @AutoMap()
     message: string;
 
+    @AutoMap()
+    receiveId: number;
+
+    @AutoMap()
+    isNormal: boolean;
+
+    @AutoMap()
+    isRead: boolean;
+
     constructor(partial?: Partial<ChatEntity>) {
         super();
         Object.assign(this, partial);

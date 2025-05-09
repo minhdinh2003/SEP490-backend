@@ -11,6 +11,7 @@ export class NotificationType {
     static readonly DONE_REQUEST_USER = "DONE_REQUEST_USER";
     static readonly EMPLOYEE_SEND_REQUEST_PRODUCT_OWNER = "EMPLOYEE_SEND_REQUEST_PRODUCT_OWNER";
     static readonly SEND_VOUCHER_CUSTOMER = "SEND_VOUCHER_CUSTOMER";
-    static readonly INVENTORY_IMPORT = "INVENTORY_IMPORT";
+    static readonly USER_CHAT_WITH_OWNER = "USER_CHAT_WITH_OWNER";
+    static readonly OWNER_CHAT_WITH_USER = "OWNER_CHAT_WITH_USER";
 }
 
