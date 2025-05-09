@@ -64,8 +64,8 @@ export class MapperService {
     createMap(this.mapper, UserEntity, UserDto,
       forMember((dest) => dest.gender, mapFrom((src) => src.gender)),
       forMember((dest) => dest.role, mapFrom((src) => src.role)),
-      forMember((dest) => dest.id, mapFrom((src) => src.id))
-
+      forMember((dest) => dest.id, mapFrom((src) => src.id)),
+      forMember((dest) => dest.isConfirm, mapFrom((src) => src.isConfirm))
     );
     createMap(this.mapper, UserDto, UserEntity);
 
@@ -202,6 +202,8 @@ export class MapperService {
       ),
       forMember((dest) => dest.createdAt, mapFrom((src) => src.createdAt)),
       forMember((dest) => dest.updatedAt, mapFrom((src) => src.updatedAt)),
+      forMember((dest) => dest.isConfirmRefund, mapFrom((src) => src.isConfirmRefund)),
+      forMember((dest) => dest.isPay, mapFrom((src) => src.isPay)),
     )
     createMap(this.mapper, ReviewEntity, OrderDto,
       forMember(
@@ -271,6 +273,22 @@ export class MapperService {
         (dest) => dest.image,
         mapFrom((src) => src.image)
       ),
+      forMember(
+        (dest) => dest.type,
+        mapFrom((src) => src.type)
+      ),
+      forMember(
+        (dest) => dest.discountType,
+        mapFrom((src) => src.discountType)
+      ),
+      forMember(
+        (dest) => dest.discountValue,
+        mapFrom((src) => src.discountValue)
+      ),
+      forMember(
+        (dest) => dest.minUseRequest,
+        mapFrom((src) => src.minUseRequest)
+      ),
     );
     createMap(this.mapper, VoucherDto, VoucherEntity);
     createMap(this.mapper, VoucherEntity, VoucherDto,
@@ -293,6 +311,10 @@ export class MapperService {
       forMember(
         (dest) => dest.usedCount,
         mapFrom((src) => src.usedCount)
+      ),
+      forMember(
+        (dest) => dest.promotion,
+        mapFrom((src) => src.promotion)
       ),
     );
     createMap(this.mapper, RequestDto, RequestEntity);

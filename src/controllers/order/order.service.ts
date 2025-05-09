@@ -400,4 +400,17 @@ export class OrderService extends BaseService<OrderEntity, Prisma.OrderCreateInp
         }
     }
 
+
+    async refund(orderId: number) {
+        const userId = this._authService.getUserID();
+        await this.prismaService.order.update({
+            where: { id: orderId, userId: userId },
+            data: {
+                isConfirmRefund: true,
+                updatedAt: new Date()
+            },
+        });
+        return true;
+    }
+
 }
