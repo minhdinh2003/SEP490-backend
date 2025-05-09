@@ -21,9 +21,19 @@ export class ChatDto extends BaseDto {
   @AutoMap()
   senderId: number;
 
+  @ApiProperty()
+  @AutoMap()
+  receiveId: number;
+
   @ApiProperty({ type: () => UserDto })
   @AutoMap(() => UserDto)
   sender: UserDto;
+
+  @AutoMap()
+  isNormal: boolean;
+
+  @AutoMap()
+  isRead: boolean;
 
   @ApiProperty()
   @AutoMap()
