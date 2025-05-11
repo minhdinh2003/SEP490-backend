@@ -47,6 +47,39 @@ export class CreateOrderRequest {
   voucherCode?: string;
 }
 
+export class OwnerCreateOrderRequest {
+  @ApiProperty({ type: [OrderItemRequest] })
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => OrderItemRequest) 
+  orderItems: OrderItemRequest[];
+
+  @ApiProperty()
+  @IsString()
+  fullName: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  address?: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  phoneNumber?: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  voucherCode?: string;
+
+  @IsInt()
+  userId: number;
+
+  @IsInt()
+  agreedPrice: number;
+}
+
 
 
 export class CreateOrderRequestRepair {
