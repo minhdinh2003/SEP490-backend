@@ -50,6 +50,7 @@ enum PartType {
   OTHERS
 }
 
+
 model User {
   id                Int              @id @default(autoincrement()) // Khóa chính, tự động tăng
   fullName          String           @db.VarChar(255) // Họ và tên đầy đủ
@@ -77,12 +78,13 @@ model User {
   notification      Notification[]
   Request           Request[]
   RequestHistory    RequestHistory[]
-  Chat              Chat[]
   TaskDetail        TaskDetail[]
   TaskHistory       TaskHistory[]
   requests          Request[]        @relation("Approver")
   Voucher           Voucher[]
+  Chat              Chat[]
 }
+
 
 model OtpRequest {
   id         Int      @id @default(autoincrement()) // Khóa chính tự động tăng
@@ -128,6 +130,8 @@ model Product {
   origin          String?     @db.VarChar(100) // Xuất xứ
   seats           Int? // Số chỗ ngồi
   doors           Int? // Số cửa
+  agreedPrice     Int? // Giá đã thỏa thuận (nếu có)
+  originPrice     Int? // Giá gốc (nếu có)
   createdAt       DateTime    @default(now()) // Thời gian tạo
   updatedAt       DateTime    @updatedAt // Thời gian cập nhật
   createdBy       String?     @db.VarChar(100) // Người tạo (có thể null)
@@ -139,6 +143,7 @@ model Product {
   orderItem       OrderItem[]
   inventory       Inventory?
 }
+
 
 // Định nghĩa enum cho category
 enum Category {
@@ -447,17 +452,22 @@ model Chat {
   id        Int      @id @default(autoincrement()) // Khóa chính tự động tăng
   requestId Int // Liên kết với bảng Request
   senderId  Int // Người gửi tin nhắn (có thể là Customer hoặc Product Owner)
+  receiveId Int?
   message   String   @db.Text // Nội dung tin nhắn
   createdAt DateTime @default(now()) // Thời gian gửi tin nhắn
   updatedAt DateTime @updatedAt // Thời gian cập nhật bản ghi
+  isNormal  Boolean  @default(false) // Đánh dấu tin nhắn là bình thường (false) hoặc quan trọng (true)
+  isRead    Boolean  @default(false) // Trạng thái đã đọc (true) hoặc chưa đọc (false)
 
-  request   Request @relation(fields: [requestId], references: [id]) // Quan hệ với bảng Request
-  sender    User    @relation(fields: [senderId], references: [id]) // Quan hệ với bảng User để xác định ai gửi
+  request Request @relation(fields: [requestId], references: [id]) // Quan hệ với bảng Request
+  sender  User    @relation(fields: [senderId], references: [id]) // Quan hệ với bảng User để xác định ai gửi
+
   createdBy String? @db.VarChar(100) // Người tạo (tùy chọn)
   updatedBy String? @db.VarChar(100) // Người cập nhật (tùy chọn)
 
   @@index([requestId]) // Tạo chỉ mục để tối ưu hóa truy vấn theo requestId
   @@index([senderId]) // Tạo chỉ mục để tối ưu hóa truy vấn theo senderId
+  @@index([receiveId]) // Tạo chỉ mục để tối ưu hóa truy vấn theo receiveId
 }
 
 model TaskDetail {
