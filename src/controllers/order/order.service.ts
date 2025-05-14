@@ -3,7 +3,7 @@ import { OrderStatus, Prisma, PromotionType } from '@prisma/client';
 import { BaseService } from 'src/base/base.service';
 import { CoreService } from 'src/core/core.service';
 import { OrderEntity } from 'src/model/entity/order.entity';
-import { CreateOrderRequest, CreateOrderRequestRepair, OrderItemRequest } from 'src/model/request/orderItem.request';
+import { CreateOrderRequest, CreateOrderRequestRepair, OrderItemRequest, OwnerCreateOrderRequest } from 'src/model/request/orderItem.request';
 import { PrismaService } from 'src/repo/prisma.service';
 import { PayOSService } from 'src/common/services/payos/PayOS.service';
 import { DepositRequest } from 'src/model/request/deposit.request';
@@ -47,19 +47,17 @@ export class OrderService extends BaseService<OrderEntity, Prisma.OrderCreateInp
                 // Step 2: Tính tổng số tiền của đơn hàng
                 const products = await prisma.product.findMany({
                     where: { id: { in: orderItems.map((item) => item.productId) } },
-                    select: { id: true, price: true },
+                    select: { id: true, price: true, agreedPrice: true },
                 });
 
                 let totalAmount = orderItems.reduce((total, item) => {
                     const product = products.find((p) => p.id === item.productId);
-                    return total + parseInt(product.price.toString()) * item.quantity;
+                    return total + parseInt((product.agreedPrice > 0 ? product.agreedPrice : product.price).toString()) * item.quantity;
                 }, 0);
 
 
                 if (request.voucherCode) {
                     totalAmount = discountInfo.discountedPrice;
-                    // Gọi hàm apply để kiểm tra và áp dụng mã voucher
-                    discountInfo = await this.apply(request.voucherCode, orderItems[0].productId, orderItems[0].quantity);
                     await prisma.voucher.update({
                         where: { code: request.voucherCode }, // Tìm voucher dựa trên mã
                         data: { usedCount: { increment: 1 } }, // Tăng usedCount lên 1
@@ -76,6 +74,7 @@ export class OrderService extends BaseService<OrderEntity, Prisma.OrderCreateInp
                         address: request.address,
                         phoneNumber: request.phoneNumber,
                         voucherCode: request.voucherCode,
+                        paymentMethod: paymentMethod,
                         orderItems: {
                             create: orderItems.map((item) => ({
                                 productId: item.productId,
@@ -124,11 +123,12 @@ export class OrderService extends BaseService<OrderEntity, Prisma.OrderCreateInp
 
                 const newOrder = await prisma.order.create({
                     data: {
-                        totalAmount: data.price,
+                        totalAmount: parseInt(data.price.toString()),
                         status: paymentMethod == PaymentMethod.BankOnline ? 'PENDING' : 'PROCESSING',
                         fullName: request.fullName,
                         address: request.address,
                         phoneNumber: request.phoneNumber,
+                        paymentMethod: paymentMethod,
                         isRepair: true,
                         user: {
                             connect: { id: userId }
@@ -146,6 +146,125 @@ export class OrderService extends BaseService<OrderEntity, Prisma.OrderCreateInp
             } else {
                 return process.env.LinkPayCoinSuccess;
             }
+
+        } catch (error) {
+            console.error('Lỗi khi tạo đơn hàng:', error.message);
+            throw error;
+        }
+    }
+
+    ownerCreateOrder = async (request: OwnerCreateOrderRequest) => {
+        var orderItems = request.orderItems;
+        var userId = request.userId;
+        try {
+            let discountInfo = null;
+            await this.prismaService.product.update({
+                where: { id: request.orderItems[0].productId }, // Tìm voucher dựa trên mã
+                data: {
+                    agreedPrice: request.agreedPrice // Tăng usedCount lên 1
+                }
+            });
+            if (request.voucherCode) {
+                // Gọi hàm apply để kiểm tra và áp dụng mã voucher
+                discountInfo = await this.apply(request.voucherCode, orderItems[0].productId, orderItems[0].quantity);
+            }
+            let paymentMethod = request.orderItems[0].paymentMethod;
+            // Bắt đầu transaction để đảm bảo tính toàn vẹn dữ liệu
+            const order = await this.prismaService.$transaction(async (prisma) => {
+                // Step 1: Kiểm tra số lượng sản phẩm trong kho
+                for (const item of orderItems) {
+                    const inventory = await prisma.inventory.findUnique({
+                        where: { productId: item.productId },
+                    });
+
+                    if (!inventory || inventory.quantity < item.quantity) {
+                        throw new Error(`Sản phẩm với ID ${item.productId} không đủ số lượng trong kho.`);
+                    }
+                }
+
+                // Step 2: Tính tổng số tiền của đơn hàng
+                const products = await prisma.product.findMany({
+                    where: { id: { in: orderItems.map((item) => item.productId) } },
+                    select: { id: true, price: true, agreedPrice: true },
+                });
+
+                let totalAmount = orderItems.reduce((total, item) => {
+                    const product = products.find((p) => p.id === item.productId);
+                    return total + parseInt((product.agreedPrice > 0 ? product.agreedPrice : product.price).toString()) * item.quantity;
+                }, 0);
+
+
+                if (request.voucherCode) {
+                    totalAmount = discountInfo.discountedPrice;
+                    await prisma.voucher.update({
+                        where: { code: request.voucherCode }, // Tìm voucher dựa trên mã
+                        data: { usedCount: { increment: 1 } }, // Tăng usedCount lên 1
+                    });
+                }
+
+                // Step 3: Tạo đơn hàng
+                const newOrder = await prisma.order.create({
+                    data: {
+                        userId,
+                        totalAmount,
+                        status: paymentMethod == PaymentMethod.BankOnline || paymentMethod == PaymentMethod.Counter ? 'PENDING' : 'PROCESSING',
+                        fullName: request.fullName,
+                        address: request.address,
+                        phoneNumber: request.phoneNumber,
+                        voucherCode: request.voucherCode,
+                        paymentMethod: paymentMethod,
+                        orderItems: {
+                            create: orderItems.map((item) => ({
+                                productId: item.productId,
+                                quantity: item.quantity,
+                                price: products.find((p) => p.id === item.productId)?.price || 0,
+                            })),
+                        },
+                    },
+                });
+
+                // Step 4: Cập nhật số lượng sản phẩm trong kho
+                for (const item of orderItems) {
+                    await prisma.inventory.update({
+                        where: { productId: item.productId },
+                        data: { quantity: { decrement: item.quantity } },
+                    });
+                }
+
+                return newOrder;
+            });
+            if (paymentMethod == PaymentMethod.BankOnline) {
+                var deposit = new DepositRequest();
+                deposit.amount = parseInt(order.totalAmount.toString());
+                // get link thanh toán
+                const linkPay = await this.payosService.payOrder(deposit, order);
+                //to-do
+                const customer = await this.prismaService.user.findUnique({
+                    where: { id: userId },
+                    select: { email: true, fullName: true }
+                })
+                const product = await this.prismaService.product.findUnique({
+                    where: { id: request.orderItems[0].productId },
+                    select: { name: true }
+                })
+                //to-do: change email
+                await this._emailService.sendEmail("phamngocthuan13@gmail.com", "Thông báo thanh toán online", "TemplateBankOnline.html", {
+                    customerName: customer.fullName,
+                    orderName: product.name,
+                    quantity: 1,
+                    totalAmount: this.formatVND(deposit.amount),
+                    paymentLink: linkPay,
+                })
+            }
+            else if (paymentMethod == PaymentMethod.Cash) {
+                await this.pushNotification(request.userId, NotificationType.OWNER_CREATE_ORDER_FOR_CUSTOMER,
+                    JSON.stringify({
+                        id: order.id,
+                    }),
+                    this._authService.getFullname(), this._authService.getUserID()
+                )
+            }
+            return true;
 
         } catch (error) {
             console.error('Lỗi khi tạo đơn hàng:', error.message);
@@ -365,14 +484,14 @@ export class OrderService extends BaseService<OrderEntity, Prisma.OrderCreateInp
             // Step 3: Lấy giá sản phẩm
             const product = await this.prismaService.product.findUnique({
                 where: { id: productId },
-                select: { price: true },
+                select: { price: true, agreedPrice: true },
             });
 
             if (!product) {
                 throw new Error("Không tìm thấy sản phẩm.");
             }
 
-            const totalPrice = product.price * quantity;
+            const totalPrice = (product.agreedPrice > 0 ? product.agreedPrice : product.price) * quantity;
 
             // Step 4: Tính toán số tiền sau khi giảm giá
             let discountedPrice = totalPrice;
