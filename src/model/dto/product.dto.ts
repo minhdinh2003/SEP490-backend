@@ -99,6 +99,46 @@ export class ProductDto extends BaseDto {
     @AutoMap()
     partType?: PartType; // ID của chương trình khuyến mãi (tùy chọn)
 
+    @ApiProperty()
+    @AutoMap()
+    agreedPrice: number; // Giá sản phẩm
+
+    @ApiProperty()
+    @AutoMap()
+    originPrice: number; // Giá sản phẩm
+
+    @ApiProperty()
+    @AutoMap()
+    registrationExpiry?: Date; // Ngày hết hạn đăng ký
+
+    @ApiProperty()
+    @AutoMap()
+    insuranceExpiry?: Date; // Ngày hết hạn bảo hiểm
+
+    @ApiProperty()
+    @AutoMap()
+    originalPaintPercentage?: number; // Tỷ lệ sơn gốc
+
+    @ApiProperty()
+    @AutoMap()
+    accidentDetails?: string; // Lịch sử tai nạn
+
+    @ApiProperty()
+    @AutoMap()
+    floodDamageDetails?: string; // Lịch sử ngập nước
+
+    @ApiProperty()
+    @AutoMap()
+    engineCondition?: string; // Tình trạng động cơ
+
+    @ApiProperty()
+    @AutoMap()
+    transmissionCondition?: string; // Tình trạng hộp số
+
+    @ApiProperty()
+    @AutoMap()
+    ownerCount?: number; // Tình trạng hộp số
+
     inventory: InventoryDto;
     brands?: BrandDto[];
     review?: ReviewDto[];
