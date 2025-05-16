@@ -79,6 +79,19 @@ export class ProductEntity extends BaseEntity {
 
     review?: ReviewEntity[];
 
+    agreedPrice: number; // Giá sản phẩm
+
+    originPrice: number; // Giá sản phẩm
+    registrationExpiry?: Date; // Ngày hết hạn đăng ký
+    insuranceExpiry?: Date; // Ngày hết hạn bảo hiểm
+    originalPaintPercentage?: number; // Tỷ lệ sơn gốc
+    accidentDetails?: string; // Lịch sử tai nạn
+    floodDamageDetails?: string; // Lịch sử ngập nước
+    engineCondition?: string; // Tình trạng động cơ
+    transmissionCondition?: string; // Tình trạng hộp số
+
+    ownerCount?: number; // Tình trạng hộp số
+
     constructor(partial?: Partial<ProductEntity>) {
         super();
         if (partial) {

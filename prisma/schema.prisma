@@ -110,38 +110,47 @@ model Brand {
   products Product[]
 }
 
+
 model Product {
-  id              Int         @id @default(autoincrement()) // Khóa chính tự động tăng
-  name            String      @db.VarChar(255) // Tên sản phẩm
-  description     String?     @db.Text // Mô tả sản phẩm (có thể null)
-  price           Int
-  category        Category // Loại sản phẩm: 'car' hoặc 'part'
-  model           String?     @db.VarChar(100) // Mẫu xe (nếu là xe)
-  year            Int? // Năm sản xuất (nếu là xe)
-  status          Status      @default(AVAILABLE) // Trạng thái sản phẩm
-  listImage       Json? // Danh sách hình ảnh (JSON)
-  style           String?     @db.VarChar(100) // Kiểu dáng
-  engine_capacity String?     @db.VarChar(50) // Dung tích động cơ
-  fuel_type       String?     @db.VarChar(50) // Loại nhiên liệu
-  transmission    String?     @db.VarChar(50) // Hộp số
-  mileage         Int? // Chỉ số đồng hồ (số km đã đi)
-  exterior_color  String?     @db.VarChar(50) // Màu xe
-  interior_color  String?     @db.VarChar(50) // Màu nội thất
-  origin          String?     @db.VarChar(100) // Xuất xứ
-  seats           Int? // Số chỗ ngồi
-  doors           Int? // Số cửa
-  agreedPrice     Int? // Giá đã thỏa thuận (nếu có)
-  originPrice     Int? // Giá gốc (nếu có)
-  createdAt       DateTime    @default(now()) // Thời gian tạo
-  updatedAt       DateTime    @updatedAt // Thời gian cập nhật
-  createdBy       String?     @db.VarChar(100) // Người tạo (có thể null)
-  updatedBy       String?     @db.VarChar(100) // Người cập nhật (có thể null)
-  partType        PartType    @default(OTHERS)
-  brands          Brand[]
-  whitelist       Whitelist[]
-  review          Review[]
-  orderItem       OrderItem[]
-  inventory       Inventory?
+  id                      Int         @id @default(autoincrement()) // Khóa chính tự động tăng
+  name                    String      @db.VarChar(255) // Tên sản phẩm
+  description             String?     @db.Text // Mô tả sản phẩm (có thể null)
+  price                   Int
+  category                Category // Loại sản phẩm: 'car' hoặc 'part'
+  model                   String?     @db.VarChar(100) // Mẫu xe (nếu là xe)
+  year                    Int? // Năm sản xuất (nếu là xe)
+  status                  Status      @default(AVAILABLE) // Trạng thái sản phẩm
+  listImage               Json? // Danh sách hình ảnh (JSON)
+  style                   String?     @db.VarChar(100) // Kiểu dáng
+  engine_capacity         String?     @db.VarChar(50) // Dung tích động cơ
+  fuel_type               String?     @db.VarChar(50) // Loại nhiên liệu
+  transmission            String?     @db.VarChar(50) // Hộp số
+  mileage                 Int? // Chỉ số đồng hồ (số km đã đi)
+  exterior_color          String?     @db.VarChar(50) // Màu xe
+  interior_color          String?     @db.VarChar(50) // Màu nội thất
+  origin                  String?     @db.VarChar(100) // Xuất xứ
+  seats                   Int? // Số chỗ ngồi
+  doors                   Int? // Số cửa
+  agreedPrice             Int? // Giá đã thỏa thuận (nếu có)
+  originPrice             Int? // Giá gốc (nếu có)
+  createdAt               DateTime    @default(now()) // Thời gian tạo
+  updatedAt               DateTime    @updatedAt // Thời gian cập nhật
+  createdBy               String?     @db.VarChar(100) // Người tạo (có thể null)
+  updatedBy               String?     @db.VarChar(100) // Người cập nhật (có thể null)
+  partType                PartType    @default(OTHERS)
+  registrationExpiry      DateTime? // Thời hạn đăng kiểm
+  insuranceExpiry         DateTime? // Thời hạn bảo hiểm
+  originalPaintPercentage Int? // % sơn zin
+  accidentDetails         String?     @db.Text // Mức độ đâm đụng (text)
+  floodDamageDetails      String?     @db.Text // Ngập nước (text)
+  engineCondition         String?     @db.Text // Động cơ (text), ví dụ: đã làm máy chưa
+  transmissionCondition   String?     @db.Text // Hộp số (text), ví dụ: tình trạng hộp số
+  ownerCount              Int?        @db.Int // Số đời chủ của xe (mới thêm)
+  brands                  Brand[]
+  whitelist               Whitelist[]
+  review                  Review[]
+  orderItem               OrderItem[]
+  inventory               Inventory?
 }
 
 
