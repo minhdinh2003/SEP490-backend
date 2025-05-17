@@ -18,6 +18,19 @@ export class TaskDetailService extends BaseService<TaskDetailEntity, Prisma.Task
 
     async add(entity: TaskDetailEntity): Promise<number> {
         var id = await super.add(entity);
+
+        // Cộng price của task vào request
+        if (entity.price && entity.requestId) {
+            await this.prismaService.request.update({
+                where: { id: entity.requestId },
+                data: {
+                    price: {
+                        increment: entity.price
+                    }
+                }
+            });
+        }
+
         if (this._authService.getRole() == Role.OWNER) {
             var data = await this.prismaService.taskDetail.findFirst({
                 where: {
@@ -33,8 +46,6 @@ export class TaskDetailService extends BaseService<TaskDetailEntity, Prisma.Task
                 )
             }
         }
-
-
         return id;
     }
 
@@ -49,9 +60,22 @@ export class TaskDetailService extends BaseService<TaskDetailEntity, Prisma.Task
                     title: model.title
                 }),
                 this._authService.getFullname(), this._authService.getUserID()
-
             )
         }
+
+        // Cập nhật lại tổng price cho request
+        if (dataNew.requestId) {
+            const allTasks = await this.prismaService.taskDetail.findMany({
+                where: { requestId: dataNew.requestId },
+                select: { price: true }
+            });
+            const totalPrice = allTasks.reduce((sum, t) => sum + (t.price ?? 0), 0);
+            await this.prismaService.request.update({
+                where: { id: dataNew.requestId },
+                data: { price: totalPrice }
+            });
+        }
+
         await this.checkAndUpdateRequestStatus(dataNew.requestId);
         return true;
     }

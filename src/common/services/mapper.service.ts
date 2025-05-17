@@ -1,4 +1,3 @@
-import { User } from '@prisma/client';
 // user.profile.ts
 import { createMap, forMember, ignore, mapFrom, createMapper } from '@automapper/core';
 import { Mapper } from '@automapper/core';
@@ -36,6 +35,8 @@ import { ChatEntity } from 'src/model/entity/chat.entity';
 import { ChatDto } from 'src/model/dto/chat.dto';
 import { TaskDetailEntity } from 'src/model/entity/taskDetail.entity';
 import { TaskDetailDto } from 'src/model/dto/taskDetail.dto';
+import { TaskTemplateDto } from 'src/model/dto/taskTemplate.dto';
+import { TaskTemplateEntity } from 'src/model/entity/taskTemplate.entity';
 
 @Injectable()
 export class MapperService {
@@ -142,6 +143,40 @@ export class MapperService {
       forMember(
         (dest) => dest.review,
         mapFrom((src) => src.review)
+      ),
+      forMember(
+        (dest) => dest.agreedPrice,
+        mapFrom((src) => src.agreedPrice)
+      ),
+      forMember(
+        (dest) => dest.originPrice,
+        mapFrom((src) => src.originPrice)
+      ),
+      forMember(
+        (dest) => dest.registrationExpiry,
+        mapFrom((src) => src.registrationExpiry)
+      )
+      , forMember(
+        (dest) => dest.insuranceExpiry,
+        mapFrom((src) => src.insuranceExpiry)
+      ), forMember(
+        (dest) => dest.originalPaintPercentage,
+        mapFrom((src) => src.originalPaintPercentage)
+      ), forMember(
+        (dest) => dest.accidentDetails,
+        mapFrom((src) => src.accidentDetails)
+      ), forMember(
+        (dest) => dest.floodDamageDetails,
+        mapFrom((src) => src.floodDamageDetails)
+      ), forMember(
+        (dest) => dest.engineCondition,
+        mapFrom((src) => src.engineCondition)
+      ), forMember(
+        (dest) => dest.transmissionCondition,
+        mapFrom((src) => src.transmissionCondition)
+      ), forMember(
+        (dest) => dest.ownerCount,
+        mapFrom((src) => src.ownerCount)
       )
     );
     createMap(this.mapper, InventoryDto, InventoryEntity);
@@ -331,13 +366,16 @@ export class MapperService {
       forMember((dest) => dest.imageRepairs, mapFrom((src) => src.imageRepairs)),
       forMember((dest) => dest.repairType, mapFrom((src) => src.repairType)),
       forMember((dest) => dest.TaskDetail, mapFrom((src) => src.TaskDetail)),
+      forMember((dest) => dest.address, mapFrom((src) => src.address)),
     );
     createMap(this.mapper, RequestHistoryDto, RequestHistoryEntity);
     createMap(this.mapper, RequestHistoryEntity, RequestHistoryDto);
     createMap(this.mapper, ChatEntity, ChatDto,
       forMember((dest) => dest.sender, mapFrom((src) => src.sender)),
-      forMember((dest) => dest.request, mapFrom((src) => src.request))
+      forMember((dest) => dest.request, mapFrom((src) => src.request)),
+      forMember((dest) => dest.createdAt, mapFrom((src) => src.createdAt))
     );
+    
     createMap(this.mapper, ChatDto, ChatEntity);
     createMap(this.mapper, TaskDetailDto, TaskDetailEntity);
     createMap(this.mapper, TaskDetailEntity, TaskDetailDto,
@@ -350,6 +388,15 @@ export class MapperService {
       forMember((dest) => dest.createdAt, mapFrom((src) => src.createdAt)),
       forMember((dest) => dest.assignee, mapFrom((src) => src.assignee)),
       forMember((dest) => dest.isPay, mapFrom((src) => src.isPay)),
+      forMember((dest) => dest.price, mapFrom((src) => src.price)),
+      forMember((dest) => dest.items, mapFrom((src) => src.items)),
+      forMember((dest) => dest.incidentalCosts, mapFrom((src) => src.incidentalCosts)),
+    );
+    createMap(this.mapper, TaskTemplateDto, TaskTemplateEntity);
+    createMap(this.mapper, TaskTemplateEntity, TaskTemplateDto,
+      forMember((dest) => dest.id, mapFrom((src) => src.id)),
+      forMember((dest) => dest.priority, mapFrom((src) => src.priority)),
+      forMember((dest) => dest.items, mapFrom((src) => src.items)),
       forMember((dest) => dest.price, mapFrom((src) => src.price)),
     );
   }

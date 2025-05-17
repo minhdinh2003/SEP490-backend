@@ -46,10 +46,13 @@ export class TaskDetailEntity extends BaseEntity {
 
     @AutoMap()
     price?: number;
-
+    @AutoMap()
+    incidentalCosts?: number;
     @AutoMap()
     comments?: any; // Thay đổi thành kiểu dữ liệu cụ thể nếu có cấu trúc JSON xác định
 
+    @AutoMap()
+    items?: any;
     constructor(partial?: Partial<TaskDetailEntity>) {
         super();
         Object.assign(this, partial);
