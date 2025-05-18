@@ -441,13 +441,7 @@ model RequestHistory {
 
   @@index([requestId]) // Tạo chỉ mục để tối ưu hóa truy vấn theo requestId
 }
-model Work {
-  id        Int      @id @default(autoincrement()) // Primary key, auto-increment
-  name      String   @db.VarChar(255) // Name of the work
-  price     Decimal  @db.Decimal(10, 2) // Price of the work
-  createdAt DateTime @default(now()) // Timestamp for creation
-  updatedAt DateTime @updatedAt // Timestamp for last update
-}
+
 enum RequestStatus {
   PENDING // Chờ xử lý
   APPROVED // Đã phê duyệt
@@ -517,3 +511,18 @@ model TaskHistory {
 
   @@index([taskId]) // Tạo chỉ mục để tối ưu hóa truy vấn theo taskId
 }
+
+model TaskTemplate {
+  id        Int      @id @default(autoincrement())
+  title     String   @db.VarChar(255) // Tiêu đề công việc
+  priority  Int // Thứ tự ưu tiên
+  items     Json? // Danh sách các đầu việc con (mảng JSON)
+  createdAt DateTime @default(now()) // Thời gian tạo
+  updatedAt DateTime @updatedAt // Thời gian cập nhật
+  createdBy String?
+  updatedBy String?
+  price     Int?     @default(0) // Giá sửa chữa (tùy chọn)
+
+  @@index([priority]) // Index để tối ưu hóa truy vấn theo thứ tự ưu tiên
+}
+
