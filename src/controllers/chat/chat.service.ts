@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma, Role } from '@prisma/client';
+import { send } from 'node:process';
 import { BaseService } from 'src/base/base.service';
 import { NotificationType } from 'src/common/const/notification.type';
 import { CoreService } from 'src/core/core.service';
@@ -75,10 +76,10 @@ export class ChatService extends BaseService<ChatEntity, Prisma.ChatCreateInput>
         if (users && users.length > 0) {
             data.receiveId = users[0].id;
             const id = await super.add(data);
-            await this.pushNotificationToProductOnwer(NotificationType.USER_CHAT_REQUEST,
+            await this.pushNotificationToProductOnwer(NotificationType.USER_CHAT_WITH_OWNER,
                 JSON.stringify({
                     id,
-                    requestId: entity.requestId,
+                    senderId: this._authService.getUserID(),
                     message: entity.message
                 }),
                 this._authService.getFullname(), this._authService.getUserID()
@@ -99,7 +100,7 @@ export class ChatService extends BaseService<ChatEntity, Prisma.ChatCreateInput>
         data.isRead = entity.isRead;
         const id = await super.add(data);
         // fix 1 owner
-        await this.pushNotificationToProductOnwer(NotificationType.OWNER_CHAT_WITH_USER,
+        await this.pushNotification( entity.receiveId,NotificationType.OWNER_CHAT_WITH_USER,
             JSON.stringify({
                 id,
                 requestId: entity.requestId,

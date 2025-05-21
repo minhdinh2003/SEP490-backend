@@ -220,6 +220,10 @@ export class MapperService {
         mapFrom((src) => src.userId)
       ),
       forMember(
+        (dest) => dest.requestId,
+        mapFrom((src) => src.requestId)
+      ),
+      forMember(
         (dest) => dest.totalAmount,
         mapFrom((src) => src.totalAmount)
       ),
@@ -367,6 +371,8 @@ export class MapperService {
       forMember((dest) => dest.repairType, mapFrom((src) => src.repairType)),
       forMember((dest) => dest.TaskDetail, mapFrom((src) => src.TaskDetail)),
       forMember((dest) => dest.address, mapFrom((src) => src.address)),
+      forMember((dest) => dest.updatedBy, mapFrom((src) => src.updatedBy)),
+      forMember((dest) => dest.createdBy, mapFrom((src) => src.createdBy)),
     );
     createMap(this.mapper, RequestHistoryDto, RequestHistoryEntity);
     createMap(this.mapper, RequestHistoryEntity, RequestHistoryDto);

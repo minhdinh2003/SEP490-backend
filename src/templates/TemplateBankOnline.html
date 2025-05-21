@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Thông Báo Thanh Toán Online</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            padding: 20px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .header h1 {
+            color: #333333;
+        }
+        .content {
+            margin: 20px 0;
+        }
+        .order-info {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+        .order-info p {
+            font-size: 16px;
+            margin: 5px 0;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 12px;
+            color: #999999;
+        }
+        .payment-button {
+            display: block;
+            width: 100%;
+            max-width: 200px;
+            margin: 20px auto;
+            padding: 12px 20px;
+            background-color: #007bff;
+            color: #ffffff;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+        .payment-button:hover {
+            background-color: #0056b3;
+        }
+        .total-amount {
+            font-size: 24px;
+            font-weight: bold;
+            color: #dc3545;
+            text-align: center;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Thông Báo Thanh Toán Online</h1>
+        </div>
+        <div class="content">
+            <p>Xin chào <strong>##customerName##</strong>,</p>
+            <p>Chúng tôi xin thông báo rằng đơn hàng của bạn đã sẵn sàng để thanh toán. Vui lòng kiểm tra thông tin bên dưới và nhấp vào nút "Thanh Toán Ngay" để hoàn tất quá trình thanh toán.</p>
+            
+            <div class="order-info">
+                <p><strong>Tên đơn hàng:</strong> ##orderName##</p>
+                <p><strong>Số lượng:</strong> ##quantity##</p>
+            </div>
+
+            <div class="total-amount">
+                Tổng số tiền cần thanh toán: <span>##totalAmount##</span>
+            </div>
+
+            <p>Để tiến hành thanh toán, vui lòng nhấp vào nút bên dưới:</p>
+            <a href="##paymentLink##" class="payment-button">Thanh Toán Ngay</a>
+
+            <p>Chúng tôi rất cảm ơn bạn đã sử dụng dịch vụ của chúng tôi!</p>
+        </div>
+        <div class="footer">
+            <p>Trân trọng,<br>Đội ngũ hỗ trợ khách hàng</p>
+        </div>
+    </div>
+</body>
+</html>

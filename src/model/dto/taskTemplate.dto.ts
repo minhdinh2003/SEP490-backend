@@ -15,6 +15,14 @@ export class TaskTemplateDto extends BaseDto {
     @AutoMap()
     priority: number; // Thứ tự ưu tiên
 
+    @ApiProperty()
+    @AutoMap()
+    items: any;
+
+    @ApiProperty()
+    @AutoMap()
+    price?: number;
+
     // Phương thức khởi tạo để tạo một TaskTemplateDto từ dữ liệu
     constructor(partial: Partial<TaskTemplateDto>) {
         super();

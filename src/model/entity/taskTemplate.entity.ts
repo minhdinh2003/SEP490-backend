@@ -11,6 +11,13 @@ export class TaskTemplateEntity extends BaseEntity {
     @AutoMap()
     priority: number; // Thứ tự ưu tiên
 
+    @AutoMap()
+    items: any;
+
+
+    @AutoMap()
+    price?: number;
+
     constructor(partial?: Partial<TaskTemplateEntity>) {
         super();
         if (partial) {

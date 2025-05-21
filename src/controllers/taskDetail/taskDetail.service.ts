@@ -53,6 +53,7 @@ export class TaskDetailService extends BaseService<TaskDetailEntity, Prisma.Task
         var dataOld = await super.getById(id);
         await super.update(id, model);
         var dataNew = await super.getById(id);
+
         if (this._authService.getRole() == Role.OWNER && dataNew.assignedTo && dataOld.assignedTo != dataNew.assignedTo) {
             await this.pushNotification(dataNew.assignedTo, NotificationType.AMIN_ASSIGN_TASK,
                 JSON.stringify({
@@ -63,8 +64,23 @@ export class TaskDetailService extends BaseService<TaskDetailEntity, Prisma.Task
             )
         }
 
-        // Cập nhật lại tổng price cho request
-        if (dataNew.requestId) {
+        // Nếu status là CANCELLED thì trừ price của task khỏi request
+        if (
+            dataNew.requestId &&
+            dataOld.status !== TaskStatus.CANCELLED &&
+            model.status === TaskStatus.CANCELLED &&
+            dataNew.price
+        ) {
+            await this.prismaService.request.update({
+                where: { id: dataNew.requestId },
+                data: {
+                    price: {
+                        decrement: dataNew.price
+                    }
+                }
+            });
+        } else if (dataNew.requestId) {
+            // Cập nhật lại tổng price cho request (nếu không phải CANCELLED)
             const allTasks = await this.prismaService.taskDetail.findMany({
                 where: { requestId: dataNew.requestId },
                 select: { price: true }
@@ -79,6 +95,7 @@ export class TaskDetailService extends BaseService<TaskDetailEntity, Prisma.Task
         await this.checkAndUpdateRequestStatus(dataNew.requestId);
         return true;
     }
+
 
     private async checkAndUpdateRequestStatus(requestId: number): Promise<void> {
         try {

@@ -1,6 +1,6 @@
 // page-request.dto.ts
 import { ApiProperty } from '@nestjs/swagger';
-import { IsArray, IsInt, IsOptional, IsString, ValidateNested } from 'class-validator';
+import { IsArray, IsBoolean, IsInt, IsOptional, IsString, ValidateNested } from 'class-validator';
 import { PaymentMethod } from '../enum/payment.enum';
 import { Type } from 'class-transformer';
 
@@ -110,4 +110,9 @@ export class CreateOrderRequestRepair {
   @IsString()
   @IsOptional()
   voucherCode?: string;
+
+  @ApiProperty({ required: false })
+  @IsBoolean()
+  @IsOptional()
+  isPay?: boolean;
 }
