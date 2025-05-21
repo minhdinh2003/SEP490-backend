@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE `Chat` ADD COLUMN `isNormal` BOOLEAN NOT NULL DEFAULT false,
+    ADD COLUMN `isRead` BOOLEAN NOT NULL DEFAULT false;

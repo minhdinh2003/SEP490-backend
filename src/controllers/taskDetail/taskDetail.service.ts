@@ -18,6 +18,19 @@ export class TaskDetailService extends BaseService<TaskDetailEntity, Prisma.Task
 
     async add(entity: TaskDetailEntity): Promise<number> {
         var id = await super.add(entity);
+
+        // Cộng price của task vào request
+        if (entity.price && entity.requestId) {
+            await this.prismaService.request.update({
+                where: { id: entity.requestId },
+                data: {
+                    price: {
+                        increment: entity.price
+                    }
+                }
+            });
+        }
+
         if (this._authService.getRole() == Role.OWNER) {
             var data = await this.prismaService.taskDetail.findFirst({
                 where: {
@@ -33,8 +46,6 @@ export class TaskDetailService extends BaseService<TaskDetailEntity, Prisma.Task
                 )
             }
         }
-
-
         return id;
     }
 
@@ -42,6 +53,7 @@ export class TaskDetailService extends BaseService<TaskDetailEntity, Prisma.Task
         var dataOld = await super.getById(id);
         await super.update(id, model);
         var dataNew = await super.getById(id);
+
         if (this._authService.getRole() == Role.OWNER && dataNew.assignedTo && dataOld.assignedTo != dataNew.assignedTo) {
             await this.pushNotification(dataNew.assignedTo, NotificationType.AMIN_ASSIGN_TASK,
                 JSON.stringify({
@@ -49,12 +61,41 @@ export class TaskDetailService extends BaseService<TaskDetailEntity, Prisma.Task
                     title: model.title
                 }),
                 this._authService.getFullname(), this._authService.getUserID()
-
             )
         }
+
+        // Nếu status là CANCELLED thì trừ price của task khỏi request
+        if (
+            dataNew.requestId &&
+            dataOld.status !== TaskStatus.CANCELLED &&
+            model.status === TaskStatus.CANCELLED &&
+            dataNew.price
+        ) {
+            await this.prismaService.request.update({
+                where: { id: dataNew.requestId },
+                data: {
+                    price: {
+                        decrement: dataNew.price
+                    }
+                }
+            });
+        } else if (dataNew.requestId) {
+            // Cập nhật lại tổng price cho request (nếu không phải CANCELLED)
+            const allTasks = await this.prismaService.taskDetail.findMany({
+                where: { requestId: dataNew.requestId },
+                select: { price: true }
+            });
+            const totalPrice = allTasks.reduce((sum, t) => sum + (t.price ?? 0), 0);
+            await this.prismaService.request.update({
+                where: { id: dataNew.requestId },
+                data: { price: totalPrice }
+            });
+        }
+
         await this.checkAndUpdateRequestStatus(dataNew.requestId);
         return true;
     }
+
 
     private async checkAndUpdateRequestStatus(requestId: number): Promise<void> {
         try {

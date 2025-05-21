@@ -8,7 +8,7 @@ import { EntityType, ModelType } from 'src/common/reflect.metadata';
 import { OrderEntity } from 'src/model/entity/order.entity';
 import { OrderDto } from 'src/model/dto/order.dto';
 import { AuthGuard } from 'src/core/auth.guard';
-import { CreateOrderRequest, CreateOrderRequestRepair, OrderItemRequest } from 'src/model/request/orderItem.request';
+import { CreateOrderRequest, CreateOrderRequestRepair, OrderItemRequest, OwnerCreateOrderRequest } from 'src/model/request/orderItem.request';
 import { PayOSService } from 'src/common/services/payos/PayOS.service';
 import { Public } from 'src/utils/public.decorator';
 import { Response } from 'express';
@@ -39,13 +39,22 @@ export class OrderController extends BaseController<OrderEntity, Prisma.OrderCre
     @Post("createOrder")
     @ApiBody({ type: CreateOrderRequest })
     async createOrder(@Body() param: CreateOrderRequest) {
-        return  ServiceResponse.onSuccess( await this.orderservice.createOrder(param));
+        return ServiceResponse.onSuccess(await this.orderservice.createOrder(param));
+    }
+
+    @Post("ownerCreateOrder")
+    @ApiBody({ type: OwnerCreateOrderRequest })
+    async ownerCreateOrder(@Body() param: OwnerCreateOrderRequest) {
+        return ServiceResponse.onSuccess(await this.orderservice.ownerCreateOrder(param));
     }
 
     @Post("createOrderRepair")
     @ApiBody({ type: CreateOrderRequestRepair })
-    async createOrderRepair(@Body() param: CreateOrderRequestRepair) {
-        return  ServiceResponse.onSuccess( await this.orderservice.createOrderRepair(param));
+    async createOrderRepair(
+        @Body() param: CreateOrderRequestRepair,
+        @Query('status') status?: string
+    ) {
+        return ServiceResponse.onSuccess(await this.orderservice.createOrderRepair(param, status));
     }
 
     @Put("status")

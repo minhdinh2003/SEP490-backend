@@ -51,6 +51,12 @@ export class RequestEntity extends BaseEntity {
     repairType: any;
 
     @AutoMap()
+    updatedBy: string;
+    @AutoMap()
+    createdBy: string;
+    @AutoMap()
+    address?: string;
+    @AutoMap()
     TaskDetail: any[];
 
     constructor(partial?: Partial<RequestEntity>) {

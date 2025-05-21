@@ -21,7 +21,8 @@ export class OrderDto extends BaseDto {
     @ApiProperty({ enum: OrderStatus })
     @AutoMap()
     status: OrderStatus; // Trạng thái đơn hàng
-
+    @AutoMap()
+    requestId: number;
     @ApiProperty()
     @AutoMap()
     paymentMethod: number;
