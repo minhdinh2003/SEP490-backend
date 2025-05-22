@@ -39,6 +39,10 @@ export class AuthService extends BaseService<User, Prisma.UserCreateInput> {
             role: true,
             id: true
         });
+        await this._emailService.sendEmail(result.email, "Quản trị đã tạo tài khoản cho bạn", "AdminCreateAccountForStudent.html", {
+            userName: result.email,
+            confirmLink: process.env.CONFIRM_USER + result.id,
+        })
         return ServiceResponse.onSuccess({
             ...result,
             token: generateToken(result)

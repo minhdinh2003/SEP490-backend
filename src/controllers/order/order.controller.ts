@@ -50,8 +50,11 @@ export class OrderController extends BaseController<OrderEntity, Prisma.OrderCre
 
     @Post("createOrderRepair")
     @ApiBody({ type: CreateOrderRequestRepair })
-    async createOrderRepair(@Body() param: CreateOrderRequestRepair) {
-        return ServiceResponse.onSuccess(await this.orderservice.createOrderRepair(param));
+    async createOrderRepair(
+        @Body() param: CreateOrderRequestRepair,
+        @Query('status') status?: string
+    ) {
+        return ServiceResponse.onSuccess(await this.orderservice.createOrderRepair(param, status));
     }
 
     @Put("status")

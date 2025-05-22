@@ -1,3 +1,4 @@
+// core/repositories/base.repository.ts
 import { PrismaClient, Prisma } from '@prisma/client';
 import { validateInputs } from 'src/utils/common.utils';
 import { PageRequest } from 'src/model/request/page.request';
@@ -12,10 +13,14 @@ export class BaseRepository<T extends { id: number }, U> {
     this.model = model;
   }
 
+  //#region  Get
+
+  // Lấy tất cả bản ghi
   async getAll(): Promise<T[]> {
     return this.model.findMany();
   }
 
+  // Lấy bản ghi theo ID
   async getById(id: number): Promise<T | null> {
     return this.model.findUnique({
       where: { id },
@@ -31,6 +36,7 @@ export class BaseRepository<T extends { id: number }, U> {
     });
   }
 
+  // Tìm kiếm nhiều bản ghi theo một trường nhất định
   async findByField(fieldName: string, value: any): Promise<T[]> {
     return this.model.findMany({
       where: {
@@ -39,6 +45,7 @@ export class BaseRepository<T extends { id: number }, U> {
     });
   }
 
+  // Tìm kiếm một bản ghi theo một trường nhất định
   async findOneByField(fieldName: string, value: any): Promise<T | null> {
     return this.model.findFirst({
       where: {
@@ -47,6 +54,7 @@ export class BaseRepository<T extends { id: number }, U> {
     });
   }
 
+  // Tìm kiếm nhiều bản ghi theo danh sách trường với một giá trị
   async findByFields(fields: string[], value: any): Promise<T[]> {
     const whereCondition = fields.reduce((acc, field) => {
       acc[field] = value;
@@ -57,6 +65,7 @@ export class BaseRepository<T extends { id: number }, U> {
     });
   }
 
+  // Tìm kiếm một bản ghi theo danh sách trường với một giá trị
   async findOneByFields(fields: string[], value: any): Promise<T | null> {
     const whereCondition = fields.reduce((acc, field) => {
       acc[field] = value;
@@ -67,24 +76,32 @@ export class BaseRepository<T extends { id: number }, U> {
     });
   }
 
+  // Tìm kiếm nhiều bản ghi theo danh sách trường truyền vào và giá trị tương ứng
   async findByFieldList(fieldList: { [key: string]: any }): Promise<T[]> {
     return this.model.findMany({
       where: fieldList,
     });
   }
 
-  async findOneByFieldList(fieldList: { [key: string]: any }): Promise<T | null> {
+  // Tìm kiếm một bản ghi theo danh sách trường truyền vào và giá trị tương ứng
+  async findOneByFieldList(fieldList: {
+    [key: string]: any;
+  }): Promise<T | null> {
     return this.model.findFirst({
       where: fieldList,
     });
   }
 
-  async findOneWithCondition(conditions: { [key: string]: any }): Promise<T | null> {
+  // Tìm kiếm một bản ghi theo điều kiện phức tạp
+  async findOneWithCondition(conditions: {
+    [key: string]: any;
+  }): Promise<T | null> {
     return this.model.findFirst({
       where: conditions,
     });
   }
 
+  // Tìm kiếm một bản ghi theo điều kiện phức tạp
   async findOneWithConditionAndGetReference(
     conditions: { [key: string]: any },
     includeReferences: { [key: string]: boolean } = {},
@@ -95,12 +112,17 @@ export class BaseRepository<T extends { id: number }, U> {
     });
   }
 
-  async findManyWithCondition(conditions: { [key: string]: any }): Promise<T[] | null> {
+  // Tìm kiếm nhiều bản ghi theo điều kiện phức tạp
+  async findManyWithCondition(conditions: {
+    [key: string]: any;
+  }): Promise<T[] | null> {
     return this.model.findMany({
       where: conditions,
     });
   }
+  //#endregion
 
+  // Tạo mới bản ghi
   async create(data: any, option?: any, moreData: any = {}): Promise<T> {
     const createOption: any = {
       data: {
@@ -114,7 +136,12 @@ export class BaseRepository<T extends { id: number }, U> {
     return this.model.create(createOption);
   }
 
-  async update(id: number, data: Partial<T>, moreData: object = {}): Promise<T> {
+  // Cập nhật bản ghi theo ID
+  async update(
+    id: number,
+    data: Partial<T>,
+    moreData: object = {},
+  ): Promise<T> {
     return this.model.update({
       where: { id },
       data: {
@@ -124,7 +151,10 @@ export class BaseRepository<T extends { id: number }, U> {
     });
   }
 
-  async updateMany(conditions: { [key: string]: any }, data: Partial<T>): Promise<T> {
+  async updateMany(
+    conditions: { [key: string]: any },
+    data: Partial<T>,
+  ): Promise<T> {
     return this.model.update({
       where: { conditions },
       data: {
@@ -133,17 +163,18 @@ export class BaseRepository<T extends { id: number }, U> {
     });
   }
 
+  // Xóa bản ghi theo ID
   async delete(id: number): Promise<T> {
     return this.model.delete({
       where: { id },
     });
   }
-
+  // Xóa danh sách IDs
   async deleteByIds(ids: number[]): Promise<Prisma.BatchPayload> {
     return this.model.deleteMany({
       where: {
         id: {
-          in: ids,
+          in: ids, // Điều kiện xóa theo danh sách id
         },
       },
     });
@@ -160,14 +191,16 @@ export class BaseRepository<T extends { id: number }, U> {
       where: {},
     };
 
+    // Xử lý searchKey và searchFields
     if (pageRequest.searchKey && pageRequest.searchFields) {
-      query.where.AND = pageRequest.searchFields
-        .filter((field) => !ignoreFields.includes(field))
+      query.where.OR = pageRequest.searchFields
+        .filter((field) => !ignoreFields.includes(field)) // Lọc các trường hợp lệ
         .map((field) => ({
-          [field]: { contains: pageRequest.searchKey },
+          [field]: { contains: pageRequest.searchKey }, // Tìm kiếm không phân biệt hoa thường
         }));
     }
 
+    // Xử lý conditions
     if (pageRequest.conditions && pageRequest.conditions.length > 0) {
       pageRequest.conditions.forEach((cond) => {
         if (!ignoreFields.includes(cond.key)) {
@@ -187,16 +220,19 @@ export class BaseRepository<T extends { id: number }, U> {
             case 'subquery':
               query.where[cond.key] = cond.value;
               break;
-            case 'different':
+            case "different":
               query.where[cond.key] = { not: cond.value };
               break;
+            // truyền cả where lên
             case 'raw':
+              //to-do: fix 
               if (query?.where?.AND?.length > 0 && cond.value?.AND?.length > 0) {
                 query.where.AND = [...query.where.AND, ...cond.value.AND];
-              } else {
+              }else {
                 query.where = cond.value;
               }
               break;
+            // Thêm các điều kiện khác nếu cần
             default:
               break;
           }
@@ -206,19 +242,23 @@ export class BaseRepository<T extends { id: number }, U> {
       query.where = query.where || {};
     }
 
+    // Nếu cần bỏ qua filter
     if (isIgnoreFilter) {
       query.where = {};
     }
 
+    // Xử lý sắp xếp
     if (pageRequest.sortOrder) {
       const [field, order] = pageRequest.sortOrder.split(' ');
       if (!ignoreFields.includes(field)) {
-        query.orderBy = { [field]: order || 'asc' };
+        query.orderBy = { [field]: order || 'asc' }; // Mặc định là 'asc'
       }
     }
 
+    // Đếm tổng số items
     const totalItems = await this.model.count({ where: query.where });
 
+    // Thực hiện phân trang và lấy dữ liệu
     const data = await this.doGetDataPaging(query, pageRequest);
 
     return {

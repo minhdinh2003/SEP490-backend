@@ -59,9 +59,16 @@ export class TaskDetailDto extends BaseDto {
   @AutoMap()
   price?: number;
 
+  @AutoMap()
+  incidentalCosts?: number;
+
   @ApiProperty({ required: false })
   @AutoMap()
   comments?: any; // Thay đổi thành kiểu dữ liệu cụ thể nếu có cấu trúc JSON xác định
+
+  @ApiProperty({ required: false })
+  @AutoMap()
+  items?: any; // Thay đổi thành kiểu dữ liệu cụ thể nếu có cấu trúc JSON xác định
 
   constructor(partial?: Partial<TaskDetailDto>) {
     super();

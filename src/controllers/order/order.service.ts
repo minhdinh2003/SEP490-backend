@@ -110,7 +110,7 @@ export class OrderService extends BaseService<OrderEntity, Prisma.OrderCreateInp
         }
     }
 
-    createOrderRepair = async (request: CreateOrderRequestRepair) => {
+    createOrderRepair = async (request: CreateOrderRequestRepair, status?: string) => {
         var userId = this._authService.getUserID();
         try {
             let paymentMethod = request.paymentMethod;
@@ -124,9 +124,10 @@ export class OrderService extends BaseService<OrderEntity, Prisma.OrderCreateInp
                 const newOrder = await prisma.order.create({
                     data: {
                         totalAmount: parseInt(data.price.toString()),
-                        status: paymentMethod == PaymentMethod.BankOnline ? 'PENDING' : 'PROCESSING',
+                        status: (status as OrderStatus) ?? (paymentMethod == PaymentMethod.BankOnline ? 'PENDING' : 'PROCESSING'),
                         fullName: request.fullName,
                         address: request.address,
+                        isPay:request.isPay? true : false,
                         phoneNumber: request.phoneNumber,
                         paymentMethod: paymentMethod,
                         isRepair: true,
