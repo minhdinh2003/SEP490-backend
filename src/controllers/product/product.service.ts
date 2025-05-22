@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { Prisma, Category } from '@prisma/client';
 import { BaseService } from 'src/base/base.service';
 import { CoreService } from 'src/core/core.service';
 import { InventoryEntity } from 'src/model/entity/inventory.entity';
@@ -31,8 +31,13 @@ export class ProductService extends BaseService<ProductEntity, Prisma.ProductCre
             }
         });
         var inventoryData = new InventoryEntity();
-        inventoryData.quantity = 1;
         inventoryData.productId = result.id;
+        if (entity.category === Category.CAR) {
+            inventoryData.quantity = 1;
+        }
+        else {
+            inventoryData.quantity = 0;
+        }
         var inventory = await this.prismaService.inventory.create({
             data: {
                 ...inventoryData
@@ -99,6 +104,17 @@ export class ProductService extends BaseService<ProductEntity, Prisma.ProductCre
             where: { id: productId },
             data: {
                 price: newAveragePrice,
+            },
+        });
+
+        // Lưu lịch sử nhập kho
+        const description = `Nhập ${quantity} đơn vị với giá ${price.toLocaleString()}đ. Tổng số lượng sau khi nhập: ${newTotalQuantity}`;
+
+        await this.prismaService.inventoryHistory.create({
+            data: {
+                productId: productId,
+                quantityChange: quantity,
+                description: description
             },
         });
 
