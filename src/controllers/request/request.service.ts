@@ -47,6 +47,32 @@ export class RequestService extends BaseService<RequestEntity, Prisma.RequestCre
           isUserConfirm: true
         }
       })
+      // Step 2: Tạo các TaskDetail tự động gắn với yêu cầu
+      const tasks = [
+        {
+          requestId: id,
+          title: "Sửa chữa hoặc thay thế linh kiện bị hỏng",
+          description: "",
+          status: TaskStatus.PENDING,
+          deadline: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000), // Deadline trong 14 ngày
+          images: [],
+          comments: [],
+        },
+        {
+          requestId: id,
+          title: "Kiểm tra chất lượng sau sửa chữa",
+          description: "",
+          status: TaskStatus.PENDING,
+          deadline: new Date(Date.now() + 21 * 24 * 60 * 60 * 1000), // Deadline trong 21 ngày
+          images: [],
+          comments: [],
+        },
+      ];
+
+      // Step 3: Lưu các TaskDetail vào cơ sở dữ liệu
+      const createdTasks = await this.prismaService.taskDetail.createMany({
+        data: tasks,
+      });
     } else if (role == Role.EMPLOYEE) {
       await this.pushNotificationToProductOnwer(NotificationType.EMPLOYEE_SEND_REQUEST_PRODUCT_OWNER,
         JSON.stringify({
@@ -64,6 +90,8 @@ export class RequestService extends BaseService<RequestEntity, Prisma.RequestCre
         this._authService.getFullname(), this._authService.getUserID()
       )
     }
+
+
     return id;
   }
 
@@ -78,41 +106,41 @@ export class RequestService extends BaseService<RequestEntity, Prisma.RequestCre
       },
     });
     // Step 2: Tạo các TaskDetail tự động gắn với yêu cầu
-    // const tasks = [
-    //   // {
-    //   //   requestId: requestId,
-    //   //   title: "Kiểm tra tình trạng ban đầu của sản phẩm",
-    //   //   description: "",
-    //   //   status: TaskStatus.PENDING,
-    //   //   deadline: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // Deadline trong 7 ngày
-    //   //   images: [],
-    //   //   comments: [],
-    //   // }
-    //   // ,
-    //   {
-    //     requestId: requestId,
-    //     title: "Sửa chữa hoặc thay thế linh kiện bị hỏng",
-    //     description: "",
-    //     status: TaskStatus.PENDING,
-    //     deadline: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000), // Deadline trong 14 ngày
-    //     images: [],
-    //     comments: [],
-    //   },
-    //   {
-    //     requestId: requestId,
-    //     title: "Kiểm tra chất lượng sau sửa chữa",
-    //     description: "",
-    //     status: TaskStatus.PENDING,
-    //     deadline: new Date(Date.now() + 21 * 24 * 60 * 60 * 1000), // Deadline trong 21 ngày
-    //     images: [],
-    //     comments: [],
-    //   },
-    // ];
+    const tasks = [
+      // {
+      //   requestId: requestId,
+      //   title: "Kiểm tra tình trạng ban đầu của sản phẩm",
+      //   description: "",
+      //   status: TaskStatus.PENDING,
+      //   deadline: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // Deadline trong 7 ngày
+      //   images: [],
+      //   comments: [],
+      // }
+      // ,
+      {
+        requestId: requestId,
+        title: "Sửa chữa hoặc thay thế linh kiện bị hỏng",
+        description: "",
+        status: TaskStatus.PENDING,
+        deadline: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000), // Deadline trong 14 ngày
+        images: [],
+        comments: [],
+      },
+      {
+        requestId: requestId,
+        title: "Kiểm tra chất lượng sau sửa chữa",
+        description: "",
+        status: TaskStatus.PENDING,
+        deadline: new Date(Date.now() + 21 * 24 * 60 * 60 * 1000), // Deadline trong 21 ngày
+        images: [],
+        comments: [],
+      },
+    ];
 
-    // // Step 3: Lưu các TaskDetail vào cơ sở dữ liệu
-    // const createdTasks = await this.prismaService.taskDetail.createMany({
-    //   data: tasks,
-    // });
+    // Step 3: Lưu các TaskDetail vào cơ sở dữ liệu
+    const createdTasks = await this.prismaService.taskDetail.createMany({
+      data: tasks,
+    });
     // Step 4: Gửi thông báo cho Product Owner
     await this.pushNotificationToProductOnwer(NotificationType.USER_CONFIRM_REQUEST,
       JSON.stringify({
@@ -121,7 +149,7 @@ export class RequestService extends BaseService<RequestEntity, Prisma.RequestCre
       this._authService.getFullname(), this._authService.getUserID()
 
     )
-    return { updatedRequest};
+    return { updatedRequest, createdTasks };
   }
 
   async updateRequestStatus(

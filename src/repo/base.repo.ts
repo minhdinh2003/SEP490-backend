@@ -193,7 +193,7 @@ export class BaseRepository<T extends { id: number }, U> {
 
     // Xử lý searchKey và searchFields
     if (pageRequest.searchKey && pageRequest.searchFields) {
-      query.where.OR = pageRequest.searchFields
+      query.where.AND = pageRequest.searchFields
         .filter((field) => !ignoreFields.includes(field)) // Lọc các trường hợp lệ
         .map((field) => ({
           [field]: { contains: pageRequest.searchKey }, // Tìm kiếm không phân biệt hoa thường

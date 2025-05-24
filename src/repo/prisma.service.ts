@@ -75,6 +75,8 @@ export class PrismaService extends PrismaClient implements OnModuleDestroy {
         return this.voucher;
       case "taskTemplate":
         return this.taskTemplate;
+      case "inventoryHistory":
+        return this.inventoryHistory;
     }
     throw new HttpException(
       'Not config repo',

@@ -37,6 +37,8 @@ import { TaskDetailEntity } from 'src/model/entity/taskDetail.entity';
 import { TaskDetailDto } from 'src/model/dto/taskDetail.dto';
 import { TaskTemplateDto } from 'src/model/dto/taskTemplate.dto';
 import { TaskTemplateEntity } from 'src/model/entity/taskTemplate.entity';
+import { InventoryHistoryDto } from 'src/model/dto/inventoryHistory.dto';
+import { InventoryHistoryEntity } from 'src/model/entity/inventoryHistory.entity';
 
 @Injectable()
 export class MapperService {
@@ -220,10 +222,6 @@ export class MapperService {
         mapFrom((src) => src.userId)
       ),
       forMember(
-        (dest) => dest.requestId,
-        mapFrom((src) => src.requestId)
-      ),
-      forMember(
         (dest) => dest.totalAmount,
         mapFrom((src) => src.totalAmount)
       ),
@@ -370,9 +368,6 @@ export class MapperService {
       forMember((dest) => dest.imageRepairs, mapFrom((src) => src.imageRepairs)),
       forMember((dest) => dest.repairType, mapFrom((src) => src.repairType)),
       forMember((dest) => dest.TaskDetail, mapFrom((src) => src.TaskDetail)),
-      forMember((dest) => dest.address, mapFrom((src) => src.address)),
-      forMember((dest) => dest.updatedBy, mapFrom((src) => src.updatedBy)),
-      forMember((dest) => dest.createdBy, mapFrom((src) => src.createdBy)),
     );
     createMap(this.mapper, RequestHistoryDto, RequestHistoryEntity);
     createMap(this.mapper, RequestHistoryEntity, RequestHistoryDto);
@@ -381,7 +376,6 @@ export class MapperService {
       forMember((dest) => dest.request, mapFrom((src) => src.request)),
       forMember((dest) => dest.createdAt, mapFrom((src) => src.createdAt))
     );
-    
     createMap(this.mapper, ChatDto, ChatEntity);
     createMap(this.mapper, TaskDetailDto, TaskDetailEntity);
     createMap(this.mapper, TaskDetailEntity, TaskDetailDto,
@@ -404,6 +398,15 @@ export class MapperService {
       forMember((dest) => dest.priority, mapFrom((src) => src.priority)),
       forMember((dest) => dest.items, mapFrom((src) => src.items)),
       forMember((dest) => dest.price, mapFrom((src) => src.price)),
+    );
+    createMap(this.mapper, InventoryHistoryDto, InventoryHistoryEntity);
+    createMap(this.mapper, InventoryHistoryEntity, InventoryHistoryDto,
+      forMember((dest) => dest.id, mapFrom((src) => src.id)),
+      forMember((dest) => dest.updatedAt, mapFrom((src) => src.updatedAt)),
+      forMember((dest) => dest.createdAt, mapFrom((src) => src.createdAt)),
+      forMember((dest) => dest.quantityChange, mapFrom((src) => src.quantityChange)),
+      forMember((dest) => dest.productId, mapFrom((src) => src.productId)),
+      forMember((dest) => dest.description, mapFrom((src) => src.description)),
     );
   }
 

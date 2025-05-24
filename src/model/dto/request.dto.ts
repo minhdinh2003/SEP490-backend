@@ -44,12 +44,10 @@ export class RequestDto extends BaseDto {
     @ApiProperty({ required: false })
     @AutoMap()
     images: any; // Thay đổi thành kiểu dữ liệu cụ thể nếu có cấu trúc JSON xác định
-    @ApiProperty({ required: false })
-    @AutoMap()
-    address?: string;
+
     @AutoMap()
     imageRepairs: any;
-
+    
     @ApiProperty()
     @AutoMap()
     isUserConfirm: boolean;
@@ -65,13 +63,6 @@ export class RequestDto extends BaseDto {
     @AutoMap()
     reasonReject: string;
 
-    @ApiProperty()
-    @AutoMap()
-    updatedBy: string;
-
-    @ApiProperty()
-    @AutoMap()
-    createdBy: string;
     @AutoMap()
     repairType: any;
 

@@ -23,6 +23,7 @@ import { ChatModule } from './controllers/chat/chat.module';
 import { TaskDetailModule } from './controllers/taskDetail/taskDetail.module';
 import { VoucherModule } from './controllers/voucher/voucher.module';
 import { TaskTemplateModule } from './controllers/taskTemplate/taskTemplate.module';
+import { InventoryHistoryModule } from './controllers/inventoryHistory/inventoryHistory.module';
 
 @Module({
   imports: [
@@ -45,7 +46,8 @@ import { TaskTemplateModule } from './controllers/taskTemplate/taskTemplate.modu
     ChatModule,
     TaskDetailModule,
     VoucherModule,
-    TaskTemplateModule
+    TaskTemplateModule,
+    InventoryHistoryModule
   ],
   controllers: [AppController],
   providers: [AppService,

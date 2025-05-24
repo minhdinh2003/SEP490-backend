@@ -109,45 +109,46 @@ model Brand {
 }
 
 model Product {
-  id                      Int         @id @default(autoincrement()) // Khóa chính tự động tăng
-  name                    String      @db.VarChar(255) // Tên sản phẩm
-  description             String?     @db.Text // Mô tả sản phẩm (có thể null)
+  id                      Int                @id @default(autoincrement()) // Khóa chính tự động tăng
+  name                    String             @db.VarChar(255) // Tên sản phẩm
+  description             String?            @db.Text // Mô tả sản phẩm (có thể null)
   price                   Int
   category                Category // Loại sản phẩm: 'car' hoặc 'part'
-  model                   String?     @db.VarChar(100) // Mẫu xe (nếu là xe)
+  model                   String?            @db.VarChar(100) // Mẫu xe (nếu là xe)
   year                    Int? // Năm sản xuất (nếu là xe)
-  status                  Status      @default(AVAILABLE) // Trạng thái sản phẩm
+  status                  Status             @default(AVAILABLE) // Trạng thái sản phẩm
   listImage               Json? // Danh sách hình ảnh (JSON)
-  style                   String?     @db.VarChar(100) // Kiểu dáng
-  engine_capacity         String?     @db.VarChar(50) // Dung tích động cơ
-  fuel_type               String?     @db.VarChar(50) // Loại nhiên liệu
-  transmission            String?     @db.VarChar(50) // Hộp số
+  style                   String?            @db.VarChar(100) // Kiểu dáng
+  engine_capacity         String?            @db.VarChar(50) // Dung tích động cơ
+  fuel_type               String?            @db.VarChar(50) // Loại nhiên liệu
+  transmission            String?            @db.VarChar(50) // Hộp số
   mileage                 Int? // Chỉ số đồng hồ (số km đã đi)
-  exterior_color          String?     @db.VarChar(50) // Màu xe
-  interior_color          String?     @db.VarChar(50) // Màu nội thất
-  origin                  String?     @db.VarChar(100) // Xuất xứ
+  exterior_color          String?            @db.VarChar(50) // Màu xe
+  interior_color          String?            @db.VarChar(50) // Màu nội thất
+  origin                  String?            @db.VarChar(100) // Xuất xứ
   seats                   Int? // Số chỗ ngồi
   doors                   Int? // Số cửa
   agreedPrice             Int? // Giá đã thỏa thuận (nếu có)
   originPrice             Int? // Giá gốc (nếu có)
-  createdAt               DateTime    @default(now()) // Thời gian tạo
-  updatedAt               DateTime    @updatedAt // Thời gian cập nhật
-  createdBy               String?     @db.VarChar(100) // Người tạo (có thể null)
-  updatedBy               String?     @db.VarChar(100) // Người cập nhật (có thể null)
-  partType                PartType    @default(OTHERS)
+  createdAt               DateTime           @default(now()) // Thời gian tạo
+  updatedAt               DateTime           @updatedAt // Thời gian cập nhật
+  createdBy               String?            @db.VarChar(100) // Người tạo (có thể null)
+  updatedBy               String?            @db.VarChar(100) // Người cập nhật (có thể null)
+  partType                PartType           @default(OTHERS)
   registrationExpiry      DateTime? // Thời hạn đăng kiểm
   insuranceExpiry         DateTime? // Thời hạn bảo hiểm
   originalPaintPercentage Int? // % sơn zin
-  accidentDetails         String?     @db.Text // Mức độ đâm đụng (text)
-  floodDamageDetails      String?     @db.Text // Ngập nước (text)
-  engineCondition         String?     @db.Text // Động cơ (text), ví dụ: đã làm máy chưa
-  transmissionCondition   String?     @db.Text // Hộp số (text), ví dụ: tình trạng hộp số
-  ownerCount              Int?        @db.Int // Số đời chủ của xe (mới thêm)
+  accidentDetails         String?            @db.Text // Mức độ đâm đụng (text)
+  floodDamageDetails      String?            @db.Text // Ngập nước (text)
+  engineCondition         String?            @db.Text // Động cơ (text), ví dụ: đã làm máy chưa
+  transmissionCondition   String?            @db.Text // Hộp số (text), ví dụ: tình trạng hộp số
+  ownerCount              Int?               @db.Int // Số đời chủ của xe (mới thêm)
   brands                  Brand[]
   whitelist               Whitelist[]
   review                  Review[]
   orderItem               OrderItem[]
   inventory               Inventory?
+  InventoryHistory        InventoryHistory[]
 }
 
 // Định nghĩa enum cho category
@@ -481,7 +482,6 @@ model TaskDetail {
   images      Json? // Danh sách hình ảnh (JSON array)
   comments    Json? // Danh sách bình luận (JSON array)
   price       Int? // Giá sửa chữa (tùy chọn)
-  incidentalCosts Int?
   createdAt   DateTime      @default(now()) // Thời gian tạo
   updatedAt   DateTime      @updatedAt // Thời gian cập nhật
   createdBy   String?
@@ -490,7 +490,7 @@ model TaskDetail {
   assignee    User?         @relation(fields: [assignedTo], references: [id]) // Quan hệ với bảng User
   items       Json?
   history     TaskHistory[] // Lịch sử thay đổi task
-
+  incidentalCosts Int?
   @@index([requestId]) // Tạo chỉ mục để tối ưu hóa truy vấn theo requestId
   @@index([assignedTo]) // Tạo chỉ mục để tối ưu hóa truy vấn theo assignedTo
 }
@@ -521,4 +521,18 @@ model TaskTemplate {
   price     Int?     @default(0) // Giá sửa chữa (tùy chọn)
 
   @@index([priority]) // Index để tối ưu hóa truy vấn theo thứ tự ưu tiên
+}
+
+model InventoryHistory {
+  id             Int      @id @default(autoincrement()) // Khóa chính tự động tăng
+  product        Product  @relation(fields: [productId], references: [id]) // Liên kết với bảng Product
+  productId      Int // ID của sản phẩm
+  quantityChange Int // Số lượng thay đổi (+ hoặc -)
+  description    String?  @db.VarChar(255) // Mô tả (lý do thay đổi)
+  createdAt      DateTime @default(now()) // Thời gian tạo
+  updatedAt      DateTime @updatedAt // Thời gian cập nhật
+  createdBy      String?
+  updatedBy      String?
+
+  @@index([productId]) // Tạo chỉ mục để tối ưu hóa truy vấn theo productId
 }

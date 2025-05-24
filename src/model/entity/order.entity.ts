@@ -9,8 +9,7 @@ export class OrderEntity extends BaseEntity {
 
   @AutoMap()
   userId: number; // ID của người dùng
-  @AutoMap()
-  requestId: number;
+
   @AutoMap()
   totalAmount: number; // Tổng số tiền của đơn hàng
 
