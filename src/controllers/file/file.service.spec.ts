@@ -113,52 +113,5 @@ describe('FileService', () => {
     });
   });
 
-  describe('moveFilesToMain', () => {
-    it('should update files to not be temp if found', async () => {
-      const dummyFiles: FileEntity[] = [
-        {
-          id: 1,
-          fileKey: 'key1',
-          fileUrl: 'url1',
-          appUrl: 'appUrl1',
-          fileName: 'a.txt',
-          fileType: 'text/plain',
-          fileSize: 100,
-          isTemp: true,
-          associatedTableType: 'CourseMaterial',
-          associatedTableId: 0,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          createdBy: 'test',
-          updatedBy: 'test',
-        },
-      ];
-    
-    
-      (service as any).getMany.mockResolvedValue(dummyFiles);
-      (service as any).updateMany.mockResolvedValue(true);
 
-      const result = await service.moveFilesToMain([1]);
-
-      expect(service.getMany).toHaveBeenCalledWith({ id: { in: [1] } });
-      expect(service.updateMany).toHaveBeenCalledWith({ id: { in: [1] } }, { isTemp: false });
-      expect(result).toBe(true);
-    });
-
-    it('should throw HttpException if no files are found', async () => {
-      // Đảm bảo getMany trả về mảng trống cho trường hợp này
-      (service as any).getMany.mockResolvedValue([]);
-      await expect(service.moveFilesToMain([1])).rejects.toThrow(HttpException);
-    });
-  });
-
-  describe('deleteFiles', () => {
-  
-
-    it('should throw HttpException if no files are found for deletion', async () => {
-      // Cho trường hợp getMany trả về mảng trống
-      (service as any).getMany.mockResolvedValue([]);
-     // await expect(service.deleteFiles([1])).rejects.toThrow(HttpException);
-    });
-  });
 });

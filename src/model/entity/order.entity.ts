@@ -27,7 +27,8 @@ export class OrderEntity extends BaseEntity {
 
   @AutoMap()
   phoneNumber: string;
-
+  @AutoMap()
+  requestId: number;
   @AutoMap()
   voucherCode: string; // Mã giảm giá (nếu có)
 

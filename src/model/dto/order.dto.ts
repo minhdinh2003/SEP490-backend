@@ -16,6 +16,10 @@ export class OrderDto extends BaseDto {
 
     @ApiProperty()
     @AutoMap()
+    requestId: number;
+
+    @ApiProperty()
+    @AutoMap()
     totalAmount: number; // Tổng số tiền của đơn hàng
 
     @ApiProperty({ enum: OrderStatus })

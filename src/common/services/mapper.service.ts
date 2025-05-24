@@ -218,6 +218,10 @@ export class MapperService {
         mapFrom((src) => src.id)
       ),
       forMember(
+        (dest) => dest.requestId,
+        mapFrom((src) => src.requestId)
+      ),
+      forMember(
         (dest) => dest.userId,
         mapFrom((src) => src.userId)
       ),
