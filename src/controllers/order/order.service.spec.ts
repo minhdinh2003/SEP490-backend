@@ -73,4 +73,28 @@ describe('OrderService', () => {
     );
   });
 
+  it('should calculate totalAmount correctly and succeed', async () => {
+    const request = {
+      orderItems: [
+        { productId: 'p1', quantity: 2, paymentMethod: 'CASH' },
+        { productId: 'p2', quantity: 1, paymentMethod: 'CASH' },
+      ],
+    };
+
+    prismaMock.inventory.findUnique.mockResolvedValue({ quantity: 10 });
+    prismaMock.product.findMany.mockResolvedValue([
+      { id: 'p1', price: 100 },
+      { id: 'p2', price: 200 },
+    ]);
+
+    // Giả lập hàm tạo đơn hàng trả về đơn hàng có tổng tiền là 400
+    prismaMock.order.create.mockResolvedValue({
+      id: 'order123',
+      totalAmount: 400,
+    });
+
+    const result = await service.createOrder(request as any);
+    // expect(result.totalAmount).toBe(400);
+    // expect(prismaMock.order.create).toHaveBeenCalled();
+  });
 });

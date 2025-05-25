@@ -78,9 +78,6 @@ export class AuthService extends BaseService<User, Prisma.UserCreateInput> {
             throw new HttpException({ message: "Email or password is invalid" }, HttpStatus.UNAUTHORIZED);
         }
 
-        if (!user.isConfirm) {
-            throw new HttpException({ message: "Người dùng chưa xác nhận email. Vui lòng vào email để xác nhận" }, HttpStatus.UNAUTHORIZED);
-        }
         // ingore generate
         user.passwordHash = "";
         const userInfo = {
